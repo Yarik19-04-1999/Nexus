@@ -9,10 +9,4 @@
     <ProjectReference Include="..\..\Nexus.Core.Tests\Nexus.Core.Tests.csproj" />
   </ItemGroup>
 
-
-
-  <ItemGroup>
-	  <Using Include="Xunit" />
-  </ItemGroup>
-
 </Project>

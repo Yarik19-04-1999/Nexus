@@ -12,4 +12,8 @@
     <Trademark>Yarik Developer Group</Trademark>
   </PropertyGroup>
 
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('Tests'))">
+    <Using Include="Xunit" />
+  </ItemGroup>
+
 </Project>

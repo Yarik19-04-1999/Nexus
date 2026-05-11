@@ -4,7 +4,7 @@
     <Project Path="src/Nexus.Application.Core/Nexus.Application.Core.csproj" Id="f950e78d-4884-459f-ad70-be8ddef94d52" />
   </Folder>
   <Folder Name="/test/">
-    <Project Path="Nexus.Core.Tests/Nexus.Core.Tests.csproj" Id="0a0d1788-a5d4-4b62-aedc-73dd1fd20687" />
+    <Project Path="test/Nexus.Core.Tests/Nexus.Core.Tests.csproj" Id="0a0d1788-a5d4-4b62-aedc-73dd1fd20687" />
     <Project Path="test/Nexus.Api.Core.Tests/Nexus.Api.Core.Tests.csproj" Id="72b0a7ac-9480-47aa-add8-9ef478016ce2" />
     <Project Path="test/Nexus.Application.Core.Tests/Nexus.Application.Core.Tests.csproj" Id="58d25969-10ea-4eed-b9d1-13eb6bf2a498" />
     <Project Path="test/Nexus.AspNetCore.Core.Tests/Nexus.AspNetCore.Core.Tests.csproj" Id="43204c25-cc24-4b54-a958-d9887d82c34c" />

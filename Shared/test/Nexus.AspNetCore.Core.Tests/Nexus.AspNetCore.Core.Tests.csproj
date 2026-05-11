@@ -8,7 +8,7 @@
   </PropertyGroup>
 
 	<ItemGroup>
-    <ProjectReference Include="..\..\Nexus.Core.Tests\Nexus.Core.Tests.csproj" />
+    <ProjectReference Include="..\Nexus.Core.Tests\Nexus.Core.Tests.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,13 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Company>Yarik Developer Group</Company>
+    <Copyright>Copyright © Yarik Developer Group 2026</Copyright>
+    <Trademark>Yarik Developer Group</Trademark>
+  </PropertyGroup>
+
+</Project>

@@ -4,7 +4,7 @@ namespace Nexus.Application.Core.Models;
 
 public class Result
 {
-    private static readonly Result CachedRetryableSuccess = new();
+    private static readonly Result CachedRetryableSuccess = new(canRetry: true);
     private static readonly Result CachedNonRetryableSuccess = new();
 
     public string? ErrorCode { get; }

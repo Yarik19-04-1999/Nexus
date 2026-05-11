@@ -5,17 +5,14 @@ namespace Nexus.Application.Core.Tests.Models;
 
 public class ResultTests_Generic
 {
-    private const int TestData = 42;
-    private const string TestStringData = "hello";
-
     [Fact]
     public void Success_ReturnsSuccessResultWithData()
     {
-        var result = Result<int>.Success(TestData);
+        var result = Result<int>.Success(TestData.IntValue);
 
         Assert.True(result.IsSuccess);
         Assert.False(result.HasError);
-        Assert.Equal(TestData, result.Data);
+        Assert.Equal(TestData.IntValue, result.Data);
         Assert.Null(result.ErrorCode);
         Assert.Null(result.ErrorMessage);
         Assert.False(result.CanRetry);
@@ -24,20 +21,20 @@ public class ResultTests_Generic
     [Fact]
     public void Success_WithCanRetry_SetsCanRetryTrue()
     {
-        var result = Result<int>.Success(TestData, canRetry: true);
+        var result = Result<int>.Success(TestData.IntValue, canRetry: true);
 
         Assert.True(result.IsSuccess);
         Assert.True(result.CanRetry);
-        Assert.Equal(TestData, result.Data);
+        Assert.Equal(TestData.IntValue, result.Data);
     }
 
     [Fact]
     public void Success_WithStringData_ReturnsCorrectData()
     {
-        var result = Result<string>.Success(TestStringData);
+        var result = Result<string>.Success(TestData.StringValue);
 
         Assert.True(result.IsSuccess);
-        Assert.Equal(TestStringData, result.Data);
+        Assert.Equal(TestData.StringValue, result.Data);
     }
 
     [Fact]
@@ -69,12 +66,12 @@ public class ResultTests_Generic
     [Fact]
     public void IsSuccess_WhenTrue_DataIsNotNull()
     {
-        var result = Result<string>.Success(TestStringData);
+        var result = Result<string>.Success(TestData.StringValue);
 
         if (result.IsSuccess)
         {
             string data = result.Data;
-            Assert.Equal(TestStringData, data);
+            Assert.Equal(TestData.StringValue, data);
         }
     }
 
@@ -93,8 +90,8 @@ public class ResultTests_Generic
     [Fact]
     public void Success_AlwaysReturnsNewInstance()
     {
-        var first = Result<int>.Success(TestData);
-        var second = Result<int>.Success(TestData);
+        var first = Result<int>.Success(TestData.IntValue);
+        var second = Result<int>.Success(TestData.IntValue);
 
         Assert.NotSame(first, second);
     }

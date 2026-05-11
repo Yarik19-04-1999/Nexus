@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+	<FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <PropertyGroup>
+	<IsTestProject>false</IsTestProject>
+  </PropertyGroup>
+
+	<ItemGroup>
+    <ProjectReference Include="..\..\Nexus.Core.Tests\Nexus.Core.Tests.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Nexus.Api.Core\Nexus.Api.Core.csproj" />
+    <ProjectReference Include="..\Nexus.AspNetCore.Core.Tests\Nexus.AspNetCore.Core.Tests.csproj" />
+  </ItemGroup>
+
+</Project>

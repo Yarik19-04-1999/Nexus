@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/Nexus.Api.Core/Nexus.Api.Core.csproj" Id="ee44cc95-74f3-4943-a236-01e09b5b36a4" />
     <Project Path="src/Nexus.Application.Core/Nexus.Application.Core.csproj" Id="f950e78d-4884-459f-ad70-be8ddef94d52" />
   </Folder>
   <Folder Name="/test/" />

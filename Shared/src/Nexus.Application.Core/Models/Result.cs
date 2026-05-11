@@ -12,10 +12,10 @@ public class Result
     public bool CanRetry { get; }
 
     [MemberNotNullWhen(true, nameof(ErrorCode))]
-    public bool HasError { get; }
+    public virtual bool HasError { get; }
 
     [MemberNotNullWhen(false, nameof(ErrorCode))]
-    public bool IsSuccess => !HasError;
+    public virtual bool IsSuccess => !HasError;
 
     protected Result(bool canRetry = false)
     {
@@ -41,10 +41,10 @@ public class Result
 public class Result<T> : Result
 {
     [MemberNotNullWhen(true, nameof(Data))]
-    public new bool IsSuccess => base.IsSuccess;
+    public override bool IsSuccess => base.IsSuccess;
 
     [MemberNotNullWhen(false, nameof(Data))]
-    public new bool HasError => base.HasError;
+    public override bool HasError => base.HasError;
 
     public T? Data { get; }
 

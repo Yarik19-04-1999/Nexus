@@ -1,0 +1,66 @@
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Nexus.Application.Core.Models;
+
+public class Result
+{
+    private static readonly Result CachedRetryableSuccess = new();
+    private static readonly Result CachedNonRetryableSuccess = new();
+
+    public string? ErrorCode { get; }
+    public string? ErrorMessage { get; }
+    public bool CanRetry { get; }
+
+    [MemberNotNullWhen(true, nameof(ErrorCode))]
+    public bool HasError { get; }
+
+    [MemberNotNullWhen(false, nameof(ErrorCode))]
+    public bool IsSuccess => !HasError;
+
+    protected Result(bool canRetry = false)
+    {
+        HasError = false;
+        CanRetry = canRetry;
+    }
+
+    protected Result(string errorCode, string? errorMessage = null, bool canRetry = false)
+    {
+        ErrorCode = errorCode;
+        ErrorMessage = errorMessage;
+        HasError = true;
+        CanRetry = canRetry;
+    }
+
+    public static Result Success(bool canRetry = false)
+        => canRetry ? CachedRetryableSuccess : CachedNonRetryableSuccess;
+
+    public static Result Failure(string errorCode, string? errorMessage = null, bool canRetry = false)
+        => new(errorCode, errorMessage, canRetry);
+}
+
+public class Result<T> : Result
+{
+    [MemberNotNullWhen(true, nameof(Data))]
+    public new bool IsSuccess => base.IsSuccess;
+
+    [MemberNotNullWhen(false, nameof(Data))]
+    public new bool HasError => base.HasError;
+
+    public T? Data { get; }
+
+    private Result(T data, bool canRetry = false)
+        : base(canRetry)
+    {
+        Data = data;
+    }
+
+    private Result(string errorCode, string? errorMessage = null, bool canRetry = false)
+        : base(errorCode, errorMessage, canRetry)
+    {
+    }
+
+    public static Result<T> Success(T data, bool canRetry = false) => new(data, canRetry);
+
+    public new static Result<T> Failure(string errorCode, string? errorMessage = null, bool canRetry = false)
+        => new(errorCode, errorMessage, canRetry);
+}

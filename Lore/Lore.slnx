@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/lib/">
+    <Project Path="../Shared/src/Nexus.Api.Core/Nexus.Api.Core.csproj" />
+    <Project Path="../Shared/src/Nexus.Application.Core/Nexus.Application.Core.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Lore.Api/Lore.Api.csproj" Id="402d61f5-6ecd-44f6-a11d-ddbad9e38fe5" />
+    <Project Path="src/Lore.Application/Lore.Application.csproj" Id="99385c31-a021-4a8a-9e74-53f133da29e7" />
+    <Project Path="src/Lore.Infrastructure/Lore.Infrastructure.csproj" Id="5d37f4e8-8834-483a-939b-1ab8ef8e5f54" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

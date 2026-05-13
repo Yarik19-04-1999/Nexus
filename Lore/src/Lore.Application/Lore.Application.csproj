@@ -10,4 +10,8 @@
     <ProjectReference Include="..\..\..\Shared\src\Nexus.Application.Core\Nexus.Application.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
 </Project>

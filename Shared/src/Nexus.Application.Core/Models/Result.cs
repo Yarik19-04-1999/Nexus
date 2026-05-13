@@ -1,8 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Nexus.Application.Core.Interfaces;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Nexus.Application.Core.Models;
 
-public class Result
+public class Result : IResult
 {
     private static readonly Result CachedRetryableSuccess = new(canRetry: true);
     private static readonly Result CachedNonRetryableSuccess = new();

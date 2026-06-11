@@ -9,7 +9,7 @@ public class Invite : IHasCreatedAt, IHasUpdatedAt, IHasPrimaryIdentifier, IHasE
     public DateTime UpdatedAt { get; set; }
     public int Id { get; set; }
 
-    public string ShortCode { get; set; } = null!;
+    public string Code { get; set; } = null!;
     public string Message { get; set; } = null!;
     public string? Description { get; set; }
     public DateTime? ExpiresAt { get; set; }

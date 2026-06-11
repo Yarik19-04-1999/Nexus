@@ -1,5 +1,4 @@
 using Dvizh.Application.DbContexts;
-using Dvizh.Application.Extensions;
 using Dvizh.Application.Interfaces.UseCases;
 using Dvizh.Application.Models;
 using Dvizh.Application.Models.Input;
@@ -9,26 +8,26 @@ using Nexus.Application.Core.Models;
 
 namespace Dvizh.Application.Services.UseCases;
 
-public class GetInviteByIdUseCase : IGetInviteByIdUseCase
+public class DeleteInviteUseCase : IDeleteInviteUseCase
 {
     private readonly DvizhDbContext _context;
 
-    public GetInviteByIdUseCase(DvizhDbContext context)
+    public DeleteInviteUseCase(DvizhDbContext context)
     {
         _context = context;
     }
 
-    public async Task<Result<Invite>> Execute(GetInviteByIdInput input, CancellationToken cancellationToken = default)
+    public async Task<Result> Execute(DeleteInviteInput input, CancellationToken cancellationToken = default)
     {
-        var invite = await _context.Invites
-            .AsNoTracking()
-            .FindById(input.Id, cancellationToken);
+        var affected = await _context.Invites
+            .Where(x => x.Id == input.Id)
+            .ExecuteDeleteAsync(cancellationToken);
 
-        if (invite is null)
+        if (affected == 0)
         {
             return ResultConstants.NotFound<Invite>(input.Id);
         }
 
-        return Result<Invite>.Success(invite);
+        return Result.Success();
     }
 }

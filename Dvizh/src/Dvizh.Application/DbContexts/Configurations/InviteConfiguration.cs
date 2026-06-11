@@ -16,7 +16,7 @@ public class InviteConfiguration : IEntityTypeConfiguration<Invite>
         builder.Property(x => x.CreatedAt).HasDefaultValueSql(SqlServerDefaultConstants.SysUtcDateTime);
         builder.Property(x => x.UpdatedAt).HasDefaultValueSql(SqlServerDefaultConstants.SysUtcDateTime);
 
-        builder.Property(x => x.ShortCode).HasMaxLength(InviteConstants.ShortCodeMaxLength);
+        builder.Property(x => x.Code).HasMaxLength(InviteConstants.CodeMaxLength);
         builder.Property(x => x.Message).HasMaxLength(InviteConstants.MessageMaxLength);
         builder.Property(x => x.Description).HasMaxLength(InviteConstants.DescriptionMaxLength);
 
@@ -24,6 +24,6 @@ public class InviteConfiguration : IEntityTypeConfiguration<Invite>
             .HasConversion<int>()
             .HasDefaultValue(InviteAnswer.Pending);
 
-        builder.HasIndex(x => x.ShortCode).IsUnique();
+        builder.HasIndex(x => x.Code).IsUnique();
     }
 }

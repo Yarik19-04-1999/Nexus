@@ -20,3 +20,15 @@ constraint [UQ_Invites(ShortCode)] unique (ShortCode)
 Do not write explicit numeric values in enums unless they are required (e.g. skipping values, non-default start, flags).
 
 Always wrap statement bodies in curly braces, even for single-line statements.
+
+Keep interfaces minimal. Any functionality that can be derived from existing interface members should be an extension method, not part of the interface itself. For example, if an interface has `GetById`, then `GetByIdRequired` (throws if null) belongs as an extension method.
+
+Do not add the `Async` suffix to method names. The `await` keyword and the `Task` return type already make it clear that a method is asynchronous.
+
+Never call `Result.Failure()` directly in use cases or services. The failure path must go through typed factory methods in a `*ResultConstants` class. The pattern is:
+
+1. Error code — add to `CommonErrorCodes` if broadly applicable, otherwise to the project's `*ErrorCodes` (e.g. `DvizhErrorCodes`).
+2. Error message — add to the project's `*ErrorMessages` (e.g. `DvizhErrorMessages`). Messages must be informative enough to understand what went wrong and on what data, not generic placeholders.
+3. Factory method — add to the project's `*ResultConstants` (e.g. `DvizhResultConstants`) which calls `Failure` internally using the constants above.
+
+Use cases call only the factory methods, never `Failure` directly.

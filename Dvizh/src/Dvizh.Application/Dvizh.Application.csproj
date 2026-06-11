@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Nanoid" Version="3.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\..\Shared\src\Nexus.Application.Core\Nexus.Application.Core.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Nexus.Infrastructure.EfCore.SqlServer\Nexus.Infrastructure.EfCore.SqlServer.csproj" />
   </ItemGroup>

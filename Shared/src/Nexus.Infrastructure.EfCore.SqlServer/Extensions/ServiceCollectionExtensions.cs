@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nexus.Infrastructure.Core.Options;
+using Nexus.Infrastructure.EfCore.SqlServer.Interceptors;
 
 namespace Nexus.Infrastructure.EfCore.SqlServer.Extensions;
 
@@ -18,6 +19,8 @@ public static class ServiceCollectionExtensions
             {
                 sqlOptions.EnableRetryOnFailure();
             });
+
+            options.AddInterceptors(new UpdatedAtInterceptor());
 
             if (environment.IsDevelopment())
             {

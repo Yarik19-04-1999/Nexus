@@ -8,4 +8,9 @@ public static class ResultConstants
     {
         return Result<T>.Failure(CommonErrorCodes.NotFound, CommonErrorMessages.NotFound<T>(id), canRetry);
     }
+
+    public static Result AlreadyExpired(bool canRetry = false)
+    {
+        return Result.Failure(CommonErrorCodes.AlreadyExpired, CommonErrorMessages.AlreadyExpired, canRetry);
+    }
 }

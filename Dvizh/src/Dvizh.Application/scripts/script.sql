@@ -13,14 +13,14 @@ create table Dvizh.Invites
     UpdatedAt datetime2 not null default sysutcdatetime(),
     Id int identity(1,1) not null,
 
-    ShortCode nvarchar(16) not null,
+    Code nvarchar(16) not null,
     Message nvarchar(200) not null,
     Description nvarchar(200) null,
     ExpiresAt datetime2 null,
     Answer int not null default 0,
 
     constraint [Invites$PK] primary key clustered (Id),
-    constraint [UQ_Invites(ShortCode)] unique (ShortCode)
+    constraint [UQ_Invites(Code)] unique (Code)
 )
 go
 

@@ -2,6 +2,8 @@
   <Folder Name="/src/">
     <Project Path="src/Nexus.Api.Core/Nexus.Api.Core.csproj" Id="ee44cc95-74f3-4943-a236-01e09b5b36a4" />
     <Project Path="src/Nexus.Application.Core/Nexus.Application.Core.csproj" Id="f950e78d-4884-459f-ad70-be8ddef94d52" />
+    <Project Path="src/Nexus.Infrastructure.Core/Nexus.Infrastructure.Core.csproj" Id="a1b2c3d4-e5f6-7890-abcd-ef1234567890" />
+    <Project Path="src/Nexus.Infrastructure.EfCore.SqlServer/Nexus.Infrastructure.EfCore.SqlServer.csproj" Id="b2c3d4e5-f6a7-8901-bcde-f12345678901" />
   </Folder>
   <Folder Name="/test/">
     <Project Path="test/Nexus.Core.Tests/Nexus.Core.Tests.csproj" Id="0a0d1788-a5d4-4b62-aedc-73dd1fd20687" />

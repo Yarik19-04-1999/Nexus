@@ -1,0 +1,24 @@
+using Dvizh.Application.Constants;
+using Dvizh.Application.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Nexus.Infrastructure.Core.Constants;
+
+namespace Dvizh.Application.DbContexts.Configurations;
+
+public class InviteConfiguration : IEntityTypeConfiguration<Invite>
+{
+    public void Configure(EntityTypeBuilder<Invite> builder)
+    {
+        builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.CreatedAt).HasDefaultValueSql(SqlServerDefaultConstants.SysUtcDateTime);
+        builder.Property(x => x.UpdatedAt).HasDefaultValueSql(SqlServerDefaultConstants.SysUtcDateTime);
+
+        builder.Property(x => x.ShortCode).HasMaxLength(InviteConstants.ShortCodeMaxLength);
+        builder.Property(x => x.Message).HasMaxLength(InviteConstants.MessageMaxLength);
+        builder.Property(x => x.Description).HasMaxLength(InviteConstants.DescriptionMaxLength);
+
+        builder.HasIndex(x => x.ShortCode).IsUnique();
+    }
+}

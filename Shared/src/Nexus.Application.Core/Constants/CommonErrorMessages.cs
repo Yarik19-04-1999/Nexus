@@ -1,12 +1,16 @@
-﻿namespace Nexus.Application.Core.Constants;
+namespace Nexus.Application.Core.Constants;
 
 public static class CommonErrorMessages
 {
     public static string NotFound<T>(int id)
-        => NotFound(typeof(T).Name, id);
+        => $"{typeof(T).Name} with identifier {id} not found.";
 
-    public static string NotFound(string entityName, int id)
-        => $"{entityName} with identifier {id} not found.";
+    public static string NotFound<T>(string code)
+        => $"{typeof(T).Name} with code '{code}' not found.";
 
-    public const string AlreadyExpired = "This resource has already expired.";
+    public static string AlreadyExpired<T>(int id)
+        => $"{typeof(T).Name} with identifier {id} has already expired.";
+
+    public static string CodeAlreadyExists<T>(string code)
+        => $"{typeof(T).Name} with code '{code}' already exists.";
 }

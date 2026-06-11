@@ -4,7 +4,7 @@ using Dvizh.Application.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-builder.Services.AddTransient<ICodeGenerator, CodeGenerator>();
+builder.Services.AddTransient<IInviteCodeGenerator, InviteCodeGenerator>();
 
 var app = builder.Build();
 

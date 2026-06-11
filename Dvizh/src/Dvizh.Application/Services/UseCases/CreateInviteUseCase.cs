@@ -11,9 +11,9 @@ namespace Dvizh.Application.Services.UseCases;
 public class CreateInviteUseCase : ICreateInviteUseCase
 {
     private readonly DvizhDbContext _context;
-    private readonly ICodeGenerator _codeGenerator;
+    private readonly IInviteCodeGenerator _codeGenerator;
 
-    public CreateInviteUseCase(DvizhDbContext context, ICodeGenerator codeGenerator)
+    public CreateInviteUseCase(DvizhDbContext context, IInviteCodeGenerator codeGenerator)
     {
         _context = context;
         _codeGenerator = codeGenerator;

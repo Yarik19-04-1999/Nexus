@@ -4,4 +4,5 @@ public static class CommonErrorCodes
 {
     public const string NotFound = "NotFound";
     public const string AlreadyExpired = "AlreadyExpired";
+    public const string CodeAlreadyExists = "CodeAlreadyExists";
 }

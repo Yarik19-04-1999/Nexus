@@ -3,6 +3,7 @@ using Dvizh.Application.DbContexts;
 using Dvizh.Application.Enums;
 using Dvizh.Application.Extensions;
 using Dvizh.Application.Interfaces.UseCases;
+using Dvizh.Application.Models;
 using Dvizh.Application.Models.Input;
 using Dvizh.Application.Utils;
 using Nexus.Application.Core.Constants;
@@ -26,20 +27,21 @@ public class RespondToInviteUseCase : IRespondToInviteUseCase
 
         if (invite is null)
         {
-            return DvizhResultConstants.InviteNotFound(input.Code);
+            return ResultConstants.NotFound<Invite>(input.Code);
         }
 
         if (invite.IsExpired())
         {
-            return ResultConstants.AlreadyExpired();
+            return ResultConstants.AlreadyExpired<Invite>(invite.Id);
         }
 
         if (invite.Answer != InviteAnswer.Pending)
         {
-            return DvizhResultConstants.AlreadyAnswered();
+            return DvizhResultConstants.AlreadyAnswered(invite.Id);
         }
 
         invite.Answer = input.Answer;
+        invite.UpdatedAt = DateTime.UtcNow;
 
         _context.InviteEvents.Add(EventUtils.CreateEvent(invite, input.Answer.ToEventType()));
 

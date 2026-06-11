@@ -1,6 +1,6 @@
 namespace Dvizh.Application.Interfaces;
 
-public interface ICodeGenerator
+public interface IInviteCodeGenerator
 {
     string Generate();
 }

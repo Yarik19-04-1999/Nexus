@@ -20,6 +20,8 @@ public class ResetInviteAnswerUseCase : IResetInviteAnswerUseCase
 
     public async Task<Result> Execute(ResetInviteAnswerInput input, CancellationToken cancellationToken = default)
     {
+        await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+
         var affected = await _context.Invites
             .Where(x => x.Id == input.Id)
             .ExecuteUpdateAsync(s => s
@@ -39,6 +41,7 @@ public class ResetInviteAnswerUseCase : IResetInviteAnswerUseCase
         });
 
         await _context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
         return Result.Success();
     }

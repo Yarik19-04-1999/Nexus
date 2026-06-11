@@ -1,4 +1,5 @@
 using Dvizh.Application.Constants;
+using Dvizh.Application.Enums;
 using Dvizh.Application.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -18,6 +19,10 @@ public class InviteConfiguration : IEntityTypeConfiguration<Invite>
         builder.Property(x => x.ShortCode).HasMaxLength(InviteConstants.ShortCodeMaxLength);
         builder.Property(x => x.Message).HasMaxLength(InviteConstants.MessageMaxLength);
         builder.Property(x => x.Description).HasMaxLength(InviteConstants.DescriptionMaxLength);
+
+        builder.Property(x => x.Answer)
+            .HasConversion<int>()
+            .HasDefaultValue(InviteAnswer.Pending);
 
         builder.HasIndex(x => x.ShortCode).IsUnique();
     }

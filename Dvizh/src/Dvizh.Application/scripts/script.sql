@@ -17,6 +17,7 @@ create table Dvizh.Invites
     Message nvarchar(200) not null,
     Description nvarchar(200) null,
     ExpiresAt datetime2 null,
+    Answer int not null default 0,
 
     constraint [Invites$PK] primary key clustered (Id),
     constraint [UQ_Invites(ShortCode)] unique (ShortCode)

@@ -18,3 +18,5 @@ constraint [UQ_Invites(ShortCode)] unique (ShortCode)
 # C#
 
 Do not write explicit numeric values in enums unless they are required (e.g. skipping values, non-default start, flags).
+
+Always wrap statement bodies in curly braces, even for single-line statements.

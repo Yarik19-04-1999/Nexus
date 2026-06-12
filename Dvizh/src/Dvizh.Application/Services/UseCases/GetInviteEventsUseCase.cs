@@ -25,7 +25,7 @@ public class GetInviteEventsUseCase : IGetInviteEventsUseCase
         var inviteExists = await _context.Invites.AnyAsync(x => x.Id == input.InviteId, cancellationToken);
         if (!inviteExists)
         {
-            return ResultConstants.NotFound<Invite>(input.InviteId);
+            return ResultConstants.NotFound<Invite, PagedResult<InviteEvent>>(input.InviteId);
         }
 
         var query = _context.InviteEvents.AsNoTracking().Where(x => x.InviteId == input.InviteId);

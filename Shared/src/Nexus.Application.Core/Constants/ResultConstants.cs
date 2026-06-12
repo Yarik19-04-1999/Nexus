@@ -4,8 +4,11 @@ namespace Nexus.Application.Core.Constants;
 
 public static class ResultConstants
 {
+    public static Result<TResult> NotFound<TEntity, TResult>(int id, bool canRetry = false)
+        => Result<TResult>.Failure(CommonErrorCodes.NotFound, CommonErrorMessages.NotFound<TEntity>(id), canRetry);
+
     public static Result<T> NotFound<T>(int id, bool canRetry = false)
-        => Result<T>.Failure(CommonErrorCodes.NotFound, CommonErrorMessages.NotFound<T>(id), canRetry);
+        => NotFound<T, T>(id, canRetry);
 
     public static Result<T> NotFound<T>(string code, bool canRetry = false)
         => Result<T>.Failure(CommonErrorCodes.NotFound, CommonErrorMessages.NotFound<T>(code), canRetry);

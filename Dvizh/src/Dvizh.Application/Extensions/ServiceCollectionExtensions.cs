@@ -40,7 +40,7 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         => services
-            .Configure<SieveOptions>(configuration.GetSection("Sieve"))
+            .Configure<SieveOptions>(opts => configuration.GetSection("Sieve").Bind(opts))
             .AddScoped<ISieveProcessor, DvizhSieveProcessor>()
             .AddSingleton<IInviteCodeGenerator, InviteCodeGenerator>();
 

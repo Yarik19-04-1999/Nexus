@@ -1,20 +1,26 @@
+using CorrelationId;
 using Microsoft.AspNetCore.Builder;
-using Nexus.Api.Core.CorrelationId;
+using Microsoft.AspNetCore.Routing;
 using Nexus.Api.Core.Middleware;
+using Scalar.AspNetCore;
 
 namespace Nexus.Api.Core.Extensions;
 
 public static class ApplicationBuilderExtensions
 {
     public static IApplicationBuilder UseNexusCorrelationId(this IApplicationBuilder app)
-    {
-        return app.UseMiddleware<CorrelationIdMiddleware>();
-    }
+        => app.UseCorrelationId();
 
     public static IApplicationBuilder UseNexusExceptionHandling(this IApplicationBuilder app)
-    {
-        return app
+        => app
             .UseMiddleware<ExceptionResponseMiddleware>()
             .UseMiddleware<ExceptionLoggingMiddleware>();
+
+
+    public static IEndpointRouteBuilder MapNexusScalarUi(this IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapOpenApi();
+        endpoints.MapScalarApiReference();
+        return endpoints;
     }
 }

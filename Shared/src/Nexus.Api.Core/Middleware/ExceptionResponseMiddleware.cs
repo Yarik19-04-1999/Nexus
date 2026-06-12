@@ -1,6 +1,6 @@
+using CorrelationId.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Nexus.Api.Core.CorrelationId;
 using Nexus.Api.Core.ViewModels;
 using Nexus.Application.Core.Exceptions;
 
@@ -33,7 +33,7 @@ public class ExceptionResponseMiddleware(RequestDelegate next)
         else
         {
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            var correlationId = context.RequestServices.GetService<ICorrelationIdAccessor>()?.CorrelationId
+            var correlationId = context.RequestServices.GetService<ICorrelationContextAccessor>()?.CorrelationContext?.CorrelationId
                 ?? context.TraceIdentifier;
             await context.Response.WriteAsJsonAsync(new UnexpectedErrorResponse(correlationId));
         }

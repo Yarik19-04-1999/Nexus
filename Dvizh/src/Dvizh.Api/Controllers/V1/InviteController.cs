@@ -43,14 +43,13 @@ public class InviteController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Data.Id }, CreateInviteResponseMapper.Map(result.Data));
     }
 
-    [HttpPut("{id:int}")]
+    [HttpPut]
     public async Task<IActionResult> Update(
-        int id,
         [FromBody] UpdateInviteRequest request,
         [FromServices] IUpdateInviteUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.Execute(UpdateInviteRequestMapper.Map(request, id), cancellationToken);
+        var result = await useCase.Execute(UpdateInviteRequestMapper.Map(request), cancellationToken);
         if (result.HasError)
         {
             return this.DomainError(result);
@@ -100,14 +99,13 @@ public class InviteController : ControllerBase
         return Ok(OpenInviteResponseMapper.Map(result.Data));
     }
 
-    [HttpPost("{code}/answer")]
+    [HttpPost("answer")]
     public async Task<IActionResult> Respond(
-        string code,
         [FromBody] RespondToInviteRequest request,
         [FromServices] IRespondToInviteUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.Execute(RespondToInviteRequestMapper.Map(request, code), cancellationToken);
+        var result = await useCase.Execute(RespondToInviteRequestMapper.Map(request), cancellationToken);
         if (result.HasError)
         {
             return this.DomainError(result);

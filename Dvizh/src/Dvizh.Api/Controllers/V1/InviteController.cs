@@ -6,12 +6,13 @@ using Dvizh.Api.Controllers.V1.Invites.UpdateInvite;
 using Dvizh.Application.Interfaces.UseCases;
 using Dvizh.Application.Models.Input;
 using Microsoft.AspNetCore.Mvc;
+using Nexus.Api.Core.Attributes;
 using Nexus.Api.Core.Extensions;
 
 namespace Dvizh.Api.Controllers.V1;
 
 [ApiController]
-[Route("api/v1/invites")]
+[NexusRoute]
 public class InviteController : ControllerBase
 {
     [HttpGet("{id:int}")]

@@ -1,6 +1,6 @@
+using Information.Application.Constants;
 using Information.Application.Interfaces.Providers;
 using Information.Application.Interfaces.Services;
-using Information.Application.Models.Options;
 using Information.Infrastructure.Enums;
 using Information.Infrastructure.Options;
 using Information.Infrastructure.Providers.Nbu;
@@ -18,13 +18,8 @@ public static class ServiceCollectionExtensions
         services.AddMemoryCache();
         services.AddHttpClient();
 
-        var exchangeRateOptions = configuration.GetRequiredOptions<ExchangeRateOptions>(nameof(ExchangeRateOptions));
-        services.Configure<ExchangeRateOptions>(configuration.GetSection(nameof(ExchangeRateOptions)));
-
-        services.AddOptions<ExchangeRateCacheOptions>()
-            .BindConfiguration(nameof(ExchangeRateOptions))
-            .Validate(o => o.CacheExpiration > TimeSpan.Zero, $"{nameof(ExchangeRateCacheOptions.CacheExpiration)} must be greater than zero.")
-            .ValidateOnStart();
+        var exchangeRateOptions = configuration.GetRequiredOptions<ExchangeRateOptions>(ConfigurationConstants.ExchangeRateSection);
+        services.Configure<ExchangeRateOptions>(configuration.GetSection(ConfigurationConstants.ExchangeRateSection));
 
         services.AddSingleton<ICacheService, CacheService>();
 

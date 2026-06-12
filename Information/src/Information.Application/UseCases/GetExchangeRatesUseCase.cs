@@ -11,17 +11,17 @@ namespace Information.Application.UseCases;
 
 public class GetExchangeRatesUseCase : IGetExchangeRatesUseCase
 {
-    private readonly IExchangeRateService _service;
+    private readonly IExchangeRateService _exchangeRateService;
 
-    public GetExchangeRatesUseCase(IExchangeRateService service)
+    public GetExchangeRatesUseCase(IExchangeRateService exchangeRateService)
     {
-        _service = service;
+        _exchangeRateService = exchangeRateService;
     }
 
     public async Task<Result<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>> Execute(GetExchangeRatesInput input, CancellationToken cancellationToken = default)
     {
         var today = DateOnlyUtils.CurrentDate;
-        var result = await _service.GetRates(today, cancellationToken);
+        var result = await _exchangeRateService.GetRates(today, cancellationToken);
 
         if (result.HasError)
         {

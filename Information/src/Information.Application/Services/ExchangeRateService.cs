@@ -10,19 +10,19 @@ namespace Information.Application.Services;
 
 public class ExchangeRateService : IExchangeRateService
 {
-    private readonly IExchangeRateProvider _provider;
-    private readonly ICacheService _cache;
-    private readonly ICacheKeyProvider _keys;
-    private readonly ExchangeRateCacheOptions _options;
+    private readonly IExchangeRateProvider _exchangeRateProvider;
+    private readonly ICacheService _cacheService;
+    private readonly ICacheKeyProvider _keysProvider;
+    private readonly ExchangeRateCacheOptions _cacheOptions;
 
-    public ExchangeRateService(IExchangeRateProvider provider, ICacheService cache, ICacheKeyProvider keys, IOptions<ExchangeRateCacheOptions> options)
+    public ExchangeRateService(IExchangeRateProvider exchangeRateProvider, ICacheService cacheService, ICacheKeyProvider keysProvider, IOptions<ExchangeRateCacheOptions> cacheOptions)
     {
-        _provider = provider;
-        _cache = cache;
-        _keys = keys;
-        _options = options.Value;
+        _exchangeRateProvider = exchangeRateProvider;
+        _cacheService = cacheService;
+        _keysProvider = keysProvider;
+        _cacheOptions = cacheOptions.Value;
     }
 
-    public Task<Result<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>> GetRates(DateOnly date, CancellationToken cancellationToken = default) =>
-        _cache.GetOrCreate(_keys.ExchangeRates(date), ct => _provider.GetRates(date, ct), _options.CacheExpiration, cancellationToken);
+    public async Task<Result<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>> GetRates(DateOnly date, CancellationToken cancellationToken = default) =>
+        await _cacheService.GetOrCreate(_keysProvider.ExchangeRates(date), ct => _exchangeRateProvider.GetRates(date, ct), _cacheOptions.CacheExpiration, cancellationToken);
 }

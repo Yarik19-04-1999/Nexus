@@ -4,14 +4,14 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Information.Infrastructure.Services;
 
-internal class CacheService(IMemoryCache cache) : ICacheService
+internal class CacheService(IMemoryCache memoryCache) : ICacheService
 {
-    private readonly IMemoryCache _cache = cache;
+    private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _semaphores = new();
 
     public async Task<T> GetOrCreate<T>(string key, Func<CancellationToken, Task<T>> factory, TimeSpan duration, CancellationToken cancellationToken = default)
     {
-        if (_cache.TryGetValue(key, out T? cached) && cached is not null)
+        if (_memoryCache.TryGetValue(key, out T? cached) && cached is not null)
         {
             return cached;
         }
@@ -21,13 +21,13 @@ internal class CacheService(IMemoryCache cache) : ICacheService
         await semaphore.WaitAsync(cancellationToken);
         try
         {
-            if (_cache.TryGetValue(key, out cached) && cached is not null)
+            if (_memoryCache.TryGetValue(key, out cached) && cached is not null)
             {
                 return cached;
             }
 
             var value = await factory(cancellationToken);
-            _cache.Set(key, value, duration);
+            _memoryCache.Set(key, value, duration);
             return value;
         }
         finally

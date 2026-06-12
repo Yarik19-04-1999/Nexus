@@ -12,11 +12,11 @@ namespace Information.Application.UseCases;
 
 public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
 {
-    private readonly IExchangeRateService _service;
+    private readonly IExchangeRateService _exchangeRateService;
 
-    public GetExchangeRateHistoryUseCase(IExchangeRateService service)
+    public GetExchangeRateHistoryUseCase(IExchangeRateService exchangeRateService)
     {
-        _service = service;
+        _exchangeRateService = exchangeRateService;
     }
 
     public async Task<Result<IReadOnlyList<ExchangeRateHistory>>> Execute(GetExchangeRateHistoryInput input, CancellationToken cancellationToken = default)
@@ -35,7 +35,7 @@ public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
             today.YearAgo(),
         };
 
-        var tasks = dates.Select(date => _service.GetRates(date, cancellationToken));
+        var tasks = dates.Select(date => _exchangeRateService.GetRates(date, cancellationToken));
         var results = await Task.WhenAll(tasks);
 
         foreach (var result in results)

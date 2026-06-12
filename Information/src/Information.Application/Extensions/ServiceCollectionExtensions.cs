@@ -1,15 +1,23 @@
+using Information.Application.Constants;
 using Information.Application.Interfaces.Services;
 using Information.Application.Interfaces.UseCases;
+using Information.Application.Models.Options;
 using Information.Application.Services;
 using Information.Application.UseCases;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Information.Application.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services)
+    public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<ExchangeRateCacheOptions>(configuration.GetSection(ConfigurationConstants.ExchangeRateSection));
+        services.AddSingleton<IValidateOptions<ExchangeRateCacheOptions>, ExchangeRateCacheOptionsValidator>();
+        services.AddOptions<ExchangeRateCacheOptions>().ValidateOnStart();
+
         services.AddSingleton<ICacheKeyProvider, CacheKeyProvider>();
         services.AddScoped<IExchangeRateService, ExchangeRateService>();
         services.AddScoped<IGetExchangeRatesUseCase, GetExchangeRatesUseCase>();

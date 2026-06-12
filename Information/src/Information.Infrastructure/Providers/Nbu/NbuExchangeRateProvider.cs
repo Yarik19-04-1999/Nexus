@@ -13,11 +13,11 @@ internal class NbuExchangeRateProvider : IExchangeRateProvider
     private const string BaseUrl = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange";
     private const string SourceName = "NBU";
 
-    private readonly HttpClient _http;
+    private readonly HttpClient _httpClient;
 
-    public NbuExchangeRateProvider(HttpClient http)
+    public NbuExchangeRateProvider(HttpClient httpClient)
     {
-        _http = http;
+        _httpClient = httpClient;
     }
 
     public async Task<Result<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>> GetRates(DateOnly date, CancellationToken cancellationToken = default)
@@ -25,7 +25,7 @@ internal class NbuExchangeRateProvider : IExchangeRateProvider
         try
         {
             var url = $"{BaseUrl}?date={date:yyyyMMdd}&json";
-            var response = await _http.GetFromJsonAsync<List<NbuExchangeRateResponse>>(url, cancellationToken);
+            var response = await _httpClient.GetFromJsonAsync<List<NbuExchangeRateResponse>>(url, cancellationToken);
 
             if (response is null)
             {

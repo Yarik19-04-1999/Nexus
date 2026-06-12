@@ -1,33 +1,33 @@
 # Nexus
 
-Монорепозиторий. Каждый сервис живёт в отдельной папке (`Dvizh`, `Lore`, …).
+Monorepo. Each service lives in its own folder (`Dvizh`, `Lore`, …).
 
-## База данных
+## Database
 
-Nexus использует SQL Server. База данных создаётся один раз, схемы сервисов — отдельно для каждого.
+Nexus uses SQL Server. The database is created once; each service then creates its own schema on top of it.
 
-### Создать базу данных
+### Create the database
 
-Подключитесь к SQL Server и выполните:
+Connect to SQL Server and run:
 
 ```
 Shared/scripts/create_database.sql
 ```
 
-Скрипт создаёт базу `Nexus`, настраивает параметры и регистрирует хранимые процедуры `dbo.ConfigureSchema` / `dbo.DropSchema`, которые используются всеми сервисами.
+This creates the `Nexus` database with all required settings and registers the `dbo.ConfigureSchema` / `dbo.DropSchema` stored procedures used by all services.
 
-### Добавить схему сервиса
+### Add a service schema
 
-После создания базы выполните скрипт нужного сервиса:
+After the database is created, run the schema script for each service you want to set up:
 
-| Сервис | Скрипт |
-|--------|--------|
-| Dvizh  | `Dvizh/src/Dvizh.Application/scripts/script.sql` |
+| Service | Script |
+|---------|--------|
+| Dvizh   | `Dvizh/src/Dvizh.Application/scripts/script.sql` |
 
-Скрипт создаёт логин, пользователя, схему и таблицы. Пересоздание идемпотентно — `DropSchema` сначала сносит всё существующее.
+Each script creates a login, user, schema, and tables. Re-running is idempotent — `DropSchema` tears everything down first.
 
-## Сервисы
+## Services
 
-| Сервис | Описание |
-|--------|----------|
-| [Dvizh](Dvizh/README.md) | Система инвайт-ссылок |
+| Service | Description |
+|---------|-------------|
+| [Dvizh](Dvizh/README.md) | Invite link system |

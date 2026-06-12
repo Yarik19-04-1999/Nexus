@@ -1,87 +1,109 @@
 # Dvizh
 
-Сервис инвайт-ссылок. Состоит из API (`Dvizh.Api`) и веб-интерфейса (`Dvizh.UI`).
+Invite link service. Consists of an API (`Dvizh.Api`) and a web frontend (`Dvizh.UI`).
 
-## Требования
+## Requirements
 
 - .NET 10 SDK
 - Node.js 20+
-- SQL Server (локальный или удалённый)
+- SQL Server (local or remote)
 
-## Первый запуск
+## First-time setup
 
-### 1. База данных
+### 1. Database
 
-Убедитесь, что база `Nexus` создана (см. [README в корне](../README.md)).
+Make sure the `Nexus` database exists (see [root README](../README.md)).
 
-Затем выполните скрипт схемы Dvizh:
+Then run the Dvizh schema script:
 
 ```
 src/Dvizh.Application/scripts/script.sql
 ```
 
-Скрипт создаёт логин `DvizhLogin`, схему `Dvizh` и все таблицы. При повторном запуске схема пересоздаётся с нуля.
+This creates the `DvizhLogin` SQL login, the `Dvizh` schema, and all tables. Re-running recreates everything from scratch.
 
-### 2. API (Dvizh.Api)
+### 2. API — secrets
 
-Откройте `Dvizh.slnx` в Visual Studio и запустите профиль `http`.
+The connection string is stored in [.NET User Secrets](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets) and is never committed to the repository. Ask the project lead for the password.
 
-Конфигурация окружения — `src/Dvizh.Api/appsettings.Development.json`:
+Initialize secrets for the project (one-time):
 
-```json
-{
-  "SqlServer": {
-    "ConnectionString": "..."
-  },
-  "AllowedOrigins": [ "http://localhost:3000" ]
-}
+```
+cd src/Dvizh.Api
+dotnet user-secrets init
 ```
 
-API запускается на `http://localhost:5055`.
+Set the connection string:
 
-### 3. Веб-интерфейс (Dvizh.UI)
+```
+dotnet user-secrets set "SqlServer:ConnectionString" "Server=.;Database=Nexus;User Id=DvizhLogin;Password=SPECIFY_VALUE;TrustServerCertificate=true"
+```
 
-Установите зависимости (один раз):
+Replace `SPECIFY_VALUE` with the actual password for `DvizhLogin`.
+
+### 3. API — run
+
+Open `Dvizh.slnx` in Visual Studio and start the `http` profile.
+
+The API runs on `http://localhost:5055`.
+
+### 4. Web frontend — secrets
+
+Create `src/Dvizh.UI/.env.local` (never committed — already in `.gitignore`):
+
+```
+NEXT_PUBLIC_API_URL=SPECIFY_VALUE
+```
+
+For local development set it to `http://localhost:5055`.
+
+### 5. Web frontend — run
+
+Install dependencies (once):
 
 ```
 cd src/Dvizh.UI
 npm install
 ```
 
-Настройте `src/Dvizh.UI/.env.local`:
-
-```
-NEXT_PUBLIC_API_URL=http://localhost:5055
-```
-
-Запустить веб-интерфейс:
+Start the dev server:
 
 ```
 src/Dvizh.UI/launch.cmd
 ```
 
-Или вручную:
+Or manually:
 
 ```
 cd src/Dvizh.UI
 npm run dev
 ```
 
-UI доступен на `http://localhost:3000`.
+The frontend runs on `http://localhost:3000`.
 
-## Батники
+### Production build
 
-| Файл | Действие |
-|------|----------|
-| `src/Dvizh.UI/launch.cmd` | Запустить Next.js в dev-режиме |
+```
+cd src/Dvizh.UI
+npm run build
+npm start
+```
 
-## Структура
+`next build` minifies JS/CSS and optimizes all assets automatically.
+
+## Scripts
+
+| File | Action |
+|------|--------|
+| `src/Dvizh.UI/launch.cmd` | Start Next.js dev server |
+
+## Structure
 
 ```
 Dvizh/
 ├── src/
 │   ├── Dvizh.Api/              # ASP.NET Core API
-│   ├── Dvizh.Application/      # Use cases, EF Core, скрипты БД
-│   └── Dvizh.UI/               # Next.js фронтенд
+│   ├── Dvizh.Application/      # Use cases, EF Core, DB scripts
+│   └── Dvizh.UI/               # Next.js frontend
 └── Dvizh.slnx                  # Visual Studio solution
 ```

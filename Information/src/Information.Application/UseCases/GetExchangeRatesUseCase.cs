@@ -1,26 +1,26 @@
 using Information.Application.Constants;
 using Information.Application.Enums;
-using Information.Application.Interfaces.Providers;
 using Information.Application.Interfaces.UseCases;
 using Information.Application.Models;
 using Information.Application.Models.Input;
+using Information.Application.Services;
 using Nexus.Application.Core.Models;
 
 namespace Information.Application.UseCases;
 
 public class GetExchangeRatesUseCase : IGetExchangeRatesUseCase
 {
-    private readonly IExchangeRateProvider _provider;
+    private readonly IExchangeRateService _service;
 
-    public GetExchangeRatesUseCase(IExchangeRateProvider provider)
+    public GetExchangeRatesUseCase(IExchangeRateService service)
     {
-        _provider = provider;
+        _service = service;
     }
 
     public async Task<Result<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>> Execute(GetExchangeRatesInput input, CancellationToken cancellationToken = default)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var result = await _provider.GetRates(today, cancellationToken);
+        var result = await _service.GetRates(today, cancellationToken);
 
         if (result.HasError)
         {
@@ -29,7 +29,7 @@ public class GetExchangeRatesUseCase : IGetExchangeRatesUseCase
 
         if (result.Data.Count == 0)
         {
-            return InformationResultConstants.ProviderUnavailable<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>(nameof(IExchangeRateProvider));
+            return InformationResultConstants.ProviderUnavailable<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>(nameof(IExchangeRateService));
         }
 
         return result;

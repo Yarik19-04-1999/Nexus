@@ -1,17 +1,13 @@
 using System.Collections.Concurrent;
+using Information.Application.Services;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Information.Infrastructure.Services;
 
-internal class CacheService : ICacheService
+internal class CacheService(IMemoryCache cache) : ICacheService
 {
-    private readonly IMemoryCache _cache;
+    private readonly IMemoryCache _cache = cache;
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _semaphores = new();
-
-    public CacheService(IMemoryCache cache)
-    {
-        _cache = cache;
-    }
 
     public async Task<T> GetOrCreate<T>(string key, Func<CancellationToken, Task<T>> factory, TimeSpan duration, CancellationToken cancellationToken = default)
     {

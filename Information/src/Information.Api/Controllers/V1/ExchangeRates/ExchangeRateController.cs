@@ -27,24 +27,27 @@ public class ExchangeRateController : ControllerBase
         return Ok(GetExchangeRatesResponseMapper.Map(result.Data));
     }
 
-    [HttpGet("{currency}/history")]
-    public async Task<IActionResult> GetHistory(
-        string currency,
+    [HttpGet("history")]
+    public async Task<IActionResult> GetAllHistory(
         [FromServices] IGetExchangeRateHistoryUseCase useCase,
         CancellationToken cancellationToken)
     {
-        ExchangeCurrency? parsedCurrency = currency.Equals("all", StringComparison.OrdinalIgnoreCase)
-            ? null
-            : Enum.TryParse<ExchangeCurrency>(currency, ignoreCase: true, out var parsed)
-                ? parsed
-                : null;
-
-        if (!currency.Equals("all", StringComparison.OrdinalIgnoreCase) && parsedCurrency is null)
+        var result = await useCase.Execute(new GetExchangeRateHistoryInput(null), cancellationToken);
+        if (result.HasError)
         {
-            return BadRequest($"Unknown currency '{currency}'. Valid values: usd, eur, gbp, all.");
+            return this.DomainError(result);
         }
 
-        var result = await useCase.Execute(new GetExchangeRateHistoryInput(parsedCurrency), cancellationToken);
+        return Ok(GetExchangeRateHistoryResponseMapper.Map(result.Data));
+    }
+
+    [HttpGet("{currency}/history")]
+    public async Task<IActionResult> GetHistory(
+        ExchangeCurrency currency,
+        [FromServices] IGetExchangeRateHistoryUseCase useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.Execute(new GetExchangeRateHistoryInput(currency), cancellationToken);
         if (result.HasError)
         {
             return this.DomainError(result);

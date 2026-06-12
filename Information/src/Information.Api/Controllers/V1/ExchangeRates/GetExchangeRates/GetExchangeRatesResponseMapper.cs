@@ -10,5 +10,5 @@ public static class GetExchangeRatesResponseMapper
         new(rates.Select(kvp => new GetExchangeRatesItem(kvp.Key.ToString(), MapRate(kvp.Value))).ToList());
 
     private static ExchangeRateDto MapRate(ExchangeRate rate) =>
-        new(rate.Rate, rate.Date.ToString("yyyy-MM-dd"));
+        new(rate.Rate, rate.Date);
 }

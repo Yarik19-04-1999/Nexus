@@ -18,5 +18,5 @@ public static class GetExchangeRateHistoryResponseMapper
             history.YearAgo is not null ? MapPoint(history.YearAgo) : null);
 
     private static ExchangeRatePointDto MapPoint(ExchangeRate rate) =>
-        new(rate.Rate, rate.Date.ToString("yyyy-MM-dd"));
+        new(rate.Rate, rate.Date);
 }

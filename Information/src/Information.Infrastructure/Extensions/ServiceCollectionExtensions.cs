@@ -1,4 +1,6 @@
 using Information.Application.Interfaces.Providers;
+using Information.Application.Options;
+using Information.Application.Services;
 using Information.Infrastructure.Enums;
 using Information.Infrastructure.Options;
 using Information.Infrastructure.Providers.Nbu;
@@ -18,6 +20,7 @@ public static class ServiceCollectionExtensions
 
         var exchangeRateOptions = configuration.GetRequiredOptions<ExchangeRateOptions>(nameof(ExchangeRateOptions));
         services.Configure<ExchangeRateOptions>(configuration.GetSection(nameof(ExchangeRateOptions)));
+        services.Configure<ExchangeRateServiceOptions>(configuration.GetSection(nameof(ExchangeRateOptions)));
 
         services.AddSingleton<ICacheService, CacheService>();
 

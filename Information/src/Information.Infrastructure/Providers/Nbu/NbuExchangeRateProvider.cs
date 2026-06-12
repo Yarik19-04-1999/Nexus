@@ -4,9 +4,6 @@ using Information.Application.Enums;
 using Information.Application.Interfaces.Providers;
 using Information.Application.Models;
 using Information.Infrastructure.Models.Nbu;
-using Information.Infrastructure.Options;
-using Information.Infrastructure.Services;
-using Microsoft.Extensions.Options;
 using Nexus.Application.Core.Models;
 
 namespace Information.Infrastructure.Providers.Nbu;
@@ -17,25 +14,13 @@ internal class NbuExchangeRateProvider : IExchangeRateProvider
     private const string SourceName = "NBU";
 
     private readonly HttpClient _http;
-    private readonly ICacheService _cache;
-    private readonly ExchangeRateOptions _options;
 
-    public NbuExchangeRateProvider(HttpClient http, ICacheService cache, IOptions<ExchangeRateOptions> options)
+    public NbuExchangeRateProvider(HttpClient http)
     {
         _http = http;
-        _cache = cache;
-        _options = options.Value;
     }
 
-    public Task<Result<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>> GetRates(DateOnly date, CancellationToken cancellationToken = default)
-    {
-        var key = $"nbu:{date:yyyyMMdd}";
-        var duration = TimeSpan.FromMinutes(_options.CacheDurationMinutes);
-
-        return _cache.GetOrCreate(key, ct => FetchRates(date, ct), duration, cancellationToken);
-    }
-
-    private async Task<Result<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>> FetchRates(DateOnly date, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>> GetRates(DateOnly date, CancellationToken cancellationToken = default)
     {
         try
         {

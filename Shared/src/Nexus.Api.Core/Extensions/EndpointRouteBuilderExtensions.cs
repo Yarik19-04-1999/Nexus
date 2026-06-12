@@ -1,3 +1,5 @@
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Routing;
 using Scalar.AspNetCore;
 
@@ -9,6 +11,22 @@ public static class EndpointRouteBuilderExtensions
     {
         endpoints.MapOpenApi();
         endpoints.MapScalarApiReference();
+        return endpoints;
+    }
+
+    public static IEndpointRouteBuilder MapNexusHealthChecks(this IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
+        {
+            Predicate = _ => false,
+        });
+
+        endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions
+        {
+            Predicate = check => check.Tags.Contains("ready"),
+            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
+        });
+
         return endpoints;
     }
 }

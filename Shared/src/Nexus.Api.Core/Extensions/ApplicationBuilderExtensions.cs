@@ -13,4 +13,18 @@ public static class ApplicationBuilderExtensions
         => app
             .UseMiddleware<ExceptionResponseMiddleware>()
             .UseMiddleware<ExceptionLoggingMiddleware>();
+
+    public static IApplicationBuilder UseNexusSecurityHeaders(this IApplicationBuilder app)
+        => app.UseSecurityHeaders(policy => policy
+            .AddFrameOptionsDeny()
+            .AddXssProtectionDisabled()
+            .AddContentTypeOptionsNoSniff()
+            .AddReferrerPolicyStrictOriginWhenCrossOrigin()
+            .RemoveServerHeader());
+
+    public static IApplicationBuilder UseNexusResponseCompression(this IApplicationBuilder app)
+        => app.UseResponseCompression();
+
+    public static IApplicationBuilder UseNexusRequestTimeouts(this IApplicationBuilder app)
+        => app.UseRequestTimeouts();
 }

@@ -31,3 +31,4 @@ Each script creates a login, user, schema, and tables. Re-running is idempotent 
 | Service | Description |
 |---------|-------------|
 | [Dvizh](Dvizh/README.md) | Invite link system |
+| [Information](Information/README.md) | Exchange rates, Epic Games giveaways, weather |

@@ -8,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nexus.Infrastructure.Core.Extensions;
 using Nexus.Infrastructure.EfCore.SqlServer.Extensions;
+using Sieve.Models;
+using Sieve.Services;
 
 namespace Dvizh.Application.Extensions;
 
@@ -20,13 +22,15 @@ public static class ServiceCollectionExtensions
     {
         return services
             .AddUseCases()
-            .AddServices()
+            .AddServices(configuration)
             .AddDvizhDbContext(configuration, environment);
     }
 
     private static IServiceCollection AddUseCases(this IServiceCollection services)
         => services
             .AddScoped<IGetInviteByIdUseCase, GetInviteByIdUseCase>()
+            .AddScoped<IGetInvitesUseCase, GetInvitesUseCase>()
+            .AddScoped<IGetInviteEventsUseCase, GetInviteEventsUseCase>()
             .AddScoped<ICreateInviteUseCase, CreateInviteUseCase>()
             .AddScoped<IUpdateInviteUseCase, UpdateInviteUseCase>()
             .AddScoped<IDeleteInviteUseCase, DeleteInviteUseCase>()
@@ -34,8 +38,11 @@ public static class ServiceCollectionExtensions
             .AddScoped<IOpenInviteUseCase, OpenInviteUseCase>()
             .AddScoped<IRespondToInviteUseCase, RespondToInviteUseCase>();
 
-    private static IServiceCollection AddServices(this IServiceCollection services)
-        => services.AddSingleton<IInviteCodeGenerator, InviteCodeGenerator>();
+    private static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
+        => services
+            .Configure<SieveOptions>(configuration.GetSection("Sieve"))
+            .AddScoped<ISieveProcessor, DvizhSieveProcessor>()
+            .AddSingleton<IInviteCodeGenerator, InviteCodeGenerator>();
 
     private static IServiceCollection AddDvizhDbContext(
         this IServiceCollection services,

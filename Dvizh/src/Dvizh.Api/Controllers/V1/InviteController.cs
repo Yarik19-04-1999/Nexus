@@ -1,5 +1,7 @@
 using Dvizh.Api.Controllers.V1.Invites.CreateInvite;
 using Dvizh.Api.Controllers.V1.Invites.GetInviteById;
+using Dvizh.Api.Controllers.V1.Invites.GetInviteEvents;
+using Dvizh.Api.Controllers.V1.Invites.GetInvites;
 using Dvizh.Api.Controllers.V1.Invites.OpenInvite;
 using Dvizh.Api.Controllers.V1.Invites.RespondToInvite;
 using Dvizh.Api.Controllers.V1.Invites.UpdateInvite;
@@ -8,6 +10,7 @@ using Dvizh.Application.Models.Input;
 using Microsoft.AspNetCore.Mvc;
 using Nexus.Api.Core.Attributes;
 using Nexus.Api.Core.Extensions;
+using Sieve.Models;
 
 namespace Dvizh.Api.Controllers.V1;
 
@@ -15,6 +18,20 @@ namespace Dvizh.Api.Controllers.V1;
 [NexusRoute]
 public class InviteController : ControllerBase
 {
+    [HttpGet]
+    public async Task<IActionResult> GetAll(
+        [FromQuery] SieveModel sieveModel,
+        [FromServices] IGetInvitesUseCase useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.Execute(new GetInvitesInput(sieveModel), cancellationToken);
+        if (result.HasError)
+        {
+            return this.DomainError(result);
+        }
+        return Ok(GetInvitesResponseMapper.Map(result.Data));
+    }
+
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(
         int id,
@@ -27,6 +44,21 @@ public class InviteController : ControllerBase
             return this.DomainError(result);
         }
         return Ok(GetInviteByIdResponseMapper.Map(result.Data));
+    }
+
+    [HttpGet("{id:int}/events")]
+    public async Task<IActionResult> GetEvents(
+        int id,
+        [FromQuery] SieveModel sieveModel,
+        [FromServices] IGetInviteEventsUseCase useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.Execute(new GetInviteEventsInput(id, sieveModel), cancellationToken);
+        if (result.HasError)
+        {
+            return this.DomainError(result);
+        }
+        return Ok(GetInviteEventsResponseMapper.Map(result.Data));
     }
 
     [HttpPost]

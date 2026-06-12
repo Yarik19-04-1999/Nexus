@@ -8,7 +8,6 @@ public class Invite : IHasCreatedAt, IHasUpdatedAt, IHasPrimaryIdentifier, IHasE
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public int Id { get; set; }
-
     public string Code { get; set; } = null!;
     public string Message { get; set; } = null!;
     public string? Description { get; set; }

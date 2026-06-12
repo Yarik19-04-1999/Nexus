@@ -1,5 +1,6 @@
 using Polly;
 using Polly.Extensions.Http;
+using Polly.Retry;
 
 namespace Nexus.Api.Core.Policies;
 

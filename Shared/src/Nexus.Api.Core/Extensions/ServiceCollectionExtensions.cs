@@ -1,17 +1,50 @@
 using System.IO.Compression;
 using CorrelationId.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nexus.Api.Core.Constants;
-using Microsoft.AspNetCore.Http.Timeouts;
+using Nexus.Api.Core.Options;
 using Nexus.Application.Core.Extensions;
 
 namespace Nexus.Api.Core.Extensions;
 
 public static partial class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddNexusServices(this IServiceCollection services, NexusOptions options)
+    {
+        services.AddNexusApiVersioning();
+
+        if (options.UseCorrelationId)
+        {
+            services.AddNexusCorrelationId();
+        }
+
+        if (options.UseOpenApi)
+        {
+            services.AddNexusOpenApi();
+        }
+
+        if (options.UseResponseCompression)
+        {
+            services.AddNexusResponseCompression();
+        }
+
+        if (options.UseRequestTimeouts)
+        {
+            services.AddNexusRequestTimeouts(options.RequestTimeout);
+        }
+
+        if (options.UseHealthChecks)
+        {
+            services.AddHealthChecks();
+        }
+
+        return services;
+    }
+
     public static IServiceCollection AddNexusCorrelationId(this IServiceCollection services)
     {
         services.AddCorrelationId(options =>

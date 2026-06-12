@@ -1,30 +1,24 @@
 using Information.Application.Extensions;
 using Information.Infrastructure.Extensions;
 using Nexus.Api.Core.Extensions;
+using Nexus.Api.Core.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddNexusApiVersioning();
-builder.Services.AddNexusOpenApi();
-builder.Services.AddNexusCorrelationId();
-builder.Services.AddNexusResponseCompression();
-builder.Services.AddNexusRequestTimeouts();
-builder.Services.AddNexusHealthChecks();
-builder.Services.AddApplication(builder.Configuration);
-builder.Services.AddInfrastructure(builder.Configuration);
+var services = builder.Services;
+var configuration = builder.Configuration;
+
+services.AddControllers();
+services
+    .AddNexusServices(NexusOptions.Default)
+    .AddApplication(configuration)
+    .AddInfrastructure(configuration);
 
 var app = builder.Build();
 
-app.UseHttpsRedirection();
-app.UseNexusSecurityHeaders();
-app.UseNexusCorrelationId();
-app.UseNexusExceptionHandling();
-app.UseNexusResponseCompression();
-app.UseNexusRequestTimeouts();
+app.UseNexus(NexusOptions.Default);
 
 app.MapControllers();
-app.MapNexusHealthChecks();
-app.MapNexusScalarUi();
+app.MapNexus(NexusOptions.Default);
 
 app.Run();

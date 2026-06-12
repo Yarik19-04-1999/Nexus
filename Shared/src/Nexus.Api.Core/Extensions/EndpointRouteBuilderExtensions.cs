@@ -1,12 +1,29 @@
 using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Routing;
+using Nexus.Api.Core.Options;
 using Scalar.AspNetCore;
 
 namespace Nexus.Api.Core.Extensions;
 
 public static class EndpointRouteBuilderExtensions
 {
+    public static IEndpointRouteBuilder MapNexus(this IEndpointRouteBuilder endpoints, NexusOptions options)
+    {
+        if (options.UseHealthChecks)
+        {
+            endpoints.MapNexusHealthChecks();
+        }
+
+        if (options.UseScalarUi)
+        {
+            endpoints.MapNexusScalarUi();
+        }
+
+        return endpoints;
+    }
+
     public static IEndpointRouteBuilder MapNexusScalarUi(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapOpenApi();

@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Pencil, Trash2, RotateCcw, ExternalLink, Copy, Check } from 'lucide-react'
+import { Pencil, Trash2, ExternalLink, Copy, Check } from 'lucide-react'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
-import { useDeleteInvite, useResetInviteAnswer } from '@/hooks/useInvites'
+import { useDeleteInvite } from '@/hooks/useInvites'
 import { strings } from '@/lib/strings'
 import type { Invite } from '@/types/invite'
 
@@ -14,11 +14,10 @@ interface InviteActionsProps {
 
 export function InviteActions({ invite }: InviteActionsProps) {
   const router = useRouter()
-  const [dialog, setDialog] = useState<'delete' | 'reset' | null>(null)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [copied, setCopied] = useState(false)
 
   const deleteInvite = useDeleteInvite()
-  const resetAnswer = useResetInviteAnswer()
 
   const inviteUrl = `${window.location.origin}/${invite.code}`
   const s = strings.admin
@@ -31,12 +30,7 @@ export function InviteActions({ invite }: InviteActionsProps) {
 
   const handleDelete = async () => {
     await deleteInvite.mutateAsync(invite.id)
-    setDialog(null)
-  }
-
-  const handleReset = async () => {
-    await resetAnswer.mutateAsync(invite.id)
-    setDialog(null)
+    setShowDeleteDialog(false)
   }
 
   return (
@@ -51,16 +45,13 @@ export function InviteActions({ invite }: InviteActionsProps) {
         <ActionButton onClick={() => router.push(`/admin/${invite.id}/edit`)} title={s.actions.edit}>
           <Pencil className="w-4 h-4" />
         </ActionButton>
-        <ActionButton onClick={() => setDialog('reset')} title={s.actions.reset}>
-          <RotateCcw className="w-4 h-4" />
-        </ActionButton>
-        <ActionButton onClick={() => setDialog('delete')} title={s.actions.delete} danger>
+        <ActionButton onClick={() => setShowDeleteDialog(true)} title={s.actions.delete} danger>
           <Trash2 className="w-4 h-4" />
         </ActionButton>
       </div>
 
       <ConfirmDialog
-        open={dialog === 'delete'}
+        open={showDeleteDialog}
         title={s.confirmDelete.title}
         description={s.confirmDelete.description}
         confirmLabel={s.confirmDelete.confirm}
@@ -68,18 +59,7 @@ export function InviteActions({ invite }: InviteActionsProps) {
         isDanger
         isPending={deleteInvite.isPending}
         onConfirm={handleDelete}
-        onCancel={() => setDialog(null)}
-      />
-
-      <ConfirmDialog
-        open={dialog === 'reset'}
-        title={s.confirmReset.title}
-        description={s.confirmReset.description}
-        confirmLabel={s.confirmReset.confirm}
-        cancelLabel={s.confirmReset.cancel}
-        isPending={resetAnswer.isPending}
-        onConfirm={handleReset}
-        onCancel={() => setDialog(null)}
+        onCancel={() => setShowDeleteDialog(false)}
       />
     </>
   )

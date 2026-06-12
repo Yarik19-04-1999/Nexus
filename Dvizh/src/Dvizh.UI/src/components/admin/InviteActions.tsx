@@ -45,7 +45,7 @@ export function InviteActions({ invite }: InviteActionsProps) {
         <ActionButton onClick={handleCopy} title={s.actions.copy}>
           {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
         </ActionButton>
-        <ActionButton onClick={() => window.open(inviteUrl, '_blank')} title={s.actions.copy}>
+        <ActionButton onClick={() => window.open(inviteUrl, '_blank')} title={s.actions.open}>
           <ExternalLink className="w-4 h-4" />
         </ActionButton>
         <ActionButton onClick={() => router.push(`/admin/${invite.id}/edit`)} title={s.actions.edit}>

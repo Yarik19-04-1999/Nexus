@@ -4,7 +4,7 @@ go
 exec dbo.DropSchema @schemaName = 'Dvizh'
 go
 
-exec dbo.ConfigureSchema @schemaName = 'Dvizh', @passwordHash = 0x0200
+exec dbo.ConfigureSchema @schemaName = 'Dvizh', @passwordHash = 0x0200554F6584FF31112ED5A4F46343CD988B80714781B5EE88EEEA2ACAD33FDF3B25FC487F3D94EB0D7C556DAFC2E9A64A08E9EFF0827A1727471AF02ED308077BFE9EAE4EAB
 go
 
 create table Dvizh.Invites

@@ -70,7 +70,8 @@ export function InviteForm({ invite, onSubmit, isPending }: InviteFormProps) {
         <input
           type="datetime-local"
           {...register('expiresAt')}
-          className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300"
+          onKeyDown={(e) => e.preventDefault()}
+          className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 cursor-pointer"
         />
       </Field>
 

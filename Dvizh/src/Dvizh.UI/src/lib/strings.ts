@@ -54,5 +54,12 @@ export const strings = {
       pageOf: (page: number, total: number) => `${page} / ${total}`,
     },
     copied: 'Ссылка скопирована',
+    actions: {
+      copy: 'Скопировать ссылку',
+      open: 'Открыть',
+      edit: 'Редактировать',
+      reset: 'Сбросить ответ',
+      delete: 'Удалить',
+    },
   },
 } as const

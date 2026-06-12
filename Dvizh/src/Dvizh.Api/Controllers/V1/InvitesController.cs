@@ -16,7 +16,7 @@ namespace Dvizh.Api.Controllers.V1;
 
 [ApiController]
 [NexusRoute]
-public class InviteController : ControllerBase
+public class InvitesController : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAll(

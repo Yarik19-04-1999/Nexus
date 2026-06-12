@@ -20,29 +20,34 @@ public class ResetInviteAnswerUseCase : IResetInviteAnswerUseCase
 
     public async Task<Result> Execute(ResetInviteAnswerInput input, CancellationToken cancellationToken = default)
     {
-        await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+        var strategy = _context.Database.CreateExecutionStrategy();
 
-        var affected = await _context.Invites
-            .Where(x => x.Id == input.Id)
-            .ExecuteUpdateAsync(s => s
-                .SetProperty(x => x.Answer, InviteAnswer.Pending)
-                .SetProperty(x => x.UpdatedAt, DateTime.UtcNow),
-                cancellationToken);
-
-        if (affected == 0)
+        return await strategy.ExecuteAsync(async () =>
         {
-            return ResultConstants.NotFound<Invite>(input.Id);
-        }
+            await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
 
-        _context.InviteEvents.Add(new InviteEvent
-        {
-            InviteId = input.Id,
-            EventType = InviteEventType.Reset
+            var affected = await _context.Invites
+                .Where(x => x.Id == input.Id)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.Answer, InviteAnswer.Pending)
+                    .SetProperty(x => x.UpdatedAt, DateTime.UtcNow),
+                    cancellationToken);
+
+            if (affected == 0)
+            {
+                return ResultConstants.NotFound<Invite>(input.Id);
+            }
+
+            _context.InviteEvents.Add(new InviteEvent
+            {
+                InviteId = input.Id,
+                EventType = InviteEventType.Reset
+            });
+
+            await _context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+
+            return Result.Success();
         });
-
-        await _context.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
-
-        return Result.Success();
     }
 }

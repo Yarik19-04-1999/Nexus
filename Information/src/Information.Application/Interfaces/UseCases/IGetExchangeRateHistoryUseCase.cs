@@ -5,4 +5,4 @@ using Nexus.Application.Core.Models;
 
 namespace Information.Application.Interfaces.UseCases;
 
-public interface IGetWeatherUseCase : IUseCase<GetWeatherInput, Result<WeatherInfo>>;
+public interface IGetExchangeRateHistoryUseCase : IUseCase<GetExchangeRateHistoryInput, Result<IReadOnlyList<ExchangeRateHistory>>>;

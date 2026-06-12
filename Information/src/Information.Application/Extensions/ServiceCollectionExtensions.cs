@@ -9,8 +9,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddScoped<IGetExchangeRatesUseCase, GetExchangeRatesUseCase>();
-        services.AddScoped<IGetEpicGiveawaysUseCase, GetEpicGiveawaysUseCase>();
-        services.AddScoped<IGetWeatherUseCase, GetWeatherUseCase>();
+        services.AddScoped<IGetExchangeRateHistoryUseCase, GetExchangeRateHistoryUseCase>();
 
         return services;
     }

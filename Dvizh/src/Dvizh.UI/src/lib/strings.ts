@@ -1,0 +1,58 @@
+export const strings = {
+  invite: {
+    yes: 'Да! 🎉',
+    no: 'Нет...',
+    changeAnswer: 'Изменить ответ',
+    answeredYes: 'Ты сказал да!',
+    answeredNo: 'Ты сказал нет...',
+    expired: 'Приглашение истекло',
+    notFound: 'Приглашение не найдено',
+  },
+  admin: {
+    title: 'Приглашения',
+    newInvite: 'Создать',
+    noInvites: 'Нет приглашений',
+    columns: {
+      message: 'Сообщение',
+      code: 'Ссылка',
+      answer: 'Ответ',
+      expiresAt: 'Истекает',
+      createdAt: 'Создано',
+      actions: '',
+    },
+    answers: {
+      0: 'Ожидает',
+      1: 'Да ✓',
+      2: 'Нет ✗',
+    } as Record<number, string>,
+    confirmDelete: {
+      title: 'Удалить приглашение?',
+      description: 'Это действие нельзя отменить.',
+      confirm: 'Удалить',
+      cancel: 'Отмена',
+    },
+    confirmReset: {
+      title: 'Сбросить ответ?',
+      description: 'Вы уверены, что хотите сбросить ответ на это приглашение?',
+      confirm: 'Сбросить',
+      cancel: 'Отмена',
+    },
+    form: {
+      createTitle: 'Новое приглашение',
+      editTitle: 'Редактировать приглашение',
+      message: 'Сообщение',
+      messagePlaceholder: 'Привет! Ты придёшь?',
+      description: 'Описание',
+      descriptionPlaceholder: 'Необязательные детали…',
+      expiresAt: 'Истекает',
+      save: 'Сохранить',
+      cancel: 'Отмена',
+    },
+    pagination: {
+      previous: 'Назад',
+      next: 'Вперёд',
+      pageOf: (page: number, total: number) => `${page} / ${total}`,
+    },
+    copied: 'Ссылка скопирована',
+  },
+} as const

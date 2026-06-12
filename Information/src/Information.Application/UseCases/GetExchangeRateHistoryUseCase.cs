@@ -1,11 +1,12 @@
 using Information.Application.Constants;
 using Information.Application.Enums;
+using Information.Application.Interfaces.Services;
 using Information.Application.Interfaces.UseCases;
 using Information.Application.Models;
 using Information.Application.Models.Input;
-using Information.Application.Services;
 using Nexus.Application.Core.Extensions;
 using Nexus.Application.Core.Models;
+using Nexus.Application.Core.Utils;
 
 namespace Information.Application.UseCases;
 
@@ -24,7 +25,7 @@ public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
             ? (IEnumerable<ExchangeCurrency>)[input.Currency.Value]
             : Enum.GetValues<ExchangeCurrency>();
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = DateOnlyUtils.CurrentDate;
         var dates = new[]
         {
             today,

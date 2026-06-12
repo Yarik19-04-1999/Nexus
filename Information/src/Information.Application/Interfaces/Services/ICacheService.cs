@@ -1,4 +1,4 @@
-namespace Information.Application.Services;
+namespace Information.Application.Interfaces.Services;
 
 public interface ICacheService
 {

@@ -1,5 +1,5 @@
 using System.Collections.Concurrent;
-using Information.Application.Services;
+using Information.Application.Interfaces.Services;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Information.Infrastructure.Services;

@@ -1,12 +1,19 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nexus.Api.Core.Constants;
+using Nexus.Api.Core.CorrelationId;
 using Nexus.Application.Core.Extensions;
 
 namespace Nexus.Api.Core.Extensions;
 
 public static partial class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddNexusCorrelationId(this IServiceCollection services)
+    {
+        services.AddScoped<ICorrelationIdAccessor, CorrelationIdAccessor>();
+        return services;
+    }
+
     public static IServiceCollection AddNexusApiVersioning(this IServiceCollection services)
     {
         services.AddApiVersioning();

@@ -6,5 +6,5 @@ namespace Dvizh.Api.Controllers.V1.Invites.RespondToInvite;
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
 public static partial class RespondToInviteRequestMapper
 {
-    public static partial RespondToInviteInput ToInput(this RespondToInviteRequest request, string code);
+    public static partial RespondToInviteInput Map(RespondToInviteRequest request, string code);
 }

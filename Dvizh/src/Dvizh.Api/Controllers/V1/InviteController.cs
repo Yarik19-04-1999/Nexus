@@ -25,7 +25,7 @@ public class InviteController : ControllerBase
         {
             return this.DomainError(result);
         }
-        return Ok(GetInviteByIdResponseMapper.ToResponse(result.Data));
+        return Ok(GetInviteByIdResponseMapper.Map(result.Data));
     }
 
     [HttpPost]
@@ -34,12 +34,12 @@ public class InviteController : ControllerBase
         [FromServices] ICreateInviteUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.Execute(request.ToInput(), cancellationToken);
+        var result = await useCase.Execute(CreateInviteRequestMapper.Map(request), cancellationToken);
         if (result.HasError)
         {
             return this.DomainError(result);
         }
-        return CreatedAtAction(nameof(GetById), new { id = result.Data.Id }, CreateInviteResponseMapper.ToResponse(result.Data));
+        return CreatedAtAction(nameof(GetById), new { id = result.Data.Id }, CreateInviteResponseMapper.Map(result.Data));
     }
 
     [HttpPut("{id:int}")]
@@ -49,12 +49,12 @@ public class InviteController : ControllerBase
         [FromServices] IUpdateInviteUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.Execute(request.ToInput(id), cancellationToken);
+        var result = await useCase.Execute(UpdateInviteRequestMapper.Map(request, id), cancellationToken);
         if (result.HasError)
         {
             return this.DomainError(result);
         }
-        return Ok(UpdateInviteResponseMapper.ToResponse(result.Data));
+        return Ok(UpdateInviteResponseMapper.Map(result.Data));
     }
 
     [HttpDelete("{id:int}")]
@@ -96,7 +96,7 @@ public class InviteController : ControllerBase
         {
             return this.DomainError(result);
         }
-        return Ok(OpenInviteResponseMapper.ToResponse(result.Data));
+        return Ok(OpenInviteResponseMapper.Map(result.Data));
     }
 
     [HttpPost("{code}/answer")]
@@ -106,7 +106,7 @@ public class InviteController : ControllerBase
         [FromServices] IRespondToInviteUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.Execute(request.ToInput(code), cancellationToken);
+        var result = await useCase.Execute(RespondToInviteRequestMapper.Map(request, code), cancellationToken);
         if (result.HasError)
         {
             return this.DomainError(result);

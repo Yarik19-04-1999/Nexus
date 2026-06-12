@@ -6,5 +6,5 @@ namespace Dvizh.Api.Controllers.V1.Invites.CreateInvite;
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
 public static partial class CreateInviteRequestMapper
 {
-    public static partial CreateInviteInput ToInput(this CreateInviteRequest request);
+    public static partial CreateInviteInput Map(CreateInviteRequest request);
 }

@@ -1,13 +1,16 @@
 using Information.Application.Constants;
 using Information.Application.Interfaces.Providers;
 using Information.Application.Interfaces.Services;
+using Information.Application.Models.Options;
+using Information.Infrastructure.Decorators;
 using Information.Infrastructure.Enums;
 using Information.Infrastructure.Options;
 using Information.Infrastructure.Providers.Nbu;
 using Information.Infrastructure.Providers.OpenMeteo;
 using Information.Infrastructure.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 using Nexus.Application.Core.Extensions;
 
 namespace Information.Infrastructure.Extensions;
@@ -19,15 +22,21 @@ public static class ServiceCollectionExtensions
         services.AddMemoryCache();
         services.AddHttpClient();
 
+        services.AddSingleton<ICacheService, CacheService>();
+
         var exchangeRateOptions = configuration.GetRequiredOptions<ExchangeRateOptions>(ConfigurationConstants.ExchangeRateSection);
         services.Configure<ExchangeRateOptions>(configuration.GetSection(ConfigurationConstants.ExchangeRateSection));
-
-        services.AddSingleton<ICacheService, CacheService>();
 
         switch (exchangeRateOptions.ProviderType)
         {
             case ExchangeRateProviderType.Nbu:
-                services.AddScoped<IExchangeRateProvider, NbuExchangeRateProvider>();
+                services.AddScoped<NbuExchangeRateProvider>();
+                services.AddScoped<IExchangeRateProvider>(sp => new CachingExchangeRateProvider(
+                    sp.GetRequiredService<NbuExchangeRateProvider>(),
+                    sp.GetRequiredService<ICacheService>(),
+                    sp.GetRequiredService<ICacheKeyProvider>(),
+                    sp.GetRequiredService<IOptions<ExchangeRateCacheOptions>>()
+                ));
                 break;
             default:
                 throw new InvalidOperationException($"Unknown exchange rate provider type: {exchangeRateOptions.ProviderType}");
@@ -39,7 +48,13 @@ public static class ServiceCollectionExtensions
         switch (weatherOptions.ProviderType)
         {
             case WeatherProviderType.OpenMeteo:
-                services.AddScoped<IWeatherProvider, OpenMeteoWeatherProvider>();
+                services.AddScoped<OpenMeteoWeatherProvider>();
+                services.AddScoped<IWeatherProvider>(sp => new CachingWeatherProvider(
+                    sp.GetRequiredService<OpenMeteoWeatherProvider>(),
+                    sp.GetRequiredService<ICacheService>(),
+                    sp.GetRequiredService<ICacheKeyProvider>(),
+                    sp.GetRequiredService<IOptions<WeatherCacheOptions>>()
+                ));
                 break;
             default:
                 throw new InvalidOperationException($"Unknown weather provider type: {weatherOptions.ProviderType}");

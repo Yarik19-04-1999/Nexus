@@ -6,5 +6,6 @@ namespace Information.Application.Interfaces.Providers;
 
 public interface IWeatherProvider
 {
-    Task<Result<CityWeather>> GetWeather(WeatherCity city, CancellationToken cancellationToken = default);
+    Task<Result<IReadOnlyList<HourlyWeather>>> GetHourlyForecast(WeatherCity city, CancellationToken cancellationToken = default);
+    Task<Result<IReadOnlyList<DailyWeather>>> GetDailyForecast(WeatherCity city, CancellationToken cancellationToken = default);
 }

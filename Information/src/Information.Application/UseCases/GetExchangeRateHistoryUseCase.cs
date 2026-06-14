@@ -1,6 +1,6 @@
 using Information.Application.Constants;
 using Information.Application.Enums;
-using Information.Application.Interfaces.Services;
+using Information.Application.Interfaces.Providers;
 using Information.Application.Interfaces.UseCases;
 using Information.Application.Models;
 using Information.Application.Models.Input;
@@ -12,11 +12,11 @@ namespace Information.Application.UseCases;
 
 public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
 {
-    private readonly IExchangeRateService _exchangeRateService;
+    private readonly IExchangeRateProvider _exchangeRateProvider;
 
-    public GetExchangeRateHistoryUseCase(IExchangeRateService exchangeRateService)
+    public GetExchangeRateHistoryUseCase(IExchangeRateProvider exchangeRateProvider)
     {
-        _exchangeRateService = exchangeRateService;
+        _exchangeRateProvider = exchangeRateProvider;
     }
 
     public async Task<Result<IReadOnlyList<ExchangeRateHistory>>> Execute(GetExchangeRateHistoryInput input, CancellationToken cancellationToken = default)
@@ -35,14 +35,14 @@ public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
             today.YearAgo(),
         };
 
-        var tasks = dates.Select(date => _exchangeRateService.GetRates(date, cancellationToken));
+        var tasks = dates.Select(date => _exchangeRateProvider.GetRates(date, cancellationToken));
         var results = await Task.WhenAll(tasks);
 
         foreach (var result in results)
         {
             if (result.HasError)
             {
-                return InformationResultConstants.ProviderUnavailable<IReadOnlyList<ExchangeRateHistory>>(nameof(IExchangeRateService));
+                return InformationResultConstants.ProviderUnavailable<IReadOnlyList<ExchangeRateHistory>>(nameof(IExchangeRateProvider));
             }
         }
 
@@ -71,7 +71,7 @@ public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
 
         if (histories.Count == 0)
         {
-            return InformationResultConstants.ProviderUnavailable<IReadOnlyList<ExchangeRateHistory>>(nameof(IExchangeRateService));
+            return InformationResultConstants.ProviderUnavailable<IReadOnlyList<ExchangeRateHistory>>(nameof(IExchangeRateProvider));
         }
 
         return Result<IReadOnlyList<ExchangeRateHistory>>.Success(histories);

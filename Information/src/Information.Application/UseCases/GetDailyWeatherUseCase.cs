@@ -1,5 +1,5 @@
 using Information.Application.Constants;
-using Information.Application.Interfaces.Services;
+using Information.Application.Interfaces.Providers;
 using Information.Application.Interfaces.UseCases;
 using Information.Application.Models;
 using Information.Application.Models.Input;
@@ -9,22 +9,22 @@ namespace Information.Application.UseCases;
 
 public class GetDailyWeatherUseCase : IGetDailyWeatherUseCase
 {
-    private readonly IWeatherService _weatherService;
+    private readonly IWeatherProvider _weatherProvider;
 
-    public GetDailyWeatherUseCase(IWeatherService weatherService)
+    public GetDailyWeatherUseCase(IWeatherProvider weatherProvider)
     {
-        _weatherService = weatherService;
+        _weatherProvider = weatherProvider;
     }
 
     public async Task<Result<IReadOnlyList<DailyWeather>>> Execute(GetWeatherInput input, CancellationToken cancellationToken = default)
     {
-        var result = await _weatherService.GetWeather(input.City, cancellationToken);
+        var result = await _weatherProvider.GetDailyForecast(input.City, cancellationToken);
 
         if (result.HasError)
         {
-            return InformationResultConstants.ProviderUnavailable<IReadOnlyList<DailyWeather>>(nameof(IWeatherService));
+            return InformationResultConstants.ProviderUnavailable<IReadOnlyList<DailyWeather>>(nameof(IWeatherProvider));
         }
 
-        return Result<IReadOnlyList<DailyWeather>>.Success(result.Data.Daily);
+        return result;
     }
 }

@@ -7,9 +7,14 @@ internal class WeatherCacheOptionsValidator : IValidateOptions<WeatherCacheOptio
 {
     public ValidateOptionsResult Validate(string? name, WeatherCacheOptions options)
     {
-        if (options.CacheExpiration <= TimeSpan.Zero)
+        if (options.HourlyCacheExpiration <= TimeSpan.Zero)
         {
-            return ValidateOptionsResult.Fail($"{nameof(WeatherCacheOptions.CacheExpiration)} must be greater than zero.");
+            return ValidateOptionsResult.Fail($"{nameof(WeatherCacheOptions.HourlyCacheExpiration)} must be greater than zero.");
+        }
+
+        if (options.DailyCacheExpiration <= TimeSpan.Zero)
+        {
+            return ValidateOptionsResult.Fail($"{nameof(WeatherCacheOptions.DailyCacheExpiration)} must be greater than zero.");
         }
 
         return ValidateOptionsResult.Success;

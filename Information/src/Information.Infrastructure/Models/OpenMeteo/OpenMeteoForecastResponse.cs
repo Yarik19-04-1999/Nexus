@@ -5,10 +5,10 @@ namespace Information.Infrastructure.Models.OpenMeteo;
 internal class OpenMeteoForecastResponse
 {
     [JsonPropertyName("hourly")]
-    public OpenMeteoHourly Hourly { get; init; } = default!;
+    public OpenMeteoHourly? Hourly { get; init; }
 
     [JsonPropertyName("daily")]
-    public OpenMeteoDaily Daily { get; init; } = default!;
+    public OpenMeteoDaily? Daily { get; init; }
 }
 
 internal class OpenMeteoHourly

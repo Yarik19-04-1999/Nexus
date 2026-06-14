@@ -25,11 +25,9 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<ICacheKeyProvider, CacheKeyProvider>();
 
-        services.AddScoped<IExchangeRateService, ExchangeRateService>();
         services.AddScoped<IGetExchangeRatesUseCase, GetExchangeRatesUseCase>();
         services.AddScoped<IGetExchangeRateHistoryUseCase, GetExchangeRateHistoryUseCase>();
 
-        services.AddScoped<IWeatherService, WeatherService>();
         services.AddScoped<IGetHourlyWeatherUseCase, GetHourlyWeatherUseCase>();
         services.AddScoped<IGetDailyWeatherUseCase, GetDailyWeatherUseCase>();
 

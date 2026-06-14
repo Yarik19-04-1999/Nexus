@@ -12,7 +12,9 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
 {
     private const string BaseUrl = "https://api.open-meteo.com/v1/forecast";
     private const string SourceName = "OpenMeteo";
+    private const string Timezone = "Europe%2FKiev";
     private const int HourlyCount = 24;
+    private const int ForecastDays = 5;
 
     private readonly HttpClient _httpClient;
 
@@ -21,21 +23,20 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
         _httpClient = httpClient;
     }
 
-    public async Task<Result<CityWeather>> GetWeather(WeatherCity city, CancellationToken cancellationToken = default)
+    public async Task<Result<IReadOnlyList<HourlyWeather>>> GetHourlyForecast(WeatherCity city, CancellationToken cancellationToken = default)
     {
         try
         {
             var (lat, lon) = CityCoordinates.All[city];
             var url = $"{BaseUrl}?latitude={lat}&longitude={lon}" +
                       "&hourly=temperature_2m,apparent_temperature,precipitation_probability,weathercode,windspeed_10m" +
-                      "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,weathercode,windspeed_10m_max" +
-                      "&timezone=Europe%2FKiev&forecast_days=5";
+                      $"&timezone={Timezone}&forecast_days=1";
 
             var response = await _httpClient.GetFromJsonAsync<OpenMeteoForecastResponse>(url, cancellationToken);
 
             if (response is null)
             {
-                return InformationResultConstants.ProviderUnavailable<CityWeather>(SourceName);
+                return InformationResultConstants.ProviderUnavailable<IReadOnlyList<HourlyWeather>>(SourceName);
             }
 
             var hourly = Enumerable.Range(0, HourlyCount)
@@ -50,6 +51,30 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
                 })
                 .ToList();
 
+            return Result<IReadOnlyList<HourlyWeather>>.Success(hourly);
+        }
+        catch (Exception)
+        {
+            return InformationResultConstants.ProviderUnavailable<IReadOnlyList<HourlyWeather>>(SourceName, canRetry: true);
+        }
+    }
+
+    public async Task<Result<IReadOnlyList<DailyWeather>>> GetDailyForecast(WeatherCity city, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var (lat, lon) = CityCoordinates.All[city];
+            var url = $"{BaseUrl}?latitude={lat}&longitude={lon}" +
+                      "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,weathercode,windspeed_10m_max" +
+                      $"&timezone={Timezone}&forecast_days={ForecastDays}";
+
+            var response = await _httpClient.GetFromJsonAsync<OpenMeteoForecastResponse>(url, cancellationToken);
+
+            if (response is null)
+            {
+                return InformationResultConstants.ProviderUnavailable<IReadOnlyList<DailyWeather>>(SourceName);
+            }
+
             var daily = Enumerable.Range(0, response.Daily.Time.Count)
                 .Select(i => new DailyWeather
                 {
@@ -63,16 +88,11 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
                 })
                 .ToList();
 
-            return Result<CityWeather>.Success(new CityWeather
-            {
-                City = city,
-                Hourly = hourly,
-                Daily = daily,
-            });
+            return Result<IReadOnlyList<DailyWeather>>.Success(daily);
         }
         catch (Exception)
         {
-            return InformationResultConstants.ProviderUnavailable<CityWeather>(SourceName, canRetry: true);
+            return InformationResultConstants.ProviderUnavailable<IReadOnlyList<DailyWeather>>(SourceName, canRetry: true);
         }
     }
 }

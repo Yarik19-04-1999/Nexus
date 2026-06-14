@@ -1,6 +1,6 @@
 using Information.Application.Constants;
 using Information.Application.Enums;
-using Information.Application.Interfaces.Services;
+using Information.Application.Interfaces.Providers;
 using Information.Application.Interfaces.UseCases;
 using Information.Application.Models;
 using Information.Application.Models.Input;
@@ -11,17 +11,17 @@ namespace Information.Application.UseCases;
 
 public class GetExchangeRatesUseCase : IGetExchangeRatesUseCase
 {
-    private readonly IExchangeRateService _exchangeRateService;
+    private readonly IExchangeRateProvider _exchangeRateProvider;
 
-    public GetExchangeRatesUseCase(IExchangeRateService exchangeRateService)
+    public GetExchangeRatesUseCase(IExchangeRateProvider exchangeRateProvider)
     {
-        _exchangeRateService = exchangeRateService;
+        _exchangeRateProvider = exchangeRateProvider;
     }
 
     public async Task<Result<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>> Execute(GetExchangeRatesInput input, CancellationToken cancellationToken = default)
     {
         var today = DateOnlyUtils.CurrentDate;
-        var result = await _exchangeRateService.GetRates(today, cancellationToken);
+        var result = await _exchangeRateProvider.GetRates(today, cancellationToken);
 
         if (result.HasError)
         {
@@ -30,7 +30,7 @@ public class GetExchangeRatesUseCase : IGetExchangeRatesUseCase
 
         if (result.Data.Count == 0)
         {
-            return InformationResultConstants.ProviderUnavailable<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>(nameof(IExchangeRateService));
+            return InformationResultConstants.ProviderUnavailable<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>(nameof(IExchangeRateProvider));
         }
 
         return result;

@@ -26,4 +26,25 @@ public static class ServiceCollectionExtensions
         services.AddOptions<TOptions>(name).ValidateOnStart();
         return services;
     }
+
+    public static IServiceCollection ConfigureOptions<TOptions, TValidator, TPostConfigure>(
+        this IServiceCollection services,
+        IConfigurationSection section)
+        where TOptions : class
+        where TValidator : class, IValidateOptions<TOptions>
+        where TPostConfigure : class, IPostConfigureOptions<TOptions>
+        => services.ConfigureOptions<TOptions, TValidator, TPostConfigure>(Options.DefaultName, section);
+
+    public static IServiceCollection ConfigureOptions<TOptions, TValidator, TPostConfigure>(
+        this IServiceCollection services,
+        string name,
+        IConfigurationSection section)
+        where TOptions : class
+        where TValidator : class, IValidateOptions<TOptions>
+        where TPostConfigure : class, IPostConfigureOptions<TOptions>
+    {
+        services.ConfigureOptions<TOptions, TValidator>(name, section);
+        services.TryAddSingleton<IPostConfigureOptions<TOptions>, TPostConfigure>();
+        return services;
+    }
 }

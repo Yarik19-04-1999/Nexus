@@ -5,22 +5,14 @@ namespace Nexus.Infrastructure.Core.Validators;
 
 public class ApiKeyExternalServiceOptionsValidator : IValidateOptions<ApiKeyExternalServiceOptions>
 {
+    private readonly ExternalServiceOptionsValidator _baseValidator = new();
+
     public ValidateOptionsResult Validate(string? name, ApiKeyExternalServiceOptions options)
     {
-        if (string.IsNullOrWhiteSpace(options.BaseUrl))
+        var baseResult = _baseValidator.Validate(name, options);
+        if (baseResult.Failed)
         {
-            return ValidateOptionsResult.Fail($"[{name}] {nameof(ApiKeyExternalServiceOptions.BaseUrl)} must not be empty.");
-        }
-
-        if (!Uri.TryCreate(options.BaseUrl, UriKind.Absolute, out var uri)
-            || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
-        {
-            return ValidateOptionsResult.Fail($"[{name}] {nameof(ApiKeyExternalServiceOptions.BaseUrl)} must be a valid HTTP or HTTPS URL.");
-        }
-
-        if (options.Timeout <= TimeSpan.Zero)
-        {
-            return ValidateOptionsResult.Fail($"[{name}] {nameof(ApiKeyExternalServiceOptions.Timeout)} must be greater than zero.");
+            return baseResult;
         }
 
         if (string.IsNullOrWhiteSpace(options.ApiKey))

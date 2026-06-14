@@ -4,6 +4,7 @@ using Information.Application.Interfaces.Services;
 using Information.Infrastructure.Decorators;
 using Information.Infrastructure.Enums;
 using Information.Infrastructure.Options;
+using Information.Infrastructure.Providers.EpicGames;
 using Information.Infrastructure.Providers.Nbu;
 using Information.Infrastructure.Providers.OpenMeteo;
 using Information.Infrastructure.Services;
@@ -49,6 +50,9 @@ public static class ServiceCollectionExtensions
         }
 
         services.Decorate<IWeatherProvider, CachingWeatherProvider>();
+
+        services.AddScoped<IEpicGamesProvider, EpicGamesProvider>();
+        services.Decorate<IEpicGamesProvider, CachingEpicGamesProvider>();
 
         return services;
     }

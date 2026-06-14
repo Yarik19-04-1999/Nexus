@@ -7,4 +7,5 @@ public interface ICacheKeyProvider
     string GetExchangeRatesKey(DateOnly date);
     string GetWeatherHourlyKey(WeatherCity city);
     string GetWeatherDailyKey(WeatherCity city);
+    string GetEpicGamesKey();
 }

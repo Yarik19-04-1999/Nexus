@@ -31,6 +31,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGetHourlyWeatherUseCase, GetHourlyWeatherUseCase>();
         services.AddScoped<IGetDailyWeatherUseCase, GetDailyWeatherUseCase>();
 
+        services.Configure<EpicGamesCacheOptions>(configuration.GetSection(ConfigurationConstants.EpicGamesSection));
+        services.AddSingleton<IValidateOptions<EpicGamesCacheOptions>, EpicGamesCacheOptionsValidator>();
+        services.AddOptions<EpicGamesCacheOptions>().ValidateOnStart();
+
+        services.AddScoped<IGetEpicGamesUseCase, GetEpicGamesUseCase>();
+
         return services;
     }
 }

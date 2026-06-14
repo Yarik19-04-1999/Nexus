@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using Asp.Versioning;
 using CorrelationId.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Timeouts;
@@ -47,7 +48,7 @@ public static partial class ServiceCollectionExtensions
 
     public static IServiceCollection AddNexusCorrelationId(this IServiceCollection services)
     {
-        services.AddCorrelationId(options =>
+        services.AddDefaultCorrelationId(options =>
         {
             options.AddToLoggingScope = true;
             options.UpdateTraceIdentifier = true;
@@ -61,7 +62,13 @@ public static partial class ServiceCollectionExtensions
 
     public static IServiceCollection AddNexusApiVersioning(this IServiceCollection services)
     {
-        services.AddApiVersioning();
+        services.AddApiVersioning()
+        .AddApiExplorer(options =>
+        {
+            options.GroupNameFormat = "'v'VVV";
+            options.SubstituteApiVersionInUrl = true;
+        });
+
         return services;
     }
 

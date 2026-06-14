@@ -14,6 +14,7 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
     private const string SourceName = "OpenMeteo";
     private const string Timezone = "Europe%2FKiev";
     private const int HourlyCount = 24;
+    private const int HourlyFetchDays = 2;
     private const int ForecastDays = 5;
 
     private readonly HttpClient _httpClient;
@@ -30,7 +31,7 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
             var (lat, lon) = CityCoordinates.All[city];
             var url = $"{BaseUrl}?latitude={lat}&longitude={lon}" +
                       "&hourly=temperature_2m,apparent_temperature,precipitation_probability,weathercode,windspeed_10m" +
-                      $"&timezone={Timezone}&forecast_days=1";
+                      $"&timezone={Timezone}&forecast_days={HourlyFetchDays}";
 
             var response = await _httpClient.GetFromJsonAsync<OpenMeteoForecastResponse>(url, cancellationToken);
 
@@ -39,7 +40,13 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
                 return InformationResultConstants.ProviderUnavailable<IReadOnlyList<HourlyWeather>>(SourceName);
             }
 
-            var hourly = Enumerable.Range(0, HourlyCount)
+            var now = DateTime.Now;
+            var startIndex = response.Hourly.Time
+                .Select((t, i) => (Time: DateTime.Parse(t), Index: i))
+                .First(x => x.Time >= now)
+                .Index;
+
+            var hourly = Enumerable.Range(startIndex, HourlyCount)
                 .Select(i => new HourlyWeather
                 {
                     Time = DateTime.Parse(response.Hourly.Time[i]),

@@ -35,7 +35,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IValidateOptions<EpicGamesCacheOptions>, EpicGamesCacheOptionsValidator>();
         services.AddOptions<EpicGamesCacheOptions>().ValidateOnStart();
 
-        services.AddScoped<IGetEpicGamesUseCase, GetEpicGamesUseCase>();
+        services.AddScoped<IGetEpicFreeGamesUseCase, GetEpicFreeGamesUseCase>();
 
         return services;
     }

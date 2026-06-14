@@ -7,18 +7,18 @@ using Nexus.Application.Core.Models;
 
 namespace Information.Application.UseCases;
 
-public class GetEpicGamesUseCase : IGetEpicGamesUseCase
+public class GetEpicFreeGamesUseCase : IGetEpicFreeGamesUseCase
 {
     private readonly IEpicGamesProvider _epicGamesProvider;
 
-    public GetEpicGamesUseCase(IEpicGamesProvider epicGamesProvider)
+    public GetEpicFreeGamesUseCase(IEpicGamesProvider epicGamesProvider)
     {
         _epicGamesProvider = epicGamesProvider;
     }
 
-    public async Task<Result<IReadOnlyList<EpicGame>>> Execute(GetEpicGamesInput input, CancellationToken cancellationToken = default)
+    public async Task<Result<IReadOnlyList<EpicGame>>> Execute(GetEpicFreeGamesInput input, CancellationToken cancellationToken = default)
     {
-        var result = await _epicGamesProvider.GetEpicGames(cancellationToken);
+        var result = await _epicGamesProvider.GetFreeGames(cancellationToken);
 
         if (result.HasError)
         {

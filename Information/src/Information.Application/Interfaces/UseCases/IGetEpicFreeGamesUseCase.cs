@@ -5,4 +5,4 @@ using Nexus.Application.Core.Models;
 
 namespace Information.Application.Interfaces.UseCases;
 
-public interface IGetEpicGamesUseCase : IUseCase<GetEpicGamesInput, Result<IReadOnlyList<EpicGame>>>;
+public interface IGetEpicFreeGamesUseCase : IUseCase<GetEpicFreeGamesInput, Result<IReadOnlyList<EpicGame>>>;

@@ -21,7 +21,7 @@ internal class EpicGamesProvider : IEpicGamesProvider
         _httpClient = httpClient;
     }
 
-    public async Task<Result<IReadOnlyList<EpicGame>>> GetEpicGames(CancellationToken cancellationToken = default)
+    public async Task<Result<IReadOnlyList<EpicGame>>> GetFreeGames(CancellationToken cancellationToken = default)
     {
         try
         {

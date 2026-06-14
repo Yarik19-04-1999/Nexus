@@ -5,5 +5,5 @@ namespace Information.Application.Interfaces.Providers;
 
 public interface IEpicGamesProvider
 {
-    Task<Result<IReadOnlyList<EpicGame>>> GetEpicGames(CancellationToken cancellationToken = default);
+    Task<Result<IReadOnlyList<EpicGame>>> GetFreeGames(CancellationToken cancellationToken = default);
 }

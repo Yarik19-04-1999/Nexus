@@ -1,4 +1,4 @@
-namespace Information.Api.Controllers.V1.EpicGames.GetEpicGames;
+namespace Information.Api.Controllers.V1.EpicGames.GetEpicFreeGames;
 
 public record EpicGameDto(
     string Title,

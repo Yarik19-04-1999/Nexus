@@ -1,4 +1,4 @@
-using Information.Api.Controllers.V1.EpicGames.GetEpicGames;
+using Information.Api.Controllers.V1.EpicGames.GetEpicFreeGames;
 using Information.Application.Interfaces.UseCases;
 using Information.Application.Models.Input;
 using Microsoft.AspNetCore.Mvc;
@@ -12,16 +12,16 @@ namespace Information.Api.Controllers.V1;
 public class EpicGamesController : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetEpicGames(
-        [FromServices] IGetEpicGamesUseCase useCase,
+    public async Task<IActionResult> GetFreeGames(
+        [FromServices] IGetEpicFreeGamesUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.Execute(new GetEpicGamesInput(), cancellationToken);
+        var result = await useCase.Execute(new GetEpicFreeGamesInput(), cancellationToken);
         if (result.HasError)
         {
             return this.DomainError(result);
         }
 
-        return Ok(new GetEpicGamesResponse(result.Data.Select(GetEpicGamesResponseMapper.Map).ToList()));
+        return Ok(new GetEpicFreeGamesResponse(result.Data.Select(GetEpicFreeGamesResponseMapper.Map).ToList()));
     }
 }

@@ -22,6 +22,6 @@ internal class CachingEpicGamesProvider : IEpicGamesProvider
         _cacheOptions = cacheOptions.Value;
     }
 
-    public Task<Result<IReadOnlyList<EpicGame>>> GetEpicGames(CancellationToken cancellationToken = default) =>
-        _cacheService.GetOrCreate(_cacheKeyProvider.GetEpicGamesKey(), ct => _inner.GetEpicGames(ct), _cacheOptions.CacheExpiration, cancellationToken);
+    public Task<Result<IReadOnlyList<EpicGame>>> GetFreeGames(CancellationToken cancellationToken = default) =>
+        _cacheService.GetOrCreate(_cacheKeyProvider.GetFreeGamesKey(), ct => _inner.GetFreeGames(ct), _cacheOptions.CacheExpiration, cancellationToken);
 }

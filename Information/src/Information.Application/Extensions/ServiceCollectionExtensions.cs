@@ -4,6 +4,7 @@ using Information.Application.Interfaces.UseCases;
 using Information.Application.Models.Options;
 using Information.Application.Services;
 using Information.Application.UseCases;
+using Information.Application.Validators;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -18,10 +19,19 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IValidateOptions<ExchangeRateCacheOptions>, ExchangeRateCacheOptionsValidator>();
         services.AddOptions<ExchangeRateCacheOptions>().ValidateOnStart();
 
+        services.Configure<WeatherCacheOptions>(configuration.GetSection(ConfigurationConstants.WeatherSection));
+        services.AddSingleton<IValidateOptions<WeatherCacheOptions>, WeatherCacheOptionsValidator>();
+        services.AddOptions<WeatherCacheOptions>().ValidateOnStart();
+
         services.AddSingleton<ICacheKeyProvider, CacheKeyProvider>();
+
         services.AddScoped<IExchangeRateService, ExchangeRateService>();
         services.AddScoped<IGetExchangeRatesUseCase, GetExchangeRatesUseCase>();
         services.AddScoped<IGetExchangeRateHistoryUseCase, GetExchangeRateHistoryUseCase>();
+
+        services.AddScoped<IWeatherService, WeatherService>();
+        services.AddScoped<IGetHourlyWeatherUseCase, GetHourlyWeatherUseCase>();
+        services.AddScoped<IGetDailyWeatherUseCase, GetDailyWeatherUseCase>();
 
         return services;
     }

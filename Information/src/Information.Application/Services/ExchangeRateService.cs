@@ -24,5 +24,5 @@ public class ExchangeRateService : IExchangeRateService
     }
 
     public async Task<Result<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>> GetRates(DateOnly date, CancellationToken cancellationToken = default) =>
-        await _cacheService.GetOrCreate(_keysProvider.ExchangeRates(date), ct => _exchangeRateProvider.GetRates(date, ct), _cacheOptions.CacheExpiration, cancellationToken);
+        await _cacheService.GetOrCreate(_keysProvider.GetExchangeRatesKey(date), ct => _exchangeRateProvider.GetRates(date, ct), _cacheOptions.CacheExpiration, cancellationToken);
 }

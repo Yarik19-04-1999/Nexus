@@ -4,6 +4,7 @@ using Information.Application.Interfaces.Services;
 using Information.Infrastructure.Enums;
 using Information.Infrastructure.Options;
 using Information.Infrastructure.Providers.Nbu;
+using Information.Infrastructure.Providers.OpenMeteo;
 using Information.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,12 +24,26 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<ICacheService, CacheService>();
 
-        services.AddScoped<NbuExchangeRateProvider>();
-        services.AddScoped<IExchangeRateProvider>(sp => exchangeRateOptions.ProviderType switch
+        switch (exchangeRateOptions.ProviderType)
         {
-            ExchangeRateProviderType.Nbu => sp.GetRequiredService<NbuExchangeRateProvider>(),
-            _ => throw new InvalidOperationException($"Unknown exchange rate provider type: {exchangeRateOptions.ProviderType}"),
-        });
+            case ExchangeRateProviderType.Nbu:
+                services.AddScoped<IExchangeRateProvider, NbuExchangeRateProvider>();
+                break;
+            default:
+                throw new InvalidOperationException($"Unknown exchange rate provider type: {exchangeRateOptions.ProviderType}");
+        }
+
+        var weatherOptions = configuration.GetRequiredOptions<WeatherOptions>(ConfigurationConstants.WeatherSection);
+        services.Configure<WeatherOptions>(configuration.GetSection(ConfigurationConstants.WeatherSection));
+
+        switch (weatherOptions.ProviderType)
+        {
+            case WeatherProviderType.OpenMeteo:
+                services.AddScoped<IWeatherProvider, OpenMeteoWeatherProvider>();
+                break;
+            default:
+                throw new InvalidOperationException($"Unknown weather provider type: {weatherOptions.ProviderType}");
+        }
 
         return services;
     }

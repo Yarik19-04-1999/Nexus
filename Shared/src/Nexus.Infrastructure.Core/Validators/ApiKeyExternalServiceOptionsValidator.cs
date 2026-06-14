@@ -5,11 +5,9 @@ namespace Nexus.Infrastructure.Core.Validators;
 
 public class ApiKeyExternalServiceOptionsValidator : IValidateOptions<ApiKeyExternalServiceOptions>
 {
-    private readonly ExternalServiceOptionsValidator _baseValidator = new();
-
     public ValidateOptionsResult Validate(string? name, ApiKeyExternalServiceOptions options)
     {
-        var baseResult = _baseValidator.Validate(name, options);
+        var baseResult = ExternalServiceOptionsValidation.ValidateBase(name, options);
         if (baseResult.Failed)
         {
             return baseResult;

@@ -16,7 +16,7 @@ public class LoggingDelegatingHandler : DelegatingHandler
     {
         if (_logger.IsEnabled(LogLevel.Debug))
         {
-            await LogRequestBodyAsync(request, cancellationToken);
+            await LogRequestAsync(request, cancellationToken);
         }
 
         var sw = Stopwatch.StartNew();
@@ -26,38 +26,19 @@ public class LoggingDelegatingHandler : DelegatingHandler
             var response = await base.SendAsync(request, cancellationToken);
             sw.Stop();
 
-            var shouldLogBody = !response.IsSuccessStatusCode || _logger.IsEnabled(LogLevel.Debug);
-
-            string? responseBody = null;
-            if (shouldLogBody)
-            {
-                await response.Content.LoadIntoBufferAsync(cancellationToken);
-                responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-            }
-
-            if (response.IsSuccessStatusCode)
-            {
-                _logger.LogDebug("HTTP {Method} {Url} responded {StatusCode} in {ElapsedMs}ms\n{Body}",
-                    request.Method, request.RequestUri, (int)response.StatusCode, sw.ElapsedMilliseconds, responseBody);
-            }
-            else
-            {
-                _logger.LogWarning("HTTP {Method} {Url} responded {StatusCode} in {ElapsedMs}ms\n{Body}",
-                    request.Method, request.RequestUri, (int)response.StatusCode, sw.ElapsedMilliseconds, responseBody);
-            }
+            await LogResponseAsync(request, response, sw.ElapsedMilliseconds, cancellationToken);
 
             return response;
         }
         catch (Exception ex)
         {
             sw.Stop();
-            _logger.LogError(ex, "HTTP {Method} {Url} failed after {ElapsedMs}ms",
-                request.Method, request.RequestUri, sw.ElapsedMilliseconds);
+            _logger.RequestException(ex, request.Method, request.RequestUri, sw.ElapsedMilliseconds);
             throw;
         }
     }
 
-    private async Task LogRequestBodyAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    private async Task LogRequestAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         if (request.Content is null)
         {
@@ -69,8 +50,28 @@ public class LoggingDelegatingHandler : DelegatingHandler
 
         if (!string.IsNullOrEmpty(body))
         {
-            _logger.LogDebug("HTTP {Method} {Url} request body:\n{Body}",
-                request.Method, request.RequestUri, body);
+            _logger.RequestBody(request.Method, request.RequestUri, body);
+        }
+    }
+
+    private async Task LogResponseAsync(HttpRequestMessage request, HttpResponseMessage response, long elapsedMs, CancellationToken cancellationToken)
+    {
+        var shouldReadBody = !response.IsSuccessStatusCode || _logger.IsEnabled(LogLevel.Debug);
+
+        string? body = null;
+        if (shouldReadBody)
+        {
+            await response.Content.LoadIntoBufferAsync(cancellationToken);
+            body = await response.Content.ReadAsStringAsync(cancellationToken);
+        }
+
+        if (response.IsSuccessStatusCode)
+        {
+            _logger.SuccessResponse(request.Method, request.RequestUri, response.StatusCode, elapsedMs, body);
+        }
+        else
+        {
+            _logger.ErrorResponse(request.Method, request.RequestUri, response.StatusCode, elapsedMs, body);
         }
     }
 }

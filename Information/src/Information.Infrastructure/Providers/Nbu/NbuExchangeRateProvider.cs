@@ -10,7 +10,7 @@ namespace Information.Infrastructure.Providers.Nbu;
 
 internal class NbuExchangeRateProvider : IExchangeRateProvider
 {
-    private const string BaseUrl = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange";
+    private const string ApiPath = "/NBUStatService/v1/statdirectory/exchange";
     private const string SourceName = "NBU";
 
     private readonly HttpClient _httpClient;
@@ -24,7 +24,7 @@ internal class NbuExchangeRateProvider : IExchangeRateProvider
     {
         try
         {
-            var url = $"{BaseUrl}?date={date:yyyyMMdd}&json";
+            var url = $"{ApiPath}?date={date:yyyyMMdd}&json";
             var response = await _httpClient.GetFromJsonAsync<List<NbuExchangeRateResponse>>(url, cancellationToken);
 
             if (response is null)

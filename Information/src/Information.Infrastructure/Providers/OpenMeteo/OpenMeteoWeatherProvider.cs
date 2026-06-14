@@ -10,7 +10,7 @@ namespace Information.Infrastructure.Providers.OpenMeteo;
 
 internal class OpenMeteoWeatherProvider : IWeatherProvider
 {
-    private const string BaseUrl = "https://api.open-meteo.com/v1/forecast";
+    private const string ApiPath = "/v1/forecast";
     private const string SourceName = "OpenMeteo";
     private const string Timezone = "Europe%2FKiev";
     private const int HourlyCount = 24;
@@ -29,7 +29,7 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
         try
         {
             var (lat, lon) = CityCoordinates.All[city];
-            var url = $"{BaseUrl}?latitude={lat}&longitude={lon}" +
+            var url = $"{ApiPath}?latitude={lat}&longitude={lon}" +
                       "&hourly=temperature_2m,apparent_temperature,precipitation_probability,weathercode,windspeed_10m" +
                       $"&timezone={Timezone}&forecast_days={HourlyFetchDays}";
 
@@ -71,7 +71,7 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
         try
         {
             var (lat, lon) = CityCoordinates.All[city];
-            var url = $"{BaseUrl}?latitude={lat}&longitude={lon}" +
+            var url = $"{ApiPath}?latitude={lat}&longitude={lon}" +
                       "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,weathercode,windspeed_10m_max" +
                       $"&timezone={Timezone}&forecast_days={ForecastDays}";
 

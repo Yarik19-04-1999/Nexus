@@ -4,11 +4,12 @@
     <Project Path="src/Nexus.Application.Core/Nexus.Application.Core.csproj" Id="f950e78d-4884-459f-ad70-be8ddef94d52" />
     <Project Path="src/Nexus.Infrastructure.Core/Nexus.Infrastructure.Core.csproj" Id="a1b2c3d4-e5f6-7890-abcd-ef1234567890" />
     <Project Path="src/Nexus.Infrastructure.EfCore.SqlServer/Nexus.Infrastructure.EfCore.SqlServer.csproj" Id="b2c3d4e5-f6a7-8901-bcde-f12345678901" />
+    <Project Path="src/Nexus.Infrastructure.Http/Nexus.Infrastructure.Http.csproj" />
   </Folder>
   <Folder Name="/test/">
-    <Project Path="test/Nexus.Core.Tests/Nexus.Core.Tests.csproj" Id="0a0d1788-a5d4-4b62-aedc-73dd1fd20687" />
     <Project Path="test/Nexus.Api.Core.Tests/Nexus.Api.Core.Tests.csproj" Id="72b0a7ac-9480-47aa-add8-9ef478016ce2" />
     <Project Path="test/Nexus.Application.Core.Tests/Nexus.Application.Core.Tests.csproj" Id="58d25969-10ea-4eed-b9d1-13eb6bf2a498" />
     <Project Path="test/Nexus.AspNetCore.Core.Tests/Nexus.AspNetCore.Core.Tests.csproj" Id="43204c25-cc24-4b54-a958-d9887d82c34c" />
+    <Project Path="test/Nexus.Core.Tests/Nexus.Core.Tests.csproj" Id="0a0d1788-a5d4-4b62-aedc-73dd1fd20687" />
   </Folder>
 </Solution>

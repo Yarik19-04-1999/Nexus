@@ -6,4 +6,9 @@ public static class OptionsConstants
     {
         public const string SectionName = "SqlServer";
     }
+
+    public static class ExternalServices
+    {
+        public const string SectionName = "ExternalServices";
+    }
 }

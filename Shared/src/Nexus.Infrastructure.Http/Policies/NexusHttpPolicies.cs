@@ -2,9 +2,9 @@ using Polly;
 using Polly.Extensions.Http;
 using Polly.Retry;
 
-namespace Nexus.Api.Core.Policies;
+namespace Nexus.Infrastructure.Http.Policies;
 
-public static class NexusPolicies
+public static class NexusHttpPolicies
 {
     public static readonly AsyncRetryPolicy<HttpResponseMessage> DefaultRetryPolicy =
         HttpPolicyExtensions

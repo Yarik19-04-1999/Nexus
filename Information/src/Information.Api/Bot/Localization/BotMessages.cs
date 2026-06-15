@@ -165,18 +165,39 @@ public static class BotMessages
         _ => "📈 Курс за рік"
     };
 
-    public static string YearAgoLabel(BotLanguage lang) => lang switch
-    {
-        BotLanguage.Russian => "Год назад",
-        BotLanguage.English => "Year ago",
-        _ => "Рік тому"
-    };
-
     public static string TodayLabel(BotLanguage lang) => lang switch
     {
         BotLanguage.Russian => "Сегодня",
         BotLanguage.English => "Today",
         _ => "Сьогодні"
+    };
+
+    public static string YesterdayLabel(BotLanguage lang) => lang switch
+    {
+        BotLanguage.Russian => "Вчера",
+        BotLanguage.English => "Yesterday",
+        _ => "Вчора"
+    };
+
+    public static string WeekAgoLabel(BotLanguage lang) => lang switch
+    {
+        BotLanguage.Russian => "Неделю назад",
+        BotLanguage.English => "Week ago",
+        _ => "Тиждень тому"
+    };
+
+    public static string MonthAgoLabel(BotLanguage lang) => lang switch
+    {
+        BotLanguage.Russian => "Месяц назад",
+        BotLanguage.English => "Month ago",
+        _ => "Місяць тому"
+    };
+
+    public static string YearAgoLabel(BotLanguage lang) => lang switch
+    {
+        BotLanguage.Russian => "Год назад",
+        BotLanguage.English => "Year ago",
+        _ => "Рік тому"
     };
 
     public static string UnexpectedError(BotLanguage lang) => lang switch

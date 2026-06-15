@@ -35,31 +35,31 @@ public static class ExchangeRateFormatter
     {
         var sb = new StringBuilder();
         sb.AppendLine(BotMessages.RatesHistoryHeader(lang));
-        sb.AppendLine();
 
         foreach (var history in histories)
         {
-            sb.Append($"{history.Currency.ToFlag()} {history.Currency}: {history.Current.Rate:F2} ₴");
-
-            if (history.YearAgo is not null)
-            {
-                var change = (history.Current.Rate - history.YearAgo.Rate) / history.YearAgo.Rate * 100m;
-                var changeInt = (int)Math.Round(change);
-                var arrow = changeInt >= 0 ? "🟢 ↑" : "🔴 ↓";
-                var sign = changeInt >= 0 ? "+" : "";
-                sb.Append($"  {arrow}{sign}{changeInt}%");
-            }
-
             sb.AppendLine();
-        }
-
-        if (histories.Count == 1 && histories[0].YearAgo is not null)
-        {
-            sb.AppendLine();
-            sb.AppendLine($"{BotMessages.TodayLabel(lang)}: {histories[0].Current.Rate:F2} ₴  ({histories[0].Current.Date.ToString(IceAgeBriefTelegramBotConstants.DisplayDateFormat)})");
-            sb.AppendLine($"{BotMessages.YearAgoLabel(lang)}: {histories[0].YearAgo!.Rate:F2} ₴  ({histories[0].YearAgo!.Date.ToString(IceAgeBriefTelegramBotConstants.DisplayDateFormat)})");
+            sb.AppendLine($"{history.Currency.ToFlag()} {history.Currency}: {history.Current.Rate:F2} ₴");
+            AppendHistoryRow(sb, BotMessages.YesterdayLabel(lang), history.Yesterday, history.Current);
+            AppendHistoryRow(sb, BotMessages.WeekAgoLabel(lang), history.WeekAgo, history.Current);
+            AppendHistoryRow(sb, BotMessages.MonthAgoLabel(lang), history.MonthAgo, history.Current);
+            AppendHistoryRow(sb, BotMessages.YearAgoLabel(lang), history.YearAgo, history.Current);
         }
 
         return sb.ToString().TrimEnd();
+    }
+
+    private static void AppendHistoryRow(StringBuilder sb, string label, ExchangeRate? historical, ExchangeRate current)
+    {
+        if (historical is null)
+        {
+            return;
+        }
+
+        var change = (current.Rate - historical.Rate) / historical.Rate * 100m;
+        var changeInt = (int)Math.Round(change);
+        var arrow = changeInt >= 0 ? "🟢 ↑" : "🔴 ↓";
+        var sign = changeInt >= 0 ? "+" : "";
+        sb.AppendLine($"  {label}: {historical.Rate:F2} ₴  {arrow}{sign}{changeInt}%");
     }
 }

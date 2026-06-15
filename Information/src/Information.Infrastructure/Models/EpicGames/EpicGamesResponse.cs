@@ -5,7 +5,16 @@ namespace Information.Infrastructure.Models.EpicGames;
 internal class EpicGamesResponse
 {
     [JsonPropertyName("data")]
-    public EpicGamesData Data { get; init; } = default!;
+    public EpicGamesData? Data { get; init; }
+
+    [JsonPropertyName("errors")]
+    public IReadOnlyList<EpicGamesError>? Errors { get; init; }
+}
+
+internal class EpicGamesError
+{
+    [JsonPropertyName("message")]
+    public string Message { get; init; } = default!;
 }
 
 internal class EpicGamesData

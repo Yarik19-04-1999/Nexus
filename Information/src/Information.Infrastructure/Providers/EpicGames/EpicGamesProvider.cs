@@ -28,7 +28,7 @@ internal class EpicGamesProvider : IEpicGamesProvider
         {
             var response = await _httpClient.GetFromJsonAsync<EpicGamesResponse>(FormUrl(), cancellationToken);
 
-            if (response is null)
+            if (response is null || response.Errors is { Count: > 0 } || response.Data is null)
             {
                 throw InformationExceptions.ProviderUnavailable(SourceName);
             }

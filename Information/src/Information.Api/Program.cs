@@ -11,7 +11,7 @@ var configuration = builder.Configuration;
 services.AddControllers();
 services
     .AddNexusServices(NexusOptions.Default)
-    .AddApplication(configuration)
+    .AddApplication()
     .AddInfrastructure(configuration);
 
 var app = builder.Build();

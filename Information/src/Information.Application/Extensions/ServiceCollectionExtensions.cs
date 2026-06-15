@@ -5,23 +5,29 @@ using Information.Application.Models.Options;
 using Information.Application.Services;
 using Information.Application.UseCases;
 using Information.Application.Validators;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+using Nexus.Application.Core.Extensions;
 
 namespace Information.Application.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.Configure<ExchangeRateCacheOptions>(configuration.GetSection(ConfigurationConstants.ExchangeRateSection));
-        services.AddSingleton<IValidateOptions<ExchangeRateCacheOptions>, ExchangeRateCacheOptionsValidator>();
-        services.AddOptions<ExchangeRateCacheOptions>().ValidateOnStart();
+        services.AddOptions<ExchangeRateCacheOptions>()
+            .BindConfiguration(ConfigurationConstants.ExchangeRateSection)
+            .WithValidator<ExchangeRateCacheOptions, ExchangeRateCacheOptionsValidator>()
+            .ValidateOnStart();
 
-        services.Configure<WeatherCacheOptions>(configuration.GetSection(ConfigurationConstants.WeatherSection));
-        services.AddSingleton<IValidateOptions<WeatherCacheOptions>, WeatherCacheOptionsValidator>();
-        services.AddOptions<WeatherCacheOptions>().ValidateOnStart();
+        services.AddOptions<WeatherCacheOptions>()
+            .BindConfiguration(ConfigurationConstants.WeatherSection)
+            .WithValidator<WeatherCacheOptions, WeatherCacheOptionsValidator>()
+            .ValidateOnStart();
+
+        services.AddOptions<EpicGamesCacheOptions>()
+            .BindConfiguration(ConfigurationConstants.EpicGamesSection)
+            .WithValidator<EpicGamesCacheOptions, EpicGamesCacheOptionsValidator>()
+            .ValidateOnStart();
 
         services.AddSingleton<ICacheKeyProvider, CacheKeyProvider>();
 
@@ -30,10 +36,6 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IGetHourlyWeatherUseCase, GetHourlyWeatherUseCase>();
         services.AddScoped<IGetDailyWeatherUseCase, GetDailyWeatherUseCase>();
-
-        services.Configure<EpicGamesCacheOptions>(configuration.GetSection(ConfigurationConstants.EpicGamesSection));
-        services.AddSingleton<IValidateOptions<EpicGamesCacheOptions>, EpicGamesCacheOptionsValidator>();
-        services.AddOptions<EpicGamesCacheOptions>().ValidateOnStart();
 
         services.AddScoped<IGetEpicFreeGamesUseCase, GetEpicFreeGamesUseCase>();
 

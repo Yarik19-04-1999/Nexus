@@ -39,7 +39,7 @@ public static class ServiceCollectionExtensions
             case ExchangeRateProviderType.Nbu:
                 services.AddExternalServiceHttpClient<IExchangeRateProvider, NbuExchangeRateProvider>(
                     ExternalServiceConstants.Nbu,
-                    configuration.GetSection(ExternalServiceConstants.Nbu));
+                    ExternalServiceConstants.Nbu);
                 break;
             default:
                 throw new InvalidOperationException($"Unknown exchange rate provider type: {options.ProviderType}");
@@ -57,7 +57,7 @@ public static class ServiceCollectionExtensions
             case WeatherProviderType.OpenMeteo:
                 services.AddExternalServiceHttpClient<IWeatherProvider, OpenMeteoWeatherProvider>(
                     ExternalServiceConstants.OpenMeteo,
-                    configuration.GetSection(ExternalServiceConstants.OpenMeteo));
+                    ExternalServiceConstants.OpenMeteo);
                 break;
             default:
                 throw new InvalidOperationException($"Unknown weather provider type: {options.ProviderType}");
@@ -70,7 +70,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddExternalServiceHttpClient<IEpicGamesProvider, EpicGamesProvider>(
             ExternalServiceConstants.EpicGames,
-            configuration.GetSection(ExternalServiceConstants.EpicGames));
+            ExternalServiceConstants.EpicGames);
 
         services.Decorate<IEpicGamesProvider, CachingEpicGamesProvider>();
     }

@@ -4,7 +4,7 @@ using Information.Application.Enums;
 using Information.Application.Interfaces.Providers;
 using Information.Application.Models;
 using Information.Infrastructure.Models.OpenMeteo;
-using Nexus.Application.Core.Models;
+using Nexus.Application.Core.Exceptions;
 
 namespace Information.Infrastructure.Providers.OpenMeteo;
 
@@ -33,7 +33,7 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
            "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,weathercode,windspeed_10m_max" +
            $"&timezone={Timezone}&forecast_days={ForecastDays}";
 
-    public async Task<Result<IReadOnlyList<HourlyWeather>>> GetHourlyForecast(WeatherCity city, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<HourlyWeather>> GetHourlyForecast(WeatherCity city, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -44,7 +44,7 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
 
             if (response is null)
             {
-                return InformationResultConstants.ProviderUnavailable<IReadOnlyList<HourlyWeather>>(SourceName);
+                throw InformationExceptions.ProviderUnavailable(SourceName);
             }
 
             var now = DateTime.Now;
@@ -53,7 +53,7 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
                 .First(x => x.Time >= now)
                 .Index;
 
-            var hourly = Enumerable.Range(startIndex, HourlyCount)
+            return Enumerable.Range(startIndex, HourlyCount)
                 .Select(i => new HourlyWeather
                 {
                     Time = DateTime.Parse(response.Hourly.Time[i]),
@@ -64,16 +64,18 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
                     WindSpeed = response.Hourly.WindSpeed[i],
                 })
                 .ToList();
-
-            return Result<IReadOnlyList<HourlyWeather>>.Success(hourly);
+        }
+        catch (DomainException)
+        {
+            throw;
         }
         catch (Exception)
         {
-            return InformationResultConstants.ProviderUnavailable<IReadOnlyList<HourlyWeather>>(SourceName, canRetry: true);
+            throw InformationExceptions.ProviderUnavailable(SourceName);
         }
     }
 
-    public async Task<Result<IReadOnlyList<DailyWeather>>> GetDailyForecast(WeatherCity city, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<DailyWeather>> GetDailyForecast(WeatherCity city, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -84,10 +86,10 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
 
             if (response is null)
             {
-                return InformationResultConstants.ProviderUnavailable<IReadOnlyList<DailyWeather>>(SourceName);
+                throw InformationExceptions.ProviderUnavailable(SourceName);
             }
 
-            var daily = Enumerable.Range(0, response.Daily.Time.Count)
+            return Enumerable.Range(0, response.Daily.Time.Count)
                 .Select(i => new DailyWeather
                 {
                     Date = DateOnly.Parse(response.Daily.Time[i]),
@@ -99,12 +101,14 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
                     MaxWindSpeed = response.Daily.MaxWindSpeed[i],
                 })
                 .ToList();
-
-            return Result<IReadOnlyList<DailyWeather>>.Success(daily);
+        }
+        catch (DomainException)
+        {
+            throw;
         }
         catch (Exception)
         {
-            return InformationResultConstants.ProviderUnavailable<IReadOnlyList<DailyWeather>>(SourceName, canRetry: true);
+            throw InformationExceptions.ProviderUnavailable(SourceName);
         }
     }
 }

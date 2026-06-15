@@ -4,7 +4,6 @@ using Information.Application.Interfaces.Services;
 using Information.Application.Models;
 using Information.Application.Models.Options;
 using Microsoft.Extensions.Options;
-using Nexus.Application.Core.Models;
 
 namespace Information.Infrastructure.Decorators;
 
@@ -23,6 +22,6 @@ internal class CachingExchangeRateProvider : IExchangeRateProvider
         _cacheOptions = cacheOptions.Value;
     }
 
-    public Task<Result<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>> GetRates(DateOnly date, CancellationToken cancellationToken = default) =>
-        _cacheService.GetOrCreate(_cacheKeyProvider.GetExchangeRatesKey(date), ct => _inner.GetRates(date, ct), _cacheOptions.CacheExpiration, cancellationToken);
+    public async Task<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>> GetRates(DateOnly date, CancellationToken cancellationToken = default) =>
+        await _cacheService.GetOrCreate(_cacheKeyProvider.GetExchangeRatesKey(date), ct => _inner.GetRates(date, ct), _cacheOptions.CacheExpiration, cancellationToken);
 }

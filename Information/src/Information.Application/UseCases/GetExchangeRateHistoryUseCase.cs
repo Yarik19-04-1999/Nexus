@@ -5,7 +5,6 @@ using Information.Application.Interfaces.UseCases;
 using Information.Application.Models;
 using Information.Application.Models.Input;
 using Nexus.Application.Core.Extensions;
-using Nexus.Application.Core.Models;
 using Nexus.Application.Core.Utils;
 
 namespace Information.Application.UseCases;
@@ -19,7 +18,7 @@ public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
         _exchangeRateProvider = exchangeRateProvider;
     }
 
-    public async Task<Result<IReadOnlyList<ExchangeRateHistory>>> Execute(GetExchangeRateHistoryInput input, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ExchangeRateHistory>> Execute(GetExchangeRateHistoryInput input, CancellationToken cancellationToken = default)
     {
         var currencies = input.Currency.HasValue
             ? (IEnumerable<ExchangeCurrency>)[input.Currency.Value]
@@ -38,18 +37,10 @@ public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
         var tasks = dates.Select(date => _exchangeRateProvider.GetRates(date, cancellationToken));
         var results = await Task.WhenAll(tasks);
 
-        foreach (var result in results)
-        {
-            if (result.HasError)
-            {
-                return InformationResultConstants.ProviderUnavailable<IReadOnlyList<ExchangeRateHistory>>(nameof(IExchangeRateProvider));
-            }
-        }
-
         var histories = currencies
             .Select(currency =>
             {
-                var current = results[0].Data.GetValueOrDefault(currency);
+                var current = results[0].GetValueOrDefault(currency);
                 if (current is null)
                 {
                     return null;
@@ -59,10 +50,10 @@ public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
                 {
                     Currency = currency,
                     Current = current,
-                    Yesterday = results[1].Data.GetValueOrDefault(currency),
-                    WeekAgo = results[2].Data.GetValueOrDefault(currency),
-                    MonthAgo = results[3].Data.GetValueOrDefault(currency),
-                    YearAgo = results[4].Data.GetValueOrDefault(currency),
+                    Yesterday = results[1].GetValueOrDefault(currency),
+                    WeekAgo = results[2].GetValueOrDefault(currency),
+                    MonthAgo = results[3].GetValueOrDefault(currency),
+                    YearAgo = results[4].GetValueOrDefault(currency),
                 };
             })
             .Where(h => h is not null)
@@ -71,9 +62,9 @@ public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
 
         if (histories.Count == 0)
         {
-            return InformationResultConstants.ProviderUnavailable<IReadOnlyList<ExchangeRateHistory>>(nameof(IExchangeRateProvider));
+            throw InformationExceptions.ProviderUnavailable(nameof(IExchangeRateProvider));
         }
 
-        return Result<IReadOnlyList<ExchangeRateHistory>>.Success(histories);
+        return histories;
     }
 }

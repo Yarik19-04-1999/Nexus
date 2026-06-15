@@ -226,18 +226,8 @@ public class BotUpdateHandler : IUpdateHandler
     {
         using var scope = _scopeFactory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IGetExchangeRatesUseCase>();
-        var result = await useCase.Execute(new GetExchangeRatesInput(), ct);
-
-        if (result.HasError)
-        {
-            await bot.EditMessageText(chatId, messageId,
-                BotMessages.UnexpectedError(lang),
-                replyMarkup: BackToMenuKeyboard(lang),
-                cancellationToken: ct);
-            return;
-        }
-
-        var text = ExchangeRateFormatter.FormatToday(result.Data, lang);
+        var data = await useCase.Execute(new GetExchangeRatesInput(), ct);
+        var text = ExchangeRateFormatter.FormatToday(data, lang);
         await bot.EditMessageText(chatId, messageId, text, replyMarkup: BackToMenuKeyboard(lang), cancellationToken: ct);
     }
 
@@ -262,18 +252,8 @@ public class BotUpdateHandler : IUpdateHandler
     {
         using var scope = _scopeFactory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IGetExchangeRateHistoryUseCase>();
-        var result = await useCase.Execute(new GetExchangeRateHistoryInput(currency), ct);
-
-        if (result.HasError)
-        {
-            await bot.EditMessageText(chatId, messageId,
-                BotMessages.UnexpectedError(lang),
-                replyMarkup: BackToMenuKeyboard(lang),
-                cancellationToken: ct);
-            return;
-        }
-
-        var text = ExchangeRateFormatter.FormatHistory(result.Data, lang);
+        var data = await useCase.Execute(new GetExchangeRateHistoryInput(currency), ct);
+        var text = ExchangeRateFormatter.FormatHistory(data, lang);
         await bot.EditMessageText(chatId, messageId, text, replyMarkup: BackToMenuKeyboard(lang), cancellationToken: ct);
     }
 
@@ -322,18 +302,8 @@ public class BotUpdateHandler : IUpdateHandler
     {
         using var scope = _scopeFactory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IGetHourlyWeatherUseCase>();
-        var result = await useCase.Execute(new GetWeatherInput(city), ct);
-
-        if (result.HasError)
-        {
-            await bot.EditMessageText(chatId, messageId,
-                BotMessages.UnexpectedError(lang),
-                replyMarkup: BackToMenuKeyboard(lang),
-                cancellationToken: ct);
-            return;
-        }
-
-        var text = WeatherFormatter.FormatHourly(result.Data, city, lang);
+        var data = await useCase.Execute(new GetWeatherInput(city), ct);
+        var text = WeatherFormatter.FormatHourly(data, city, lang);
         await bot.EditMessageText(chatId, messageId, text, replyMarkup: BackToMenuKeyboard(lang), cancellationToken: ct);
     }
 
@@ -341,18 +311,8 @@ public class BotUpdateHandler : IUpdateHandler
     {
         using var scope = _scopeFactory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IGetDailyWeatherUseCase>();
-        var result = await useCase.Execute(new GetWeatherInput(city), ct);
-
-        if (result.HasError)
-        {
-            await bot.EditMessageText(chatId, messageId,
-                BotMessages.UnexpectedError(lang),
-                replyMarkup: BackToMenuKeyboard(lang),
-                cancellationToken: ct);
-            return;
-        }
-
-        var text = WeatherFormatter.FormatDaily(result.Data, city, lang);
+        var data = await useCase.Execute(new GetWeatherInput(city), ct);
+        var text = WeatherFormatter.FormatDaily(data, city, lang);
         await bot.EditMessageText(chatId, messageId, text, replyMarkup: BackToMenuKeyboard(lang), cancellationToken: ct);
     }
 
@@ -360,18 +320,9 @@ public class BotUpdateHandler : IUpdateHandler
     {
         using var scope = _scopeFactory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IGetEpicFreeGamesUseCase>();
-        var result = await useCase.Execute(new GetEpicFreeGamesInput(), ct);
+        var data = await useCase.Execute(new GetEpicFreeGamesInput(), ct);
 
-        if (result.HasError)
-        {
-            await bot.EditMessageText(chatId, messageId,
-                BotMessages.UnexpectedError(lang),
-                replyMarkup: BackToMenuKeyboard(lang),
-                cancellationToken: ct);
-            return;
-        }
-
-        if (result.Data.Count == 0)
+        if (data.Count == 0)
         {
             await bot.EditMessageText(chatId, messageId,
                 BotMessages.NoEpicGames(lang),
@@ -380,7 +331,7 @@ public class BotUpdateHandler : IUpdateHandler
             return;
         }
 
-        var text = EpicGamesFormatter.Format(result.Data, lang);
+        var text = EpicGamesFormatter.Format(data, lang);
         await bot.EditMessageText(chatId, messageId, text,
             parseMode: ParseMode.Html,
             replyMarkup: BackToMenuKeyboard(lang),
@@ -411,8 +362,7 @@ public class BotUpdateHandler : IUpdateHandler
     {
         using var scope = _scopeFactory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IGetUserLanguageUseCase>();
-        var result = await useCase.Execute(new GetUserLanguageInput(userId), ct);
-        return result.Data;
+        return await useCase.Execute(new GetUserLanguageInput(userId), ct);
     }
 
     private static InlineKeyboardMarkup BackToMenuKeyboard(BotLanguage lang) =>

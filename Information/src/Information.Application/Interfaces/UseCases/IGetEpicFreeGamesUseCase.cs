@@ -1,8 +1,7 @@
 using Information.Application.Models;
 using Information.Application.Models.Input;
 using Nexus.Application.Core.Interfaces;
-using Nexus.Application.Core.Models;
 
 namespace Information.Application.Interfaces.UseCases;
 
-public interface IGetEpicFreeGamesUseCase : IUseCase<GetEpicFreeGamesInput, Result<IReadOnlyList<EpicGame>>>;
+public interface IGetEpicFreeGamesUseCase : ISimpleUseCase<GetEpicFreeGamesInput, IReadOnlyList<EpicGame>>;

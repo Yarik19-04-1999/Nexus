@@ -4,7 +4,7 @@ using Information.Application.Enums;
 using Information.Application.Interfaces.Providers;
 using Information.Application.Models;
 using Information.Infrastructure.Models.Nbu;
-using Nexus.Application.Core.Models;
+using Nexus.Application.Core.Exceptions;
 
 namespace Information.Infrastructure.Providers.Nbu;
 
@@ -21,7 +21,7 @@ internal class NbuExchangeRateProvider : IExchangeRateProvider
 
     private static string FormUrl(DateOnly date) => $"/NBUStatService/v1/statdirectory/exchange?date={date:yyyyMMdd}&json";
 
-    public async Task<Result<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>> GetRates(DateOnly date, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>> GetRates(DateOnly date, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -30,23 +30,25 @@ internal class NbuExchangeRateProvider : IExchangeRateProvider
 
             if (response is null)
             {
-                return InformationResultConstants.ProviderUnavailable<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>(SourceName);
+                throw InformationExceptions.ProviderUnavailable(SourceName);
             }
 
             var knownCurrencies = Enum.GetValues<ExchangeCurrency>()
                 .ToDictionary(c => c.ToString(), c => c, StringComparer.OrdinalIgnoreCase);
 
-            var rates = response
+            return response
                 .Where(r => knownCurrencies.ContainsKey(r.Currency))
                 .ToDictionary(
                     r => knownCurrencies[r.Currency],
                     r => new ExchangeRate { Rate = r.Rate, Date = date });
-
-            return Result<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>.Success(rates);
+        }
+        catch (DomainException)
+        {
+            throw;
         }
         catch (Exception)
         {
-            return InformationResultConstants.ProviderUnavailable<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>(SourceName, canRetry: true);
+            throw InformationExceptions.ProviderUnavailable(SourceName);
         }
     }
 }

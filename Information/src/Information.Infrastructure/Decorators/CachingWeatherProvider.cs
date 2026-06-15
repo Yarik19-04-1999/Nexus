@@ -4,7 +4,6 @@ using Information.Application.Interfaces.Services;
 using Information.Application.Models;
 using Information.Application.Models.Options;
 using Microsoft.Extensions.Options;
-using Nexus.Application.Core.Models;
 
 namespace Information.Infrastructure.Decorators;
 
@@ -23,9 +22,9 @@ internal class CachingWeatherProvider : IWeatherProvider
         _cacheOptions = cacheOptions.Value;
     }
 
-    public Task<Result<IReadOnlyList<HourlyWeather>>> GetHourlyForecast(WeatherCity city, CancellationToken cancellationToken = default) =>
-        _cacheService.GetOrCreate(_cacheKeyProvider.GetWeatherHourlyKey(city), ct => _inner.GetHourlyForecast(city, ct), _cacheOptions.HourlyCacheExpiration, cancellationToken);
+    public async Task<IReadOnlyList<HourlyWeather>> GetHourlyForecast(WeatherCity city, CancellationToken cancellationToken = default) =>
+        await _cacheService.GetOrCreate(_cacheKeyProvider.GetWeatherHourlyKey(city), ct => _inner.GetHourlyForecast(city, ct), _cacheOptions.HourlyCacheExpiration, cancellationToken);
 
-    public Task<Result<IReadOnlyList<DailyWeather>>> GetDailyForecast(WeatherCity city, CancellationToken cancellationToken = default) =>
-        _cacheService.GetOrCreate(_cacheKeyProvider.GetWeatherDailyKey(city), ct => _inner.GetDailyForecast(city, ct), _cacheOptions.DailyCacheExpiration, cancellationToken);
+    public async Task<IReadOnlyList<DailyWeather>> GetDailyForecast(WeatherCity city, CancellationToken cancellationToken = default) =>
+        await _cacheService.GetOrCreate(_cacheKeyProvider.GetWeatherDailyKey(city), ct => _inner.GetDailyForecast(city, ct), _cacheOptions.DailyCacheExpiration, cancellationToken);
 }

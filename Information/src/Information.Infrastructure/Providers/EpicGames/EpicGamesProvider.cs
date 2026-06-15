@@ -3,7 +3,7 @@ using Information.Application.Constants;
 using Information.Application.Interfaces.Providers;
 using Information.Application.Models;
 using Information.Infrastructure.Models.EpicGames;
-using Nexus.Application.Core.Models;
+using Nexus.Application.Core.Exceptions;
 
 namespace Information.Infrastructure.Providers.EpicGames;
 
@@ -22,7 +22,7 @@ internal class EpicGamesProvider : IEpicGamesProvider
 
     private static string FormUrl() => "/freeGamesPromotions?locale=en-US&country=US&allowCountries=US";
 
-    public async Task<Result<IReadOnlyList<EpicGame>>> GetFreeGames(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<EpicGame>> GetFreeGames(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -30,12 +30,12 @@ internal class EpicGamesProvider : IEpicGamesProvider
 
             if (response is null)
             {
-                return InformationResultConstants.ProviderUnavailable<IReadOnlyList<EpicGame>>(SourceName);
+                throw InformationExceptions.ProviderUnavailable(SourceName);
             }
 
             var now = DateTimeOffset.UtcNow;
 
-            var games = response.Data.Catalog.SearchStore.Elements
+            return response.Data.Catalog.SearchStore.Elements
                 .Where(e => IsCurrentlyFree(e, now))
                 .Select(e => new EpicGame
                 {
@@ -46,12 +46,14 @@ internal class EpicGamesProvider : IEpicGamesProvider
                     StoreUrl = GetStoreUrl(e),
                 })
                 .ToList();
-
-            return Result<IReadOnlyList<EpicGame>>.Success(games);
+        }
+        catch (DomainException)
+        {
+            throw;
         }
         catch (Exception)
         {
-            return InformationResultConstants.ProviderUnavailable<IReadOnlyList<EpicGame>>(SourceName, canRetry: true);
+            throw InformationExceptions.ProviderUnavailable(SourceName);
         }
     }
 

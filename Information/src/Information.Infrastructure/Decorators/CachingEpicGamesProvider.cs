@@ -3,7 +3,6 @@ using Information.Application.Interfaces.Services;
 using Information.Application.Models;
 using Information.Application.Models.Options;
 using Microsoft.Extensions.Options;
-using Nexus.Application.Core.Models;
 
 namespace Information.Infrastructure.Decorators;
 
@@ -22,6 +21,6 @@ internal class CachingEpicGamesProvider : IEpicGamesProvider
         _cacheOptions = cacheOptions.Value;
     }
 
-    public Task<Result<IReadOnlyList<EpicGame>>> GetFreeGames(CancellationToken cancellationToken = default) =>
-        _cacheService.GetOrCreate(_cacheKeyProvider.GetEpicGamesKey(), _inner.GetFreeGames, _cacheOptions.CacheExpiration, cancellationToken);
+    public async Task<IReadOnlyList<EpicGame>> GetFreeGames(CancellationToken cancellationToken = default) =>
+        await _cacheService.GetOrCreate(_cacheKeyProvider.GetEpicGamesKey(), _inner.GetFreeGames, _cacheOptions.CacheExpiration, cancellationToken);
 }

@@ -5,7 +5,6 @@ using Information.Application.Interfaces.UseCases;
 using Information.Application.Models.Input;
 using Microsoft.AspNetCore.Mvc;
 using Nexus.Api.Core.Attributes;
-using Nexus.Api.Core.Extensions;
 
 namespace Information.Api.Controllers.V1;
 
@@ -19,13 +18,8 @@ public class WeatherController : ControllerBase
         [FromServices] IGetHourlyWeatherUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.Execute(new GetWeatherInput(city), cancellationToken);
-        if (result.HasError)
-        {
-            return this.DomainError(result);
-        }
-
-        return Ok(new GetHourlyWeatherResponse(city, result.Data.Select(GetHourlyWeatherResponseMapper.Map).ToList()));
+        var data = await useCase.Execute(new GetWeatherInput(city), cancellationToken);
+        return Ok(new GetHourlyWeatherResponse(city, data.Select(GetHourlyWeatherResponseMapper.Map).ToList()));
     }
 
     [HttpGet("{city}/daily")]
@@ -34,12 +28,7 @@ public class WeatherController : ControllerBase
         [FromServices] IGetDailyWeatherUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.Execute(new GetWeatherInput(city), cancellationToken);
-        if (result.HasError)
-        {
-            return this.DomainError(result);
-        }
-
-        return Ok(new GetDailyWeatherResponse(city, result.Data.Select(GetDailyWeatherResponseMapper.Map).ToList()));
+        var data = await useCase.Execute(new GetWeatherInput(city), cancellationToken);
+        return Ok(new GetDailyWeatherResponse(city, data.Select(GetDailyWeatherResponseMapper.Map).ToList()));
     }
 }

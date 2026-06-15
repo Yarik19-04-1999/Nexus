@@ -3,7 +3,6 @@ using Information.Application.Interfaces.UseCases;
 using Information.Application.Models.Input;
 using Microsoft.AspNetCore.Mvc;
 using Nexus.Api.Core.Attributes;
-using Nexus.Api.Core.Extensions;
 
 namespace Information.Api.Controllers.V1;
 
@@ -16,12 +15,7 @@ public class EpicGamesController : ControllerBase
         [FromServices] IGetEpicFreeGamesUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.Execute(new GetEpicFreeGamesInput(), cancellationToken);
-        if (result.HasError)
-        {
-            return this.DomainError(result);
-        }
-
-        return Ok(new GetEpicFreeGamesResponse(result.Data.Select(GetEpicFreeGamesResponseMapper.Map).ToList()));
+        var data = await useCase.Execute(new GetEpicFreeGamesInput(), cancellationToken);
+        return Ok(new GetEpicFreeGamesResponse(data.Select(GetEpicFreeGamesResponseMapper.Map).ToList()));
     }
 }

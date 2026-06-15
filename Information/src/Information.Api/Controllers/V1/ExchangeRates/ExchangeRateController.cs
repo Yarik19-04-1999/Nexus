@@ -5,7 +5,6 @@ using Information.Application.Interfaces.UseCases;
 using Information.Application.Models.Input;
 using Microsoft.AspNetCore.Mvc;
 using Nexus.Api.Core.Attributes;
-using Nexus.Api.Core.Extensions;
 
 namespace Information.Api.Controllers.V1;
 
@@ -18,13 +17,8 @@ public class ExchangeRateController : ControllerBase
         [FromServices] IGetExchangeRatesUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.Execute(new GetExchangeRatesInput(), cancellationToken);
-        if (result.HasError)
-        {
-            return this.DomainError(result);
-        }
-
-        return Ok(GetExchangeRatesResponseMapper.Map(result.Data));
+        var data = await useCase.Execute(new GetExchangeRatesInput(), cancellationToken);
+        return Ok(GetExchangeRatesResponseMapper.Map(data));
     }
 
     [HttpGet("history")]
@@ -32,13 +26,8 @@ public class ExchangeRateController : ControllerBase
         [FromServices] IGetExchangeRateHistoryUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.Execute(new GetExchangeRateHistoryInput(null), cancellationToken);
-        if (result.HasError)
-        {
-            return this.DomainError(result);
-        }
-
-        return Ok(GetExchangeRateHistoryResponseMapper.Map(result.Data));
+        var data = await useCase.Execute(new GetExchangeRateHistoryInput(null), cancellationToken);
+        return Ok(GetExchangeRateHistoryResponseMapper.Map(data));
     }
 
     [HttpGet("{currency}/history")]
@@ -47,12 +36,7 @@ public class ExchangeRateController : ControllerBase
         [FromServices] IGetExchangeRateHistoryUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.Execute(new GetExchangeRateHistoryInput(currency), cancellationToken);
-        if (result.HasError)
-        {
-            return this.DomainError(result);
-        }
-
-        return Ok(GetExchangeRateHistoryResponseMapper.Map(result.Data));
+        var data = await useCase.Execute(new GetExchangeRateHistoryInput(currency), cancellationToken);
+        return Ok(GetExchangeRateHistoryResponseMapper.Map(data));
     }
 }

@@ -52,3 +52,5 @@ builder.ToTable("Users"); // no schema argument
 # SQL Server (additions)
 
 All enum columns use `int` type.
+
+SQL migration scripts belong in the service's Infrastructure project under a `scripts/` folder (e.g. `Information.Infrastructure/scripts/script.sql`).

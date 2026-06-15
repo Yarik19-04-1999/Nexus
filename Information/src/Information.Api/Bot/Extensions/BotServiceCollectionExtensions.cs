@@ -14,7 +14,7 @@ public static class BotServiceCollectionExtensions
     public static IServiceCollection AddIceAgeBriefTelegramBot(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOptions<BotOptions>()
-            .BindConfiguration("Bot")
+            .BindConfiguration("IceAgeBrief")
             .WithValidator<BotOptions, BotOptionsValidator>()
             .ValidateOnStart();
 

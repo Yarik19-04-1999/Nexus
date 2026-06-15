@@ -15,16 +15,16 @@ public class TelegramUserRepository : ITelegramUserRepository
 
     public async Task<TelegramUser?> GetById(long telegramUserId, CancellationToken cancellationToken = default)
     {
-        return await _context.Users.FindAsync([telegramUserId], cancellationToken);
+        return await _context.TelegramUsers.FindAsync([telegramUserId], cancellationToken);
     }
 
     public async Task Upsert(TelegramUser user, CancellationToken cancellationToken = default)
     {
-        var existing = await _context.Users.FindAsync([user.TelegramUserId], cancellationToken);
+        var existing = await _context.TelegramUsers.FindAsync([user.TelegramUserId], cancellationToken);
 
         if (existing is null)
         {
-            _context.Users.Add(user);
+            _context.TelegramUsers.Add(user);
         }
         else
         {

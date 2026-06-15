@@ -8,7 +8,7 @@ public class TelegramUserConfiguration : IEntityTypeConfiguration<TelegramUser>
 {
     public void Configure(EntityTypeBuilder<TelegramUser> builder)
     {
-        builder.ToTable("Users");
+        builder.ToTable("TelegramUsers");
         builder.HasKey(x => x.TelegramUserId);
         builder.Property(x => x.Language).HasConversion<int>();
     }

@@ -7,7 +7,7 @@ public class InformationDbContext : DbContext
 {
     public InformationDbContext(DbContextOptions<InformationDbContext> options) : base(options) { }
 
-    public DbSet<TelegramUser> Users => Set<TelegramUser>();
+    public DbSet<TelegramUser> TelegramUsers => Set<TelegramUser>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

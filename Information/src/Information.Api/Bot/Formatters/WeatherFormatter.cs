@@ -5,9 +5,9 @@ using Information.Api.Bot.Localization;
 
 namespace Information.Api.Bot.Formatters;
 
-internal static class WeatherFormatter
+public static class WeatherFormatter
 {
-    internal static string FormatHourly(IReadOnlyList<HourlyWeather> items, WeatherCity city, BotLanguage lang)
+    public static string FormatHourly(IReadOnlyList<HourlyWeather> items, WeatherCity city, BotLanguage lang)
     {
         var sb = new StringBuilder();
         sb.AppendLine($"🌤 {BotMessages.GetCityName(city, lang)} — {FormatHourlyTitle(lang)}");
@@ -23,7 +23,7 @@ internal static class WeatherFormatter
         return sb.ToString().TrimEnd();
     }
 
-    internal static string FormatDaily(IReadOnlyList<DailyWeather> items, WeatherCity city, BotLanguage lang)
+    public static string FormatDaily(IReadOnlyList<DailyWeather> items, WeatherCity city, BotLanguage lang)
     {
         var sb = new StringBuilder();
         sb.AppendLine($"📅 {BotMessages.GetCityName(city, lang)} — {FormatDailyTitle(lang)}");

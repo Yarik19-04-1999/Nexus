@@ -1,8 +1,10 @@
 using CorrelationId.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Nexus.Api.Core.Mappers;
 using Nexus.Api.Core.ViewModels;
 using Nexus.Application.Core.Exceptions;
+using System.Net.Mime;
 
 namespace Nexus.Api.Core.Middleware;
 
@@ -22,13 +24,12 @@ public class ExceptionResponseMiddleware(RequestDelegate next)
 
     private static async Task HandleExceptionAsync(HttpContext context, Exception ex)
     {
-        context.Response.ContentType = "application/json";
+        context.Response.ContentType = MediaTypeNames.Application.Json;
 
         if (ex is DomainException domainException)
         {
             context.Response.StatusCode = StatusCodes.Status418ImATeapot;
-            await context.Response.WriteAsJsonAsync(
-                new DomainErrorResponse(domainException.ErrorCode, domainException.Message, domainException.CanRetry));
+            await context.Response.WriteAsJsonAsync(ResponsesMappers.Map(domainException));
         }
         else
         {

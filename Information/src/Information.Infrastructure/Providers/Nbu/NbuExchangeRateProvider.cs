@@ -10,7 +10,6 @@ namespace Information.Infrastructure.Providers.Nbu;
 
 internal class NbuExchangeRateProvider : IExchangeRateProvider
 {
-    private const string ApiPath = "/NBUStatService/v1/statdirectory/exchange";
     private const string SourceName = "NBU";
 
     private readonly HttpClient _httpClient;
@@ -20,11 +19,13 @@ internal class NbuExchangeRateProvider : IExchangeRateProvider
         _httpClient = httpClient;
     }
 
+    private static string FormUrl(DateOnly date) => $"/NBUStatService/v1/statdirectory/exchange?date={date:yyyyMMdd}&json";
+
     public async Task<Result<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>> GetRates(DateOnly date, CancellationToken cancellationToken = default)
     {
         try
         {
-            var url = $"{ApiPath}?date={date:yyyyMMdd}&json";
+            var url = FormUrl(date);
             var response = await _httpClient.GetFromJsonAsync<List<NbuExchangeRateResponse>>(url, cancellationToken);
 
             if (response is null)

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using Nexus.Application.Core.Constants;
 using Nexus.Infrastructure.Core.Options;
 
 namespace Nexus.Infrastructure.Core.Validators;
@@ -15,7 +16,7 @@ public class ApiKeyExternalServiceOptionsValidator : IValidateOptions<ApiKeyExte
 
         if (string.IsNullOrWhiteSpace(options.ApiKey))
         {
-            return ValidateOptionsResult.Fail($"[{name}] {nameof(ApiKeyExternalServiceOptions.ApiKey)} must not be empty.");
+            return ValidateOptionsResult.Fail(OptionsErrorMessages.MustBeNotEmpty(name, nameof(ApiKeyExternalServiceOptions.ApiKey)));
         }
 
         return ValidateOptionsResult.Success;

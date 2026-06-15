@@ -9,7 +9,6 @@ namespace Information.Infrastructure.Providers.EpicGames;
 
 internal class EpicGamesProvider : IEpicGamesProvider
 {
-    private const string ApiPath = "/freeGamesPromotions?locale=en-US&country=US&allowCountries=US";
     private const string StoreBaseUrl = "https://store.epicgames.com/en-US/p/";
     private const string FallbackStoreUrl = "https://store.epicgames.com/en-US/free-games";
     private const string SourceName = "EpicGames";
@@ -21,11 +20,13 @@ internal class EpicGamesProvider : IEpicGamesProvider
         _httpClient = httpClient;
     }
 
+    private static string FormUrl() => "/freeGamesPromotions?locale=en-US&country=US&allowCountries=US";
+
     public async Task<Result<IReadOnlyList<EpicGame>>> GetFreeGames(CancellationToken cancellationToken = default)
     {
         try
         {
-            var response = await _httpClient.GetFromJsonAsync<EpicGamesResponse>(ApiPath, cancellationToken);
+            var response = await _httpClient.GetFromJsonAsync<EpicGamesResponse>(FormUrl(), cancellationToken);
 
             if (response is null)
             {

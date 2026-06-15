@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Options;
+using Nexus.Application.Core.Constants;
+using Nexus.Infrastructure.Core.Extensions;
 using Nexus.Infrastructure.Core.Options;
 
 namespace Nexus.Infrastructure.Core.Validators;
@@ -9,21 +11,17 @@ internal static class ExternalServiceOptionsValidation
     {
         if (string.IsNullOrWhiteSpace(options.BaseUrl))
         {
-            return ValidateOptionsResult.Fail(
-                $"[{name}] {nameof(ExternalServiceOptions.BaseUrl)} must not be empty.");
+            return ValidateOptionsResult.Fail(OptionsErrorMessages.MustBeNotEmpty(name, nameof(ExternalServiceOptions.BaseUrl)));
         }
 
-        if (!Uri.TryCreate(options.BaseUrl, UriKind.Absolute, out var uri)
-            || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+        if (!Uri.TryCreate(options.BaseUrl, UriKind.Absolute, out var uri) || !uri.IsHttpOrHttps())
         {
-            return ValidateOptionsResult.Fail(
-                $"[{name}] {nameof(ExternalServiceOptions.BaseUrl)} must be a valid HTTP or HTTPS URL.");
+            return ValidateOptionsResult.Fail(OptionsErrorMessages.MustBeValidHttpOrHttps(name, nameof(ExternalServiceOptions.BaseUrl)));
         }
 
         if (options.Timeout <= TimeSpan.Zero)
         {
-            return ValidateOptionsResult.Fail(
-                $"[{name}] {nameof(ExternalServiceOptions.Timeout)} must be greater than zero.");
+            return ValidateOptionsResult.Fail(OptionsErrorMessages.MustBeGreaterThanZero(name, nameof(ExternalServiceOptions.Timeout)));
         }
 
         return ValidateOptionsResult.Success;

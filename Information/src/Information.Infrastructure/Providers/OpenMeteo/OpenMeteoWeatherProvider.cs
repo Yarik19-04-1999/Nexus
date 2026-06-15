@@ -10,7 +10,6 @@ namespace Information.Infrastructure.Providers.OpenMeteo;
 
 internal class OpenMeteoWeatherProvider : IWeatherProvider
 {
-    private const string ApiPath = "/v1/forecast";
     private const string SourceName = "OpenMeteo";
     private const string Timezone = "Europe%2FKiev";
     private const int HourlyCount = 24;
@@ -24,14 +23,22 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
         _httpClient = httpClient;
     }
 
+    private static string FormHourlyUrl(double lat, double lon)
+        => $"/v1/forecast?latitude={lat}&longitude={lon}" +
+           "&hourly=temperature_2m,apparent_temperature,precipitation_probability,weathercode,windspeed_10m" +
+           $"&timezone={Timezone}&forecast_days={HourlyFetchDays}";
+
+    private static string FormDailyUrl(double lat, double lon)
+        => $"/v1/forecast?latitude={lat}&longitude={lon}" +
+           "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,weathercode,windspeed_10m_max" +
+           $"&timezone={Timezone}&forecast_days={ForecastDays}";
+
     public async Task<Result<IReadOnlyList<HourlyWeather>>> GetHourlyForecast(WeatherCity city, CancellationToken cancellationToken = default)
     {
         try
         {
             var (lat, lon) = CityCoordinates.All[city];
-            var url = $"{ApiPath}?latitude={lat}&longitude={lon}" +
-                      "&hourly=temperature_2m,apparent_temperature,precipitation_probability,weathercode,windspeed_10m" +
-                      $"&timezone={Timezone}&forecast_days={HourlyFetchDays}";
+            var url = FormHourlyUrl(lat, lon);
 
             var response = await _httpClient.GetFromJsonAsync<OpenMeteoForecastResponse>(url, cancellationToken);
 
@@ -71,9 +78,7 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
         try
         {
             var (lat, lon) = CityCoordinates.All[city];
-            var url = $"{ApiPath}?latitude={lat}&longitude={lon}" +
-                      "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,weathercode,windspeed_10m_max" +
-                      $"&timezone={Timezone}&forecast_days={ForecastDays}";
+            var url = FormDailyUrl(lat, lon);
 
             var response = await _httpClient.GetFromJsonAsync<OpenMeteoForecastResponse>(url, cancellationToken);
 

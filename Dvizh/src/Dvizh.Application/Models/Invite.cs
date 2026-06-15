@@ -13,4 +13,5 @@ public class Invite : IHasCreatedAt, IHasUpdatedAt, IHasPrimaryIdentifier, IHasE
     public string? Description { get; set; }
     public DateTime? ExpiresAt { get; set; }
     public InviteAnswer Answer { get; set; }
+    public InviteLanguage Language { get; set; }
 }

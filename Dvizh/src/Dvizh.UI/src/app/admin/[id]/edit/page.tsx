@@ -2,9 +2,9 @@
 
 import { use } from 'react'
 import { InviteForm } from '@/components/admin/InviteForm'
+import { useAdminStrings } from '@/components/admin/AdminLanguageContext'
 import { useInviteById, useUpdateInvite } from '@/hooks/useInvites'
 import { Spinner } from '@/components/ui/Spinner'
-import { strings } from '@/lib/strings'
 import type { UpdateInvitePayload } from '@/lib/api/invites'
 
 interface Props {
@@ -14,6 +14,7 @@ interface Props {
 export default function EditInvitePage({ params }: Props) {
   const { id } = use(params)
   const inviteId = Number(id)
+  const { strings } = useAdminStrings()
 
   const { data: invite, isPending: isLoading } = useInviteById(inviteId)
   const update = useUpdateInvite()

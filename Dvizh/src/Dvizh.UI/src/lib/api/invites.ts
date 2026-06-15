@@ -1,11 +1,12 @@
 import { apiClient } from './client'
 import type { Invite, PagedResult } from '@/types/invite'
-import { InviteAnswer } from '@/types/invite'
+import { InviteAnswer, InviteLanguage } from '@/types/invite'
 
 export interface CreateInvitePayload {
   message: string
   description?: string
   expiresAt?: string
+  language: InviteLanguage
 }
 
 export interface UpdateInvitePayload {
@@ -13,6 +14,7 @@ export interface UpdateInvitePayload {
   message: string
   description?: string
   expiresAt?: string
+  language: InviteLanguage
 }
 
 export const invitesApi = {

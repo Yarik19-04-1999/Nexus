@@ -1,5 +1,7 @@
+'use client'
+
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { strings } from '@/lib/strings'
+import { useAdminStrings } from './AdminLanguageContext'
 
 interface PaginationProps {
   page: number
@@ -8,6 +10,8 @@ interface PaginationProps {
 }
 
 export function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
+  const { strings } = useAdminStrings()
+
   if (totalPages <= 1) return null
 
   return (

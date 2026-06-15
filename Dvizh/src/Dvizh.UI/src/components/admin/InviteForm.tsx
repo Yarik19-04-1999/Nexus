@@ -4,16 +4,17 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
-import { strings } from '@/lib/strings'
+import { useAdminStrings } from './AdminLanguageContext'
 import { useDelayedPending } from '@/hooks/useDelayedPending'
 import { Spinner } from '@/components/ui/Spinner'
-import type { Invite } from '@/types/invite'
+import { InviteLanguage, type Invite } from '@/types/invite'
 import type { CreateInvitePayload, UpdateInvitePayload } from '@/lib/api/invites'
 
 const schema = z.object({
   message: z.string().min(1).max(200),
   description: z.string().max(200).optional(),
   expiresAt: z.string().optional(),
+  language: z.nativeEnum(InviteLanguage),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -27,6 +28,7 @@ interface InviteFormProps {
 export function InviteForm({ invite, onSubmit, isPending }: InviteFormProps) {
   const router = useRouter()
   const showSpinner = useDelayedPending(isPending)
+  const { strings } = useAdminStrings()
   const s = strings.admin.form
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
@@ -35,6 +37,7 @@ export function InviteForm({ invite, onSubmit, isPending }: InviteFormProps) {
       message: invite?.message ?? '',
       description: invite?.description ?? '',
       expiresAt: invite?.expiresAt ? invite.expiresAt.slice(0, 16) : '',
+      language: invite?.language ?? InviteLanguage.Russian,
     },
   })
 
@@ -73,6 +76,19 @@ export function InviteForm({ invite, onSubmit, isPending }: InviteFormProps) {
           onKeyDown={(e) => e.preventDefault()}
           className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 cursor-pointer"
         />
+      </Field>
+
+      <Field label={s.language} error={errors.language?.message}>
+        <select
+          {...register('language', { valueAsNumber: true })}
+          className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white"
+        >
+          {(Object.values(InviteLanguage).filter((v) => typeof v === 'number') as InviteLanguage[]).map((lang) => (
+            <option key={lang} value={lang}>
+              {s.languages[lang]}
+            </option>
+          ))}
+        </select>
       </Field>
 
       <div className="flex gap-3 justify-end pt-2">

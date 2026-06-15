@@ -1,11 +1,12 @@
 'use client'
 
 import { InviteForm } from '@/components/admin/InviteForm'
+import { useAdminStrings } from '@/components/admin/AdminLanguageContext'
 import { useCreateInvite } from '@/hooks/useInvites'
-import { strings } from '@/lib/strings'
 
 export default function NewInvitePage() {
   const create = useCreateInvite()
+  const { strings } = useAdminStrings()
 
   return (
     <main className="min-h-screen bg-gray-50 p-4 sm:p-8">

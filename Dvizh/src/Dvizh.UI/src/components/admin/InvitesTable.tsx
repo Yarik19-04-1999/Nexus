@@ -7,27 +7,31 @@ import { useInvitesList } from '@/hooks/useInvites'
 import { InviteActions } from './InviteActions'
 import { AnswerBadge } from './AnswerBadge'
 import { Pagination } from './Pagination'
+import { LanguageSelector } from './LanguageSelector'
 import { Spinner } from '@/components/ui/Spinner'
-import { strings } from '@/lib/strings'
+import { useAdminStrings } from './AdminLanguageContext'
 import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
-
-const s = strings.admin
 
 export function InvitesTable() {
   const [page, setPage] = useState(1)
   const { data, isPending } = useInvitesList(page, DEFAULT_PAGE_SIZE)
+  const { strings } = useAdminStrings()
+  const s = strings.admin
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <h1 className="text-xl font-bold text-gray-800">{s.title}</h1>
-        <Link
-          href="/admin/new"
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          {s.newInvite}
-        </Link>
+        <div className="flex items-center gap-3">
+          <LanguageSelector />
+          <Link
+            href="/admin/new"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            {s.newInvite}
+          </Link>
+        </div>
       </div>
 
       {isPending ? (

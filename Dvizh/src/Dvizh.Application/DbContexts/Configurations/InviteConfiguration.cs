@@ -24,6 +24,10 @@ public class InviteConfiguration : IEntityTypeConfiguration<Invite>
             .HasConversion<int>()
             .HasDefaultValue(InviteAnswer.Pending);
 
+        builder.Property(x => x.Language)
+            .HasConversion<int>()
+            .HasDefaultValue(InviteLanguage.Russian);
+
         builder.HasIndex(x => x.Code).IsUnique();
     }
 }

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Pencil, Trash2, ExternalLink, Copy, Check } from 'lucide-react'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { useDeleteInvite } from '@/hooks/useInvites'
-import { strings } from '@/lib/strings'
+import { useAdminStrings } from './AdminLanguageContext'
 import type { Invite } from '@/types/invite'
 
 interface InviteActionsProps {
@@ -16,6 +16,7 @@ export function InviteActions({ invite }: InviteActionsProps) {
   const router = useRouter()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [copied, setCopied] = useState(false)
+  const { strings } = useAdminStrings()
 
   const deleteInvite = useDeleteInvite()
 

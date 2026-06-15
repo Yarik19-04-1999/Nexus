@@ -4,6 +4,12 @@ export enum InviteAnswer {
   No = 2,
 }
 
+export enum InviteLanguage {
+  Russian = 0,
+  Ukrainian = 1,
+  English = 2,
+}
+
 export interface Invite {
   id: number
   code: string
@@ -11,6 +17,7 @@ export interface Invite {
   description?: string
   expiresAt?: string
   answer: InviteAnswer
+  language: InviteLanguage
   createdAt: string
   updatedAt: string
 }

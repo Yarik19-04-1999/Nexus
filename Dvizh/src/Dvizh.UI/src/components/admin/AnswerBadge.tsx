@@ -1,5 +1,7 @@
+'use client'
+
 import { InviteAnswer } from '@/types/invite'
-import { strings } from '@/lib/strings'
+import { useAdminStrings } from './AdminLanguageContext'
 
 const styles: Record<InviteAnswer, string> = {
   [InviteAnswer.Pending]: 'bg-gray-100 text-gray-500',
@@ -8,6 +10,7 @@ const styles: Record<InviteAnswer, string> = {
 }
 
 export function AnswerBadge({ answer }: { answer: InviteAnswer }) {
+  const { strings } = useAdminStrings()
   return (
     <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[answer]}`}>
       {strings.admin.answers[answer]}

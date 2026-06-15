@@ -9,6 +9,7 @@ public record GetInviteByIdResponse(
     string? Description,
     DateTime? ExpiresAt,
     InviteAnswer Answer,
+    InviteLanguage Language,
     DateTime CreatedAt,
     DateTime UpdatedAt
 );

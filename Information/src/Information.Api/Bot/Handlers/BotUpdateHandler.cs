@@ -39,13 +39,11 @@ public class BotUpdateHandler : IUpdateHandler
         }
     }
 
-    public Task HandlePollingErrorAsync(ITelegramBotClient bot, Exception exception, HandleErrorSource source, CancellationToken ct)
+    public Task HandleErrorAsync(ITelegramBotClient bot, Exception exception, HandleErrorSource source, CancellationToken ct)
     {
         _logger.LogError(exception, "Telegram polling error — source: {Source}", source);
         return Task.CompletedTask;
     }
-
-    // ── Internal routing ──────────────────────────────────────────────────────
 
     private async Task HandleUpdateInternalAsync(ITelegramBotClient bot, Update update, CancellationToken ct)
     {
@@ -84,7 +82,6 @@ public class BotUpdateHandler : IUpdateHandler
         var messageId = query.Message.MessageId;
         var data = query.Data!;
 
-        // Language selection
         if (data is IceAgeBriefTelegramBotConstants.Callbacks.LangRu or IceAgeBriefTelegramBotConstants.Callbacks.LangUk or IceAgeBriefTelegramBotConstants.Callbacks.LangEn)
         {
             await HandleSetLanguageAsync(bot, chatId, messageId, userId, data, ct);
@@ -160,8 +157,6 @@ public class BotUpdateHandler : IUpdateHandler
         }
     }
 
-    // ── Language ──────────────────────────────────────────────────────────────
-
     private async Task SendLanguageSelectionAsync(ITelegramBotClient bot, long chatId, BotLanguage lang, CancellationToken ct)
     {
         var keyboard = BuildLanguageKeyboard();
@@ -201,8 +196,6 @@ public class BotUpdateHandler : IUpdateHandler
             new[] { InlineKeyboardButton.WithCallbackData("🇬🇧 English", IceAgeBriefTelegramBotConstants.Callbacks.LangEn) }
         });
 
-    // ── Main menu ─────────────────────────────────────────────────────────────
-
     private async Task SendMainMenuAsync(ITelegramBotClient bot, long chatId, BotLanguage lang, CancellationToken ct)
     {
         await bot.SendMessage(chatId,
@@ -228,8 +221,6 @@ public class BotUpdateHandler : IUpdateHandler
             new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnEpicGames(lang), IceAgeBriefTelegramBotConstants.Callbacks.EpicGames) },
             new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnLanguage(lang), IceAgeBriefTelegramBotConstants.Callbacks.LangMenu) }
         });
-
-    // ── Exchange rates ────────────────────────────────────────────────────────
 
     private async Task HandleRatesTodayAsync(ITelegramBotClient bot, long chatId, int messageId, BotLanguage lang, CancellationToken ct)
     {
@@ -365,8 +356,6 @@ public class BotUpdateHandler : IUpdateHandler
         await bot.EditMessageText(chatId, messageId, text, replyMarkup: BackToMenuKeyboard(lang), cancellationToken: ct);
     }
 
-    // ── Epic Games ────────────────────────────────────────────────────────────
-
     private async Task HandleEpicGamesAsync(ITelegramBotClient bot, long chatId, int messageId, BotLanguage lang, CancellationToken ct)
     {
         using var scope = _scopeFactory.CreateScope();
@@ -398,8 +387,6 @@ public class BotUpdateHandler : IUpdateHandler
             cancellationToken: ct);
     }
 
-    // ── Error handling ────────────────────────────────────────────────────────
-
     private async Task TrySendErrorAsync(ITelegramBotClient bot, Update update, CancellationToken ct)
     {
         try
@@ -420,8 +407,6 @@ public class BotUpdateHandler : IUpdateHandler
         }
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
     private async Task<BotLanguage> GetLanguage(long userId, CancellationToken ct)
     {
         using var scope = _scopeFactory.CreateScope();
@@ -432,4 +417,5 @@ public class BotUpdateHandler : IUpdateHandler
 
     private static InlineKeyboardMarkup BackToMenuKeyboard(BotLanguage lang) =>
         new(new[] { new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnBackToMenu(lang), IceAgeBriefTelegramBotConstants.Callbacks.MenuMain) } });
+
 }

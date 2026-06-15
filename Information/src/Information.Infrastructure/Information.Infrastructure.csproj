@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Information.Application\Information.Application.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Nexus.Infrastructure.Http\Nexus.Infrastructure.Http.csproj" />
+    <ProjectReference Include="..\..\..\Shared\src\Nexus.Infrastructure.EfCore.SqlServer\Nexus.Infrastructure.EfCore.SqlServer.csproj" />
   </ItemGroup>
 
 </Project>

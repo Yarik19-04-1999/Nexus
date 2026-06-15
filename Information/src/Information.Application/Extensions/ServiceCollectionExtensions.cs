@@ -39,6 +39,9 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IGetEpicFreeGamesUseCase, GetEpicFreeGamesUseCase>();
 
+        services.AddScoped<ISetUserLanguageUseCase, SetUserLanguageUseCase>();
+        services.AddScoped<IGetUserLanguageUseCase, GetUserLanguageUseCase>();
+
         return services;
     }
 }

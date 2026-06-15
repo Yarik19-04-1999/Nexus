@@ -1,5 +1,7 @@
 using Information.Application.Constants;
+using Information.Infrastructure.DbContexts;
 using Information.Application.Interfaces.Providers;
+using Information.Application.Interfaces.Repositories;
 using Information.Application.Interfaces.Services;
 using Information.Infrastructure.Constants;
 using Information.Infrastructure.Decorators;
@@ -8,20 +10,29 @@ using Information.Infrastructure.Options;
 using Information.Infrastructure.Providers.EpicGames;
 using Information.Infrastructure.Providers.Nbu;
 using Information.Infrastructure.Providers.OpenMeteo;
+using Information.Infrastructure.Repositories;
 using Information.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Nexus.Application.Core.Extensions;
+using Nexus.Infrastructure.Core.Constants;
+using Nexus.Infrastructure.Core.Options;
+using Nexus.Infrastructure.EfCore.SqlServer.Extensions;
 using Nexus.Infrastructure.Http.Extensions;
 
 namespace Information.Infrastructure.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
         services.AddMemoryCache();
         services.AddSingleton<ICacheService, CacheService>();
+
+        var sqlOptions = configuration.GetRequiredOptions<SqlServerOptions>(OptionsConstants.SqlServer.SectionName);
+        services.AddNexusDbContext<InformationDbContext>(sqlOptions, environment);
+        services.AddScoped<ITelegramUserRepository, TelegramUserRepository>();
 
         RegisterExchangeRateProvider(services, configuration);
         RegisterWeatherProvider(services, configuration);

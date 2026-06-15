@@ -1,3 +1,4 @@
+using Information.Api.Bot.Extensions;
 using Information.Application.Extensions;
 using Information.Infrastructure.Extensions;
 using Nexus.Api.Core.Extensions;
@@ -12,7 +13,8 @@ services.AddControllers();
 services
     .AddNexusServices(NexusOptions.Default)
     .AddApplication()
-    .AddInfrastructure(configuration);
+    .AddInfrastructure(configuration, builder.Environment)
+    .AddIceAgeBriefTelegramBot(configuration);
 
 var app = builder.Build();
 

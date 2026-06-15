@@ -32,3 +32,23 @@ Never call `Result.Failure()` directly in use cases or services. The failure pat
 3. Factory method — add to the project's `*ResultConstants` (e.g. `DvizhResultConstants`) which calls `Failure` internally using the constants above.
 
 Use cases call only the factory methods, never `Failure` directly.
+
+# Configuration
+
+Secrets and sensitive values in `appsettings.json` or environment variables use `SPECIFY_VALUE` as placeholder — never commit real values.
+
+# EF Core
+
+Schema is set via `HasDefaultSchema` in the `DbContext`. Never specify schema in `IEntityTypeConfiguration` — omit schema from `ToTable(...)` calls entirely.
+
+```csharp
+// DbContext
+modelBuilder.HasDefaultSchema("MySchema");
+
+// IEntityTypeConfiguration
+builder.ToTable("Users"); // no schema argument
+```
+
+# SQL Server (additions)
+
+All enum columns use `int` type.

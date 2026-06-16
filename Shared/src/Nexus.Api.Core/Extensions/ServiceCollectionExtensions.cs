@@ -58,7 +58,13 @@ public static partial class ServiceCollectionExtensions
     }
 
     public static IServiceCollection AddNexusOpenApi(this IServiceCollection services)
-        => services.AddOpenApi();
+    {
+        services.AddOpenApi(options =>
+        {
+            options.AddOperationTransformer<OpenApi.CommonErrorResponsesOperationTransformer>();
+        });
+        return services;
+    }
 
     public static IServiceCollection AddNexusApiVersioning(this IServiceCollection services)
     {

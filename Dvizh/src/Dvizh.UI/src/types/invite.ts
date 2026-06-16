@@ -10,6 +10,11 @@ export enum InviteLanguage {
   English = 2,
 }
 
+export enum InviteMascot {
+  Cat = 0,
+  Duck = 1,
+}
+
 export interface Invite {
   id: number
   code: string
@@ -18,6 +23,7 @@ export interface Invite {
   expiresAt?: string
   answer: InviteAnswer
   language: InviteLanguage
+  mascot: InviteMascot
   createdAt: string
   updatedAt: string
 }

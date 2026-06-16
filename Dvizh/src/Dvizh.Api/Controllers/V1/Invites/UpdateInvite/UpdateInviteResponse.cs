@@ -10,6 +10,7 @@ public record UpdateInviteResponse(
     DateTime? ExpiresAt,
     InviteAnswer Answer,
     InviteLanguage Language,
+    InviteMascot Mascot,
     DateTime CreatedAt,
     DateTime UpdatedAt
 );

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
-import { CAT_IMAGES } from '@/lib/constants'
+import type { MascotImages } from '@/lib/constants'
 import { strings } from '@/lib/strings'
 import { InviteAnswer } from '@/types/invite'
 import { useDelayedPending } from '@/hooks/useDelayedPending'
@@ -10,25 +10,26 @@ import { useDelayedPending } from '@/hooks/useDelayedPending'
 type HoverState = 'none' | 'yes' | 'no'
 
 interface AnswerButtonsProps {
+  images: MascotImages
   onHoverChange: (src: string) => void
   onAnswer: (answer: InviteAnswer) => void
   isPending: boolean
 }
 
-export function AnswerButtons({ onHoverChange, onAnswer, isPending }: AnswerButtonsProps) {
+export function AnswerButtons({ images, onHoverChange, onAnswer, isPending }: AnswerButtonsProps) {
   const [hover, setHover] = useState<HoverState>('none')
   const showSpinner = useDelayedPending(isPending)
 
   const handleEnter = (state: HoverState) => {
     if (isPending) return
     setHover(state)
-    onHoverChange(state === 'yes' ? CAT_IMAGES.hoverYes : CAT_IMAGES.hoverNo)
+    onHoverChange(state === 'yes' ? images.hoverYes : images.hoverNo)
   }
 
   const handleLeave = () => {
     if (isPending) return
     setHover('none')
-    onHoverChange(CAT_IMAGES.neutral)
+    onHoverChange(images.neutral)
   }
 
   return (

@@ -10,6 +10,7 @@ public record CreateInviteResponse(
     DateTime? ExpiresAt,
     InviteAnswer Answer,
     InviteLanguage Language,
+    InviteMascot Mascot,
     DateTime CreatedAt,
     DateTime UpdatedAt
 );

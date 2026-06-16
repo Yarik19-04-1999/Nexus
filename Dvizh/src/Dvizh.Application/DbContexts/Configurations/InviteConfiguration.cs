@@ -28,6 +28,10 @@ public class InviteConfiguration : IEntityTypeConfiguration<Invite>
             .HasConversion<int>()
             .HasDefaultValue(InviteLanguage.Russian);
 
+        builder.Property(x => x.Mascot)
+            .HasConversion<int>()
+            .HasDefaultValue(InviteMascot.Cat);
+
         builder.HasIndex(x => x.Code).IsUnique();
     }
 }

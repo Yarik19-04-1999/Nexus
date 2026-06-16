@@ -58,12 +58,17 @@ export const translations = {
         descriptionPlaceholder: 'Необязательные детали…',
         expiresAt: 'Истекает',
         language: 'Язык',
+        mascot: 'Маскот',
         save: 'Сохранить',
         cancel: 'Отмена',
         languages: {
           0: 'Русский',
           1: 'Українська',
           2: 'English',
+        } as Record<number, string>,
+        mascots: {
+          0: 'Котик',
+          1: 'Утёнок',
         } as Record<number, string>,
       },
       pagination: {
@@ -130,12 +135,17 @@ export const translations = {
         descriptionPlaceholder: 'Необовʼязкові деталі…',
         expiresAt: 'Закінчується',
         language: 'Мова',
+        mascot: 'Маскот',
         save: 'Зберегти',
         cancel: 'Скасувати',
         languages: {
           0: 'Русский',
           1: 'Українська',
           2: 'English',
+        } as Record<number, string>,
+        mascots: {
+          0: 'Котик',
+          1: 'Каченятко',
         } as Record<number, string>,
       },
       pagination: {
@@ -202,12 +212,17 @@ export const translations = {
         descriptionPlaceholder: 'Optional details…',
         expiresAt: 'Expires at',
         language: 'Language',
+        mascot: 'Mascot',
         save: 'Save',
         cancel: 'Cancel',
         languages: {
           0: 'Русский',
           1: 'Українська',
           2: 'English',
+        } as Record<number, string>,
+        mascots: {
+          0: 'Cat',
+          1: 'Duck',
         } as Record<number, string>,
       },
       pagination: {

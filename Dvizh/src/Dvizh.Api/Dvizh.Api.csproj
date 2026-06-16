@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\img\mochi-peach-cat\" />
+    <Folder Include="wwwroot\img\utya-duck\" />
   </ItemGroup>
 
 </Project>

@@ -1,14 +1,14 @@
 'use client'
 
 import { use, useState } from 'react'
-import { CatDisplay } from '@/components/invite/CatDisplay'
+import { MascotDisplay } from '@/components/invite/MascotDisplay'
 import { InviteCard } from '@/components/invite/InviteCard'
 import { AnswerButtons } from '@/components/invite/AnswerButtons'
 import { AnsweredState } from '@/components/invite/AnsweredState'
 import { useOpenInvite, useRespondToInvite, useResetAndRefetch } from '@/hooks/useInvites'
-import { CAT_IMAGES } from '@/lib/constants'
+import { CAT_IMAGES, DUCK_IMAGES } from '@/lib/constants'
 import { strings } from '@/lib/strings'
-import { InviteAnswer } from '@/types/invite'
+import { InviteAnswer, InviteMascot } from '@/types/invite'
 
 interface Props {
   params: Promise<{ code: string }>
@@ -16,11 +16,13 @@ interface Props {
 
 export default function InvitePage({ params }: Props) {
   const { code } = use(params)
-  const [catSrc, setCatSrc] = useState(CAT_IMAGES.neutral)
 
   const { data: invite, isPending: isLoading, error } = useOpenInvite(code)
   const respond = useRespondToInvite(code)
   const reset = useResetAndRefetch(code)
+
+  const images = invite?.mascot === InviteMascot.Duck ? DUCK_IMAGES : CAT_IMAGES
+  const [mascotSrc, setMascotSrc] = useState<string | null>(null)
 
   if (isLoading) {
     return <PageShell><div className="w-10 h-10 border-4 border-gray-200 border-t-emerald-400 rounded-full animate-spin" /></PageShell>
@@ -29,7 +31,7 @@ export default function InvitePage({ params }: Props) {
   if (error || !invite) {
     return (
       <PageShell>
-        <CatDisplay src={CAT_IMAGES.no} />
+        <MascotDisplay src={CAT_IMAGES.no} />
         <p className="text-gray-500">{strings.invite.notFound}</p>
       </PageShell>
     )
@@ -38,12 +40,12 @@ export default function InvitePage({ params }: Props) {
   const isExpired = invite.expiresAt ? new Date(invite.expiresAt) < new Date() : false
   const isAnswered = invite.answer !== InviteAnswer.Pending
 
-  const catForAnswer = invite.answer === InviteAnswer.Yes ? CAT_IMAGES.yes : CAT_IMAGES.no
-  const activeCat = isAnswered ? catForAnswer : catSrc
+  const mascotForAnswer = invite.answer === InviteAnswer.Yes ? images.yes : images.no
+  const activeMascot = isAnswered ? mascotForAnswer : (mascotSrc ?? images.neutral)
 
   const handleAnswer = (answer: InviteAnswer) => {
     respond.mutate(answer, {
-      onSuccess: () => setCatSrc(CAT_IMAGES.neutral),
+      onSuccess: () => setMascotSrc(images.neutral),
     })
   }
 
@@ -54,7 +56,7 @@ export default function InvitePage({ params }: Props) {
   return (
     <PageShell>
       <InviteCard message={invite.message} description={invite.description}>
-        <CatDisplay src={activeCat} />
+        <MascotDisplay src={activeMascot} />
 
         {isExpired && !isAnswered ? (
           <p className="text-gray-400">{strings.invite.expired}</p>
@@ -66,7 +68,8 @@ export default function InvitePage({ params }: Props) {
           />
         ) : (
           <AnswerButtons
-            onHoverChange={setCatSrc}
+            images={images}
+            onHoverChange={setMascotSrc}
             onAnswer={handleAnswer}
             isPending={respond.isPending}
           />

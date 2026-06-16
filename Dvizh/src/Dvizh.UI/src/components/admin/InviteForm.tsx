@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useAdminStrings } from './AdminLanguageContext'
 import { useDelayedPending } from '@/hooks/useDelayedPending'
 import { Spinner } from '@/components/ui/Spinner'
-import { InviteLanguage, type Invite } from '@/types/invite'
+import { InviteLanguage, InviteMascot, type Invite } from '@/types/invite'
 import type { CreateInvitePayload, UpdateInvitePayload } from '@/lib/api/invites'
 
 const schema = z.object({
@@ -15,6 +15,7 @@ const schema = z.object({
   description: z.string().max(200).optional(),
   expiresAt: z.string().optional(),
   language: z.nativeEnum(InviteLanguage),
+  mascot: z.nativeEnum(InviteMascot),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -31,15 +32,18 @@ export function InviteForm({ invite, onSubmit, isPending }: InviteFormProps) {
   const { strings } = useAdminStrings()
   const s = strings.admin.form
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       message: invite?.message ?? '',
       description: invite?.description ?? '',
       expiresAt: invite?.expiresAt ? invite.expiresAt.slice(0, 16) : '',
       language: invite?.language ?? InviteLanguage.Russian,
+      mascot: invite?.mascot ?? InviteMascot.Cat,
     },
   })
+
+  const selectedMascot = watch('mascot')
 
   const submit = handleSubmit(async (values) => {
     const payload = invite
@@ -89,6 +93,25 @@ export function InviteForm({ invite, onSubmit, isPending }: InviteFormProps) {
             </option>
           ))}
         </select>
+      </Field>
+
+      <Field label={s.mascot} error={errors.mascot?.message}>
+        <div className="flex gap-3">
+          {(Object.values(InviteMascot).filter((v) => typeof v === 'number') as InviteMascot[]).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setValue('mascot', m)}
+              className={`flex-1 flex flex-col items-center gap-1 py-3 px-4 rounded-xl border-2 transition-all
+                ${selectedMascot === m
+                  ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
+                  : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'}`}
+            >
+              <span className="text-2xl">{m === InviteMascot.Cat ? '🐱' : '🦆'}</span>
+              <span className="text-xs font-medium">{s.mascots[m]}</span>
+            </button>
+          ))}
+        </div>
       </Field>
 
       <div className="flex gap-3 justify-end pt-2">

@@ -1,3 +1,4 @@
+using Dvizh.Application.Enums;
 using Dvizh.Api.Controllers.V1.Invites.CreateInvite;
 using Dvizh.Api.Controllers.V1.Invites.GetInviteById;
 using Dvizh.Api.Controllers.V1.Invites.GetInviteEvents;
@@ -21,10 +22,11 @@ public class InvitesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] SieveModel sieveModel,
+        [FromQuery] ExpiryFilter expiry,
         [FromServices] IGetInvitesUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.Execute(new GetInvitesInput(sieveModel), cancellationToken);
+        var result = await useCase.Execute(new GetInvitesInput(sieveModel, expiry), cancellationToken);
         if (result.HasError)
         {
             return this.DomainError(result);

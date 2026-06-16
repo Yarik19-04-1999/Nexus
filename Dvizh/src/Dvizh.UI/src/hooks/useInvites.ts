@@ -1,21 +1,20 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { invitesApi, type CreateInvitePayload, type UpdateInvitePayload } from '@/lib/api/invites'
-import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
+import { invitesApi, type CreateInvitePayload, type UpdateInvitePayload, type InviteListParams } from '@/lib/api/invites'
 import { InviteAnswer } from '@/types/invite'
 
 export const inviteKeys = {
   all: ['invites'] as const,
-  list: (page: number, pageSize: number) => [...inviteKeys.all, 'list', page, pageSize] as const,
+  list: (params: InviteListParams) => [...inviteKeys.all, 'list', params] as const,
   detail: (id: number) => [...inviteKeys.all, 'detail', id] as const,
   open: (code: string) => [...inviteKeys.all, 'open', code] as const,
 }
 
-export function useInvitesList(page: number, pageSize = DEFAULT_PAGE_SIZE) {
+export function useInvitesList(params: InviteListParams) {
   return useQuery({
-    queryKey: inviteKeys.list(page, pageSize),
-    queryFn: () => invitesApi.getAll(page, pageSize),
+    queryKey: inviteKeys.list(params),
+    queryFn: () => invitesApi.getAll(params),
   })
 }
 

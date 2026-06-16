@@ -19,9 +19,43 @@ export interface UpdateInvitePayload {
   mascot: InviteMascot
 }
 
+export interface InviteListParams {
+  page: number
+  pageSize: number
+  q?: string
+  answer?: string
+  expiry?: 'expired' | 'active'
+  sort?: string
+  dir?: 'asc' | 'desc'
+}
+
+function buildQuery(params: InviteListParams): string {
+  const q = new URLSearchParams()
+  q.set('page', String(params.page))
+  q.set('pageSize', String(params.pageSize))
+
+  const filters: string[] = []
+  if (params.q) filters.push(`Message@=*${params.q}`)
+  if (params.answer !== undefined) filters.push(`Answer==${params.answer}`)
+  if (filters.length) q.set('filters', filters.join(','))
+
+  const SORT_FIELDS: Record<string, string> = {
+    answer: 'Answer',
+    expiresAt: 'ExpiresAt',
+    createdAt: 'CreatedAt',
+  }
+  const sieveField = params.sort ? (SORT_FIELDS[params.sort] ?? 'CreatedAt') : 'CreatedAt'
+  const prefix = (params.sort ? params.dir === 'desc' : true) ? '-' : ''
+  q.set('sorts', `${prefix}${sieveField}`)
+
+  if (params.expiry) q.set('expiry', params.expiry)
+
+  return q.toString()
+}
+
 export const invitesApi = {
-  getAll: (page: number, pageSize: number) =>
-    apiClient.get<PagedResult<Invite>>(`/api/v1/invites?page=${page}&pageSize=${pageSize}`),
+  getAll: (params: InviteListParams) =>
+    apiClient.get<PagedResult<Invite>>(`/api/v1/invites?${buildQuery(params)}`),
 
   getById: (id: number) =>
     apiClient.get<Invite>(`/api/v1/invites/${id}`),

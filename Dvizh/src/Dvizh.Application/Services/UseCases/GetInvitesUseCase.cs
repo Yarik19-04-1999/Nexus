@@ -1,4 +1,5 @@
 using Dvizh.Application.DbContexts;
+using Dvizh.Application.Enums;
 using Dvizh.Application.Interfaces.UseCases;
 using Dvizh.Application.Models;
 using Dvizh.Application.Models.Input;
@@ -22,6 +23,15 @@ public class GetInvitesUseCase : IGetInvitesUseCase
     public async Task<Result<PagedResult<Invite>>> Execute(GetInvitesInput input, CancellationToken cancellationToken = default)
     {
         var query = _context.Invites.AsNoTracking();
+
+        if (input.ExpiryFilter == ExpiryFilter.Expired)
+        {
+            query = query.Where(x => x.ExpiresAt != null && x.ExpiresAt < DateTime.UtcNow);
+        }
+        else if (input.ExpiryFilter == ExpiryFilter.Active)
+        {
+            query = query.Where(x => x.ExpiresAt == null || x.ExpiresAt >= DateTime.UtcNow);
+        }
 
         var total = await _sieve.Apply(input.SieveModel, query, applyPagination: false).CountAsync(cancellationToken);
         var items = await _sieve.Apply(input.SieveModel, query).ToListAsync(cancellationToken);

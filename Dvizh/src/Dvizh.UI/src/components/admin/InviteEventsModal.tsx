@@ -25,8 +25,15 @@ type TimeAgo = {
   days: (n: number) => string
 }
 
+function parseUtc(dateString: string): Date {
+  if (!dateString.endsWith('Z') && !/[+-]\d{2}:\d{2}$/.test(dateString)) {
+    return new Date(dateString + 'Z')
+  }
+  return new Date(dateString)
+}
+
 function formatTimeAgo(dateString: string, t: TimeAgo): string {
-  const diff = Math.floor((Date.now() - new Date(dateString).getTime()) / 1000)
+  const diff = Math.floor((Date.now() - parseUtc(dateString).getTime()) / 1000)
   if (diff < 5) return t.justNow
   if (diff < 60) return t.seconds(diff)
   const minutes = Math.floor(diff / 60)

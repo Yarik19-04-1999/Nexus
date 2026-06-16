@@ -9,6 +9,7 @@ public record OpenInviteResponse(
     string? Description,
     DateTime? ExpiresAt,
     InviteAnswer Answer,
+    InviteLanguage Language,
     InviteMascot Mascot,
     DateTime CreatedAt,
     DateTime UpdatedAt

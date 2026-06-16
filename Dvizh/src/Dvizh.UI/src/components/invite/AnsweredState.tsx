@@ -2,28 +2,24 @@
 
 import { Loader2 } from 'lucide-react'
 import { InviteAnswer } from '@/types/invite'
-import { strings } from '@/lib/strings'
+import type { InviteStrings } from '@/lib/i18n'
 import { useDelayedPending } from '@/hooks/useDelayedPending'
 
 interface AnsweredStateProps {
   answer: InviteAnswer.Yes | InviteAnswer.No
+  strings: InviteStrings
   onChangeAnswer: () => void
   isPending: boolean
 }
 
-const config = {
-  [InviteAnswer.Yes]: {
-    label: strings.invite.answeredYes,
-    color: 'text-emerald-600',
-  },
-  [InviteAnswer.No]: {
-    label: strings.invite.answeredNo,
-    color: 'text-rose-500',
-  },
-}
-
-export function AnsweredState({ answer, onChangeAnswer, isPending }: AnsweredStateProps) {
+export function AnsweredState({ answer, strings, onChangeAnswer, isPending }: AnsweredStateProps) {
   const showSpinner = useDelayedPending(isPending)
+
+  const config = {
+    [InviteAnswer.Yes]: { label: strings.answeredYes, color: 'text-emerald-600' },
+    [InviteAnswer.No]: { label: strings.answeredNo, color: 'text-rose-500' },
+  }
+
   const { label, color } = config[answer]
 
   return (
@@ -37,7 +33,7 @@ export function AnsweredState({ answer, onChangeAnswer, isPending }: AnsweredSta
         {showSpinner
           ? <Loader2 className="animate-spin inline w-4 h-4 mr-1" />
           : null}
-        {strings.invite.changeAnswer}
+        {strings.changeAnswer}
       </button>
     </div>
   )

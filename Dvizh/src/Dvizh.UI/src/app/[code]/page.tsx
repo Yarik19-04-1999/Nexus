@@ -7,7 +7,7 @@ import { AnswerButtons } from '@/components/invite/AnswerButtons'
 import { AnsweredState } from '@/components/invite/AnsweredState'
 import { useOpenInvite, useRespondToInvite, useResetAndRefetch } from '@/hooks/useInvites'
 import { CAT_IMAGES, DUCK_IMAGES } from '@/lib/constants'
-import { strings } from '@/lib/strings'
+import { getInviteStrings, translations } from '@/lib/i18n'
 import { InviteAnswer, InviteMascot } from '@/types/invite'
 
 interface Props {
@@ -22,6 +22,7 @@ export default function InvitePage({ params }: Props) {
   const reset = useResetAndRefetch(code)
 
   const images = invite?.mascot === InviteMascot.UtyaDuck ? DUCK_IMAGES : CAT_IMAGES
+  const s = invite ? getInviteStrings(invite.language) : translations.ru.invite
   const [mascotSrc, setMascotSrc] = useState<string | null>(null)
 
   if (isLoading) {
@@ -32,7 +33,7 @@ export default function InvitePage({ params }: Props) {
     return (
       <PageShell>
         <MascotDisplay src={CAT_IMAGES.no} />
-        <p className="text-gray-500">{strings.invite.notFound}</p>
+        <p className="text-gray-500">{translations.ru.invite.notFound}</p>
       </PageShell>
     )
   }
@@ -59,16 +60,18 @@ export default function InvitePage({ params }: Props) {
         <MascotDisplay src={activeMascot} />
 
         {isExpired && !isAnswered ? (
-          <p className="text-gray-400">{strings.invite.expired}</p>
+          <p className="text-gray-400">{s.expired}</p>
         ) : isAnswered ? (
           <AnsweredState
             answer={invite.answer as InviteAnswer.Yes | InviteAnswer.No}
+            strings={s}
             onChangeAnswer={handleChangeAnswer}
             isPending={reset.isPending}
           />
         ) : (
           <AnswerButtons
             images={images}
+            strings={s}
             onHoverChange={setMascotSrc}
             onAnswer={handleAnswer}
             isPending={respond.isPending}

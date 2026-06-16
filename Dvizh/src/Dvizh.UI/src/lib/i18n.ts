@@ -243,3 +243,15 @@ export const translations = {
 } satisfies Record<AdminLang, typeof translations.ru>
 
 export type Strings = typeof translations.ru
+export type InviteStrings = typeof translations.ru.invite
+
+const INVITE_LANGUAGE_MAP: Record<number, AdminLang> = {
+  0: 'ru',
+  1: 'uk',
+  2: 'en',
+}
+
+export function getInviteStrings(language: number): InviteStrings {
+  const lang = INVITE_LANGUAGE_MAP[language] ?? 'ru'
+  return translations[lang].invite
+}

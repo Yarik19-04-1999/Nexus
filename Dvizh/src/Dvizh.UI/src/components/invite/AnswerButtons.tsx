@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import type { MascotImages } from '@/lib/constants'
-import { strings } from '@/lib/strings'
+import type { InviteStrings } from '@/lib/i18n'
 import { InviteAnswer } from '@/types/invite'
 import { useDelayedPending } from '@/hooks/useDelayedPending'
 
@@ -11,12 +11,13 @@ type HoverState = 'none' | 'yes' | 'no'
 
 interface AnswerButtonsProps {
   images: MascotImages
+  strings: InviteStrings
   onHoverChange: (src: string) => void
   onAnswer: (answer: InviteAnswer) => void
   isPending: boolean
 }
 
-export function AnswerButtons({ images, onHoverChange, onAnswer, isPending }: AnswerButtonsProps) {
+export function AnswerButtons({ images, strings, onHoverChange, onAnswer, isPending }: AnswerButtonsProps) {
   const [hover, setHover] = useState<HoverState>('none')
   const showSpinner = useDelayedPending(isPending)
 
@@ -47,7 +48,7 @@ export function AnswerButtons({ images, onHoverChange, onAnswer, isPending }: An
       >
         {showSpinner && hover === 'yes'
           ? <Loader2 className="animate-spin inline w-5 h-5" />
-          : strings.invite.yes}
+          : strings.yes}
       </button>
 
       <button
@@ -63,7 +64,7 @@ export function AnswerButtons({ images, onHoverChange, onAnswer, isPending }: An
       >
         {showSpinner && hover === 'no'
           ? <Loader2 className="animate-spin inline w-5 h-5" />
-          : strings.invite.no}
+          : strings.no}
       </button>
     </div>
   )

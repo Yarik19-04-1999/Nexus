@@ -30,6 +30,7 @@ public class UpdateInviteUseCase : IUpdateInviteUseCase
         invite.Description = input.Description;
         invite.ExpiresAt = input.ExpiresAt;
         invite.Language = input.Language;
+        invite.Mascot = input.Mascot;
         invite.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync(cancellationToken);

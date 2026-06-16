@@ -8,15 +8,16 @@ interface MascotDisplayProps {
 export function MascotDisplay({ src, alt = 'mascot' }: MascotDisplayProps) {
   return (
     <div className="flex justify-center">
-      <Image
-        src={src}
-        alt={alt}
-        width={240}
-        height={240}
-        className="rounded-2xl"
-        unoptimized
-        priority
-      />
+      <div className="relative w-[240px] h-[240px] flex-shrink-0">
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          className="rounded-2xl object-contain"
+          unoptimized
+          priority
+        />
+      </div>
     </div>
   )
 }

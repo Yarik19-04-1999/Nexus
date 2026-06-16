@@ -36,6 +36,7 @@ public class CreateInviteUseCase : ICreateInviteUseCase
             Description = input.Description,
             ExpiresAt = input.ExpiresAt,
             Language = input.Language,
+            Mascot = input.Mascot,
         };
 
         _context.Invites.Add(invite);

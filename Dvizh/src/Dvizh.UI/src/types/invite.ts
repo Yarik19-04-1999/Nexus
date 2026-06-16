@@ -11,8 +11,8 @@ export enum InviteLanguage {
 }
 
 export enum InviteMascot {
-  Cat = 0,
-  Duck = 1,
+  MochiPeachCat = 0,
+  UtyaDuck = 1,
 }
 
 export interface Invite {

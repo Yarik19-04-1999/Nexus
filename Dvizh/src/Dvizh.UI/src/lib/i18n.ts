@@ -67,8 +67,8 @@ export const translations = {
           2: 'English',
         } as Record<number, string>,
         mascots: {
-          0: 'Котик',
-          1: 'Утёнок',
+          0: 'Mochi Peach Cat',
+          1: 'Utya Duck',
         } as Record<number, string>,
       },
       pagination: {
@@ -144,8 +144,8 @@ export const translations = {
           2: 'English',
         } as Record<number, string>,
         mascots: {
-          0: 'Котик',
-          1: 'Каченятко',
+          0: 'Mochi Peach Cat',
+          1: 'Utya Duck',
         } as Record<number, string>,
       },
       pagination: {
@@ -221,8 +221,8 @@ export const translations = {
           2: 'English',
         } as Record<number, string>,
         mascots: {
-          0: 'Cat',
-          1: 'Duck',
+          0: 'Mochi Peach Cat',
+          1: 'Utya Duck',
         } as Record<number, string>,
       },
       pagination: {

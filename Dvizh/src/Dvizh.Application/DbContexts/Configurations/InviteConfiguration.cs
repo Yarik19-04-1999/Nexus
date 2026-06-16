@@ -30,7 +30,7 @@ public class InviteConfiguration : IEntityTypeConfiguration<Invite>
 
         builder.Property(x => x.Mascot)
             .HasConversion<int>()
-            .HasDefaultValue(InviteMascot.Cat);
+            .HasDefaultValue(InviteMascot.MochiPeachCat);
 
         builder.HasIndex(x => x.Code).IsUnique();
     }

@@ -39,7 +39,7 @@ export function InviteForm({ invite, onSubmit, isPending }: InviteFormProps) {
       description: invite?.description ?? '',
       expiresAt: invite?.expiresAt ? invite.expiresAt.slice(0, 16) : '',
       language: invite?.language ?? InviteLanguage.Russian,
-      mascot: invite?.mascot ?? InviteMascot.Cat,
+      mascot: invite?.mascot ?? InviteMascot.MochiPeachCat,
     },
   })
 
@@ -107,7 +107,7 @@ export function InviteForm({ invite, onSubmit, isPending }: InviteFormProps) {
                   ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
                   : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'}`}
             >
-              <span className="text-2xl">{m === InviteMascot.Cat ? '🐱' : '🦆'}</span>
+              <span className="text-2xl">{m === InviteMascot.MochiPeachCat ? '🐱' : '🦆'}</span>
               <span className="text-xs font-medium">{s.mascots[m]}</span>
             </button>
           ))}

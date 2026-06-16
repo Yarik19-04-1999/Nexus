@@ -21,7 +21,7 @@ export default function InvitePage({ params }: Props) {
   const respond = useRespondToInvite(code)
   const reset = useResetAndRefetch(code)
 
-  const images = invite?.mascot === InviteMascot.Duck ? DUCK_IMAGES : CAT_IMAGES
+  const images = invite?.mascot === InviteMascot.UtyaDuck ? DUCK_IMAGES : CAT_IMAGES
   const [mascotSrc, setMascotSrc] = useState<string | null>(null)
 
   if (isLoading) {

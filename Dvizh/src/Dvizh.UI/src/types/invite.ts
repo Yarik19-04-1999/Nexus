@@ -41,3 +41,17 @@ export interface DomainError {
   errorMessage?: string
   canRetry: boolean
 }
+
+export enum InviteEventType {
+  Opened = 0,
+  SaidYes = 1,
+  SaidNo = 2,
+  Reset = 3,
+}
+
+export interface InviteEvent {
+  id: number
+  inviteId: number
+  eventType: InviteEventType
+  createdAt: string
+}

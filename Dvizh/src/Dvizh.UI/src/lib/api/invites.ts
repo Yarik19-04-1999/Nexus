@@ -1,5 +1,5 @@
 import { apiClient } from './client'
-import type { Invite, PagedResult } from '@/types/invite'
+import type { Invite, InviteEvent, PagedResult } from '@/types/invite'
 import { InviteAnswer, InviteLanguage, InviteMascot } from '@/types/invite'
 
 export interface CreateInvitePayload {
@@ -17,6 +17,19 @@ export interface UpdateInvitePayload {
   expiresAt?: string
   language: InviteLanguage
   mascot: InviteMascot
+}
+
+export interface InviteEventParams {
+  page: number
+  pageSize: number
+}
+
+function buildEventsQuery(params: InviteEventParams): string {
+  const q = new URLSearchParams()
+  q.set('page', String(params.page))
+  q.set('pageSize', String(params.pageSize))
+  q.set('sorts', '-CreatedAt')
+  return q.toString()
 }
 
 export interface InviteListParams {
@@ -77,4 +90,7 @@ export const invitesApi = {
 
   respond: (code: string, answer: InviteAnswer) =>
     apiClient.post<void>('/api/v1/invites/answer', { code, answer }),
+
+  getEvents: (inviteId: number, params: InviteEventParams) =>
+    apiClient.get<PagedResult<InviteEvent>>(`/api/v1/invites/${inviteId}/events?${buildEventsQuery(params)}`),
 }

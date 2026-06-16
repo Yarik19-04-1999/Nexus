@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { invitesApi, type CreateInvitePayload, type UpdateInvitePayload, type InviteListParams } from '@/lib/api/invites'
+import { invitesApi, type CreateInvitePayload, type UpdateInvitePayload, type InviteListParams, type InviteEventParams } from '@/lib/api/invites'
 import { InviteAnswer } from '@/types/invite'
 
 export const inviteKeys = {
@@ -9,6 +9,7 @@ export const inviteKeys = {
   list: (params: InviteListParams) => [...inviteKeys.all, 'list', params] as const,
   detail: (id: number) => [...inviteKeys.all, 'detail', id] as const,
   open: (code: string) => [...inviteKeys.all, 'open', code] as const,
+  events: (id: number, params: InviteEventParams) => [...inviteKeys.all, 'events', id, params] as const,
 }
 
 export function useInvitesList(params: InviteListParams) {
@@ -70,6 +71,14 @@ export function useRespondToInvite(code: string) {
   return useMutation({
     mutationFn: (answer: InviteAnswer) => invitesApi.respond(code, answer),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: inviteKeys.open(code) }),
+  })
+}
+
+export function useInviteEvents(inviteId: number, params: InviteEventParams, enabled = true) {
+  return useQuery({
+    queryKey: inviteKeys.events(inviteId, params),
+    queryFn: () => invitesApi.getEvents(inviteId, params),
+    enabled: enabled && inviteId > 0,
   })
 }
 

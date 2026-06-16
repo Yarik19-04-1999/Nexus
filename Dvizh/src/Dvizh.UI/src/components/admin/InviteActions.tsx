@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Pencil, Trash2, ExternalLink, Copy, Check } from 'lucide-react'
+import { Pencil, Trash2, ExternalLink, Copy, Check, History } from 'lucide-react'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { InviteEventsModal } from './InviteEventsModal'
 import { useDeleteInvite } from '@/hooks/useInvites'
 import { useAdminStrings } from './AdminLanguageContext'
 import type { Invite } from '@/types/invite'
@@ -15,6 +16,7 @@ interface InviteActionsProps {
 export function InviteActions({ invite }: InviteActionsProps) {
   const router = useRouter()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showEventsModal, setShowEventsModal] = useState(false)
   const [copied, setCopied] = useState(false)
   const { strings } = useAdminStrings()
 
@@ -43,6 +45,9 @@ export function InviteActions({ invite }: InviteActionsProps) {
         <ActionButton onClick={() => window.open(inviteUrl, '_blank')} title={s.actions.open}>
           <ExternalLink className="w-4 h-4" />
         </ActionButton>
+        <ActionButton onClick={() => setShowEventsModal(true)} title={s.actions.viewEvents}>
+          <History className="w-4 h-4" />
+        </ActionButton>
         <ActionButton onClick={() => router.push(`/admin/${invite.id}/edit`)} title={s.actions.edit}>
           <Pencil className="w-4 h-4" />
         </ActionButton>
@@ -50,6 +55,13 @@ export function InviteActions({ invite }: InviteActionsProps) {
           <Trash2 className="w-4 h-4" />
         </ActionButton>
       </div>
+
+      <InviteEventsModal
+        inviteId={invite.id}
+        inviteMessage={invite.message}
+        open={showEventsModal}
+        onClose={() => setShowEventsModal(false)}
+      />
 
       <ConfirmDialog
         open={showDeleteDialog}

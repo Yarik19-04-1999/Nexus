@@ -8,6 +8,7 @@ using Dvizh.Api.Controllers.V1.Invites.RespondToInvite;
 using Dvizh.Api.Controllers.V1.Invites.UpdateInvite;
 using Dvizh.Application.Interfaces.UseCases;
 using Dvizh.Application.Models.Input;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nexus.Api.Core.Attributes;
 using Nexus.Api.Core.Extensions;
@@ -20,6 +21,7 @@ namespace Dvizh.Api.Controllers.V1;
 public class InvitesController : ControllerBase
 {
     [HttpGet]
+    [ProducesResponseType<GetInvitesResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(
         [FromQuery] SieveModel sieveModel,
         [FromQuery] ExpiryFilter expiry,
@@ -35,6 +37,7 @@ public class InvitesController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
+    [ProducesResponseType<GetInviteByIdResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetById(
         int id,
         [FromServices] IGetInviteByIdUseCase useCase,
@@ -49,6 +52,7 @@ public class InvitesController : ControllerBase
     }
 
     [HttpGet("{id:int}/events")]
+    [ProducesResponseType<GetInviteEventsResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetEvents(
         int id,
         [FromQuery] SieveModel sieveModel,
@@ -64,6 +68,7 @@ public class InvitesController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType<CreateInviteResponse>(StatusCodes.Status201Created)]
     public async Task<IActionResult> Create(
         [FromBody] CreateInviteRequest request,
         [FromServices] ICreateInviteUseCase useCase,
@@ -78,6 +83,7 @@ public class InvitesController : ControllerBase
     }
 
     [HttpPut]
+    [ProducesResponseType<UpdateInviteResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Update(
         [FromBody] UpdateInviteRequest request,
         [FromServices] IUpdateInviteUseCase useCase,
@@ -92,6 +98,7 @@ public class InvitesController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Delete(
         int id,
         [FromServices] IDeleteInviteUseCase useCase,
@@ -106,6 +113,7 @@ public class InvitesController : ControllerBase
     }
 
     [HttpPost("{id:int}/answer/reset")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> ResetAnswer(
         int id,
         [FromServices] IResetInviteAnswerUseCase useCase,
@@ -120,6 +128,7 @@ public class InvitesController : ControllerBase
     }
 
     [HttpGet("{code}")]
+    [ProducesResponseType<OpenInviteResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Open(
         string code,
         [FromServices] IOpenInviteUseCase useCase,
@@ -134,6 +143,7 @@ public class InvitesController : ControllerBase
     }
 
     [HttpPost("answer")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Respond(
         [FromBody] RespondToInviteRequest request,
         [FromServices] IRespondToInviteUseCase useCase,

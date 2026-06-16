@@ -3,6 +3,7 @@ using Information.Api.Controllers.V1.ExchangeRates.GetExchangeRates;
 using Information.Application.Enums;
 using Information.Application.Interfaces.UseCases;
 using Information.Application.Models.Input;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nexus.Api.Core.Attributes;
 
@@ -13,6 +14,7 @@ namespace Information.Api.Controllers.V1;
 public class ExchangeRateController : ControllerBase
 {
     [HttpGet]
+    [ProducesResponseType<GetExchangeRatesResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetRates(
         [FromServices] IGetExchangeRatesUseCase useCase,
         CancellationToken cancellationToken)
@@ -22,6 +24,7 @@ public class ExchangeRateController : ControllerBase
     }
 
     [HttpGet("history")]
+    [ProducesResponseType<IReadOnlyList<GetExchangeRateHistoryResponse>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllHistory(
         [FromServices] IGetExchangeRateHistoryUseCase useCase,
         CancellationToken cancellationToken)
@@ -31,6 +34,7 @@ public class ExchangeRateController : ControllerBase
     }
 
     [HttpGet("{currency}/history")]
+    [ProducesResponseType<IReadOnlyList<GetExchangeRateHistoryResponse>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetHistory(
         ExchangeCurrency currency,
         [FromServices] IGetExchangeRateHistoryUseCase useCase,

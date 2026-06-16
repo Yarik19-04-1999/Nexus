@@ -3,6 +3,7 @@ using Information.Api.Controllers.V1.Weather.GetHourlyWeather;
 using Information.Application.Enums;
 using Information.Application.Interfaces.UseCases;
 using Information.Application.Models.Input;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nexus.Api.Core.Attributes;
 
@@ -13,6 +14,7 @@ namespace Information.Api.Controllers.V1;
 public class WeatherController : ControllerBase
 {
     [HttpGet("{city}/hourly")]
+    [ProducesResponseType<GetHourlyWeatherResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetHourlyWeather(
         WeatherCity city,
         [FromServices] IGetHourlyWeatherUseCase useCase,
@@ -23,6 +25,7 @@ public class WeatherController : ControllerBase
     }
 
     [HttpGet("{city}/daily")]
+    [ProducesResponseType<GetDailyWeatherResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetDailyWeather(
         WeatherCity city,
         [FromServices] IGetDailyWeatherUseCase useCase,

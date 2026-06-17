@@ -43,8 +43,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISetUserLanguageUseCase, SetUserLanguageUseCase>();
         services.AddScoped<IGetUserLanguageUseCase, GetUserLanguageUseCase>();
 
-        // services.AddValidatorsFromAssemblyContaining<SetUserLanguageInputValidator>();
-
         return services;
     }
 }

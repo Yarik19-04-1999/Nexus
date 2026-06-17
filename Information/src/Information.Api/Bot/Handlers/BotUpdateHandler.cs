@@ -257,8 +257,6 @@ public class BotUpdateHandler : IUpdateHandler
         await bot.EditMessageText(chatId, messageId, text, replyMarkup: BackToMenuKeyboard(lang), cancellationToken: ct);
     }
 
-    // ── Weather ───────────────────────────────────────────────────────────────
-
     private async Task EditToCitySelectionAsync(ITelegramBotClient bot, long chatId, int messageId, BotLanguage lang, CancellationToken ct)
     {
         var rows = Enum.GetValues<WeatherCity>()
@@ -352,10 +350,7 @@ public class BotUpdateHandler : IUpdateHandler
                 BotMessages.UnexpectedError(BotLanguage.Ukrainian),
                 cancellationToken: ct);
         }
-        catch
-        {
-            // best-effort, ignore
-        }
+        catch { }
     }
 
     private async Task<BotLanguage> GetLanguage(long userId, CancellationToken ct)

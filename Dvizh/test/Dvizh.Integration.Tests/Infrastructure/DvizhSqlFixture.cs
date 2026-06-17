@@ -16,11 +16,6 @@ public sealed class DvizhSqlFixture : ContainerFixture<MsSqlBuilder, MsSqlContai
         
     }
 
-    /*
-    protected override MsSqlBuilder Configure(MsSqlBuilder builder)
-        => builder.WithImage("mcr.microsoft.com/mssql/server:2022-latest");
-    */
-
     public string ConnectionString { get; private set; }
 
     protected override async ValueTask InitializeAsync()

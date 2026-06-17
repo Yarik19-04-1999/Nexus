@@ -35,80 +35,58 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
 
     public async Task<IReadOnlyList<HourlyWeather>> GetHourlyForecast(WeatherCity city, CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var (lat, lon) = CityCoordinates.All[city];
-            var url = FormHourlyUrl(lat, lon);
+        var (lat, lon) = CityCoordinates.All[city];
+        var url = FormHourlyUrl(lat, lon);
 
-            var response = await _httpClient.GetFromJsonAsync<OpenMeteoForecastResponse>(url, cancellationToken);
+        var response = await _httpClient.GetFromJsonAsync<OpenMeteoForecastResponse>(url, cancellationToken);
 
-            if (response is null)
-            {
-                throw InformationExceptions.ProviderUnavailable(SourceName);
-            }
-
-            var now = DateTime.Now;
-            var startIndex = response.Hourly.Time
-                .Select((t, i) => (Time: DateTime.Parse(t), Index: i))
-                .First(x => x.Time >= now)
-                .Index;
-
-            return Enumerable.Range(startIndex, HourlyCount)
-                .Select(i => new HourlyWeather
-                {
-                    Time = DateTime.Parse(response.Hourly.Time[i]),
-                    Temperature = response.Hourly.Temperature[i],
-                    ApparentTemperature = response.Hourly.ApparentTemperature[i],
-                    PrecipitationProbability = response.Hourly.PrecipitationProbability[i],
-                    WeatherCode = (WeatherCode)response.Hourly.WeatherCode[i],
-                    WindSpeed = response.Hourly.WindSpeed[i],
-                })
-                .ToList();
-        }
-        catch (DomainException)
-        {
-            throw;
-        }
-        catch (Exception)
+        if (response is null)
         {
             throw InformationExceptions.ProviderUnavailable(SourceName);
         }
+
+        var now = DateTime.Now;
+        var startIndex = response.Hourly.Time
+            .Select((t, i) => (Time: DateTime.Parse(t), Index: i))
+            .First(x => x.Time >= now)
+            .Index;
+
+        return Enumerable.Range(startIndex, HourlyCount)
+            .Select(i => new HourlyWeather
+            {
+                Time = DateTime.Parse(response.Hourly.Time[i]),
+                Temperature = response.Hourly.Temperature[i],
+                ApparentTemperature = response.Hourly.ApparentTemperature[i],
+                PrecipitationProbability = response.Hourly.PrecipitationProbability[i],
+                WeatherCode = (WeatherCode)response.Hourly.WeatherCode[i],
+                WindSpeed = response.Hourly.WindSpeed[i],
+            })
+            .ToList();
     }
 
     public async Task<IReadOnlyList<DailyWeather>> GetDailyForecast(WeatherCity city, CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var (lat, lon) = CityCoordinates.All[city];
-            var url = FormDailyUrl(lat, lon);
+        var (lat, lon) = CityCoordinates.All[city];
+        var url = FormDailyUrl(lat, lon);
 
-            var response = await _httpClient.GetFromJsonAsync<OpenMeteoForecastResponse>(url, cancellationToken);
+        var response = await _httpClient.GetFromJsonAsync<OpenMeteoForecastResponse>(url, cancellationToken);
 
-            if (response is null)
-            {
-                throw InformationExceptions.ProviderUnavailable(SourceName);
-            }
-
-            return Enumerable.Range(0, response.Daily.Time.Count)
-                .Select(i => new DailyWeather
-                {
-                    Date = DateOnly.Parse(response.Daily.Time[i]),
-                    MaxTemperature = response.Daily.MaxTemperature[i],
-                    MinTemperature = response.Daily.MinTemperature[i],
-                    PrecipitationSum = response.Daily.PrecipitationSum[i],
-                    PrecipitationProbability = response.Daily.PrecipitationProbability[i],
-                    WeatherCode = (WeatherCode)response.Daily.WeatherCode[i],
-                    MaxWindSpeed = response.Daily.MaxWindSpeed[i],
-                })
-                .ToList();
-        }
-        catch (DomainException)
-        {
-            throw;
-        }
-        catch (Exception)
+        if (response is null)
         {
             throw InformationExceptions.ProviderUnavailable(SourceName);
         }
+
+        return Enumerable.Range(0, response.Daily.Time.Count)
+            .Select(i => new DailyWeather
+            {
+                Date = DateOnly.Parse(response.Daily.Time[i]),
+                MaxTemperature = response.Daily.MaxTemperature[i],
+                MinTemperature = response.Daily.MinTemperature[i],
+                PrecipitationSum = response.Daily.PrecipitationSum[i],
+                PrecipitationProbability = response.Daily.PrecipitationProbability[i],
+                WeatherCode = (WeatherCode)response.Daily.WeatherCode[i],
+                MaxWindSpeed = response.Daily.MaxWindSpeed[i],
+            })
+            .ToList();
     }
 }

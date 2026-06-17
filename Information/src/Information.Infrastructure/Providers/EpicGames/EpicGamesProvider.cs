@@ -24,37 +24,26 @@ internal class EpicGamesProvider : IEpicGamesProvider
 
     public async Task<IReadOnlyList<EpicGame>> GetFreeGames(CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var response = await _httpClient.GetFromJsonAsync<EpicGamesResponse>(FormUrl(), cancellationToken);
+        var response = await _httpClient.GetFromJsonAsync<EpicGamesResponse>(FormUrl(), cancellationToken);
 
-            if (response?.Data is null)
-            {
-                throw InformationExceptions.ProviderUnavailable(SourceName);
-            }
-
-            var now = DateTimeOffset.UtcNow;
-
-            return response.Data.Catalog.SearchStore.Elements
-                .Where(e => IsCurrentlyFree(e, now))
-                .Select(e => new EpicGame
-                {
-                    Title = e.Title,
-                    Description = e.Description,
-                    ImageUrl = GetImageUrl(e.KeyImages),
-                    FreeUntil = GetFreeUntil(e, now)!.Value,
-                    StoreUrl = GetStoreUrl(e),
-                })
-                .ToList();
-        }
-        catch (DomainException)
-        {
-            throw;
-        }
-        catch (Exception)
+        if (response?.Data is null)
         {
             throw InformationExceptions.ProviderUnavailable(SourceName);
         }
+
+        var now = DateTimeOffset.UtcNow;
+
+        return response.Data.Catalog.SearchStore.Elements
+            .Where(e => IsCurrentlyFree(e, now))
+            .Select(e => new EpicGame
+            {
+                Title = e.Title,
+                Description = e.Description,
+                ImageUrl = GetImageUrl(e.KeyImages),
+                FreeUntil = GetFreeUntil(e, now)!.Value,
+                StoreUrl = GetStoreUrl(e),
+            })
+            .ToList();
     }
 
     private static bool IsCurrentlyFree(EpicGamesElement element, DateTimeOffset now) =>

@@ -29,29 +29,18 @@ internal class NbuExchangeRateProvider : IExchangeRateProvider
 
     private async Task<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>> FetchDate(DateOnly date, CancellationToken cancellationToken)
     {
-        try
-        {
-            var url = $"/NBUStatService/v1/statdirectory/exchange?date={date:yyyyMMdd}&json";
-            var response = await _httpClient.GetFromJsonAsync<List<NbuExchangeRateResponse>>(url, cancellationToken);
+        var url = $"/NBUStatService/v1/statdirectory/exchange?date={date:yyyyMMdd}&json";
+        var response = await _httpClient.GetFromJsonAsync<List<NbuExchangeRateResponse>>(url, cancellationToken);
 
-            if (response is null)
-            {
-                throw CommonExceptions.ExternalProviderNoData();
-            }
-
-            return response
-                .Where(r => KnownCurrencies.ContainsKey(r.Currency))
-                .ToDictionary(
-                    r => KnownCurrencies[r.Currency],
-                    r => new ExchangeRate { Rate = r.Rate, Date = date });
-        }
-        catch (DomainException)
-        {
-            throw;
-        }
-        catch (Exception)
+        if (response is null)
         {
             throw CommonExceptions.ExternalProviderNoData();
         }
+
+        return response
+            .Where(r => KnownCurrencies.ContainsKey(r.Currency))
+            .ToDictionary(
+                r => KnownCurrencies[r.Currency],
+                r => new ExchangeRate { Rate = r.Rate, Date = date });
     }
 }

@@ -16,25 +16,18 @@ public class SetUserLanguageUseCase : ISetUserLanguageUseCase
 
     public async Task Execute(SetUserLanguageInput input, CancellationToken cancellationToken = default)
     {
-        var existing = await _userRepository.GetById(input.TelegramUserId, cancellationToken);
 
-        if (existing is null)
+        var user = await _userRepository.GetById(input.TelegramUserId, cancellationToken);
+
+        var now = DateTime.UtcNow;
+        user ??= new TelegramUser
         {
-            var now = DateTime.UtcNow;
-            var newUser = new TelegramUser
-            {
-                TelegramUserId = input.TelegramUserId,
-                Language = input.Language,
-                CreatedAt = now,
-                UpdatedAt = now
-            };
-            await _userRepository.Upsert(newUser, cancellationToken);
-        }
-        else
-        {
-            existing.Language = input.Language;
-            existing.UpdatedAt = DateTime.UtcNow;
-            await _userRepository.Upsert(existing, cancellationToken);
-        }
+            TelegramUserId = input.TelegramUserId,
+            CreatedAt = now
+        };
+
+        user.Language = input.Language;
+        user.UpdatedAt = now;
+        await _userRepository.Upsert(user, cancellationToken);
     }
 }

@@ -19,7 +19,7 @@ public class ExchangeRateController : ControllerBase
         [FromServices] IGetExchangeRatesUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var data = await useCase.Execute(new GetExchangeRatesInput(), cancellationToken);
+        var data = await useCase.Execute(GetExchangeRatesInput.Instance, cancellationToken);
         return Ok(GetExchangeRatesResponseMapper.Map(data));
     }
 

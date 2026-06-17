@@ -12,6 +12,52 @@ internal class EpicGamesProvider : IEpicGamesProvider
     private const string StoreBaseUrl = "https://store.epicgames.com/en-US/p/";
     private const string FallbackStoreUrl = "https://store.epicgames.com/en-US/free-games";
     private const string SourceName = "EpicGames";
+    private const string GraphQlEndpoint = "/graphql";
+
+    private static readonly object Query = new
+    {
+        query = """
+            query getFreeGames($locale: String, $country: String, $allowCountries: String) {
+              Catalog {
+                searchStore(
+                  locale: $locale
+                  country: $country
+                  allowCountries: $allowCountries
+                  category: "freegames"
+                  count: 10
+                ) {
+                  elements {
+                    title
+                    description
+                    keyImages { type url }
+                    productSlug
+                    catalogNs {
+                      mappings(pageType: "productHome") {
+                        pageSlug
+                        pageType
+                      }
+                    }
+                    promotions(category: "freegames") {
+                      promotionalOffers {
+                        promotionalOffers {
+                          startDate
+                          endDate
+                          discountSetting { discountPercentage }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """,
+        variables = new
+        {
+            locale = "en-US",
+            country = "US",
+            allowCountries = "US"
+        }
+    };
 
     private readonly HttpClient _httpClient;
 
@@ -20,15 +66,16 @@ internal class EpicGamesProvider : IEpicGamesProvider
         _httpClient = httpClient;
     }
 
-    private static string FormUrl() => "/freeGamesPromotions?locale=en-US&country=US&allowCountries=US";
-
     public async Task<IReadOnlyList<EpicGame>> GetFreeGames(CancellationToken cancellationToken = default)
     {
         try
         {
-            var response = await _httpClient.GetFromJsonAsync<EpicGamesResponse>(FormUrl(), cancellationToken);
+            var httpResponse = await _httpClient.PostAsJsonAsync(GraphQlEndpoint, Query, cancellationToken);
+            httpResponse.EnsureSuccessStatusCode();
 
-            if (response is null || response.Errors is { Count: > 0 } || response.Data is null)
+            var response = await httpResponse.Content.ReadFromJsonAsync<EpicGamesResponse>(cancellationToken);
+
+            if (response?.Data is null)
             {
                 throw InformationExceptions.ProviderUnavailable(SourceName);
             }
@@ -51,7 +98,7 @@ internal class EpicGamesProvider : IEpicGamesProvider
         {
             throw;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             throw InformationExceptions.ProviderUnavailable(SourceName);
         }

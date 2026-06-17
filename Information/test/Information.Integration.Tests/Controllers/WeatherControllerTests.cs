@@ -42,6 +42,12 @@ public class WeatherControllerTests
         body.Should().NotBeNull();
         body!.City.Should().Be(WeatherCity.Kharkiv);
         body.Hourly.Should().HaveCount(hourly.Count);
+        for (var i = 0; i < hourly.Count; i++)
+        {
+            body.Hourly[i].Temperature.Should().Be(hourly[i].Temperature);
+            body.Hourly[i].WindSpeed.Should().Be(hourly[i].WindSpeed);
+            body.Hourly[i].PrecipitationProbability.Should().Be(hourly[i].PrecipitationProbability);
+        }
         mock.Verify(x => x.Execute(
             It.Is<GetWeatherInput>(i => i.City == WeatherCity.Kharkiv),
             It.IsAny<CancellationToken>()), Times.Once);
@@ -68,6 +74,12 @@ public class WeatherControllerTests
         body.Should().NotBeNull();
         body!.City.Should().Be(WeatherCity.Kyiv);
         body.Daily.Should().HaveCount(daily.Count);
+        for (var i = 0; i < daily.Count; i++)
+        {
+            body.Daily[i].MaxTemperature.Should().Be(daily[i].MaxTemperature);
+            body.Daily[i].MinTemperature.Should().Be(daily[i].MinTemperature);
+            body.Daily[i].MaxWindSpeed.Should().Be(daily[i].MaxWindSpeed);
+        }
         mock.Verify(x => x.Execute(
             It.Is<GetWeatherInput>(i => i.City == WeatherCity.Kyiv),
             It.IsAny<CancellationToken>()), Times.Once);
@@ -81,6 +93,18 @@ public class WeatherControllerTests
             s.AddSingleton(mock.Object))).CreateClient();
 
         var response = await client.GetAsync("/api/v1/weather/Moscow/hourly");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GetDailyWeather_WithInvalidCity_ReturnsBadRequest()
+    {
+        var mock = new Mock<IGetDailyWeatherUseCase>();
+        var client = _factory.WithWebHostBuilder(b => b.ConfigureServices(s =>
+            s.AddSingleton(mock.Object))).CreateClient();
+
+        var response = await client.GetAsync("/api/v1/weather/Moscow/daily");
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }

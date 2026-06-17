@@ -27,7 +27,7 @@ public class ExchangeRateControllerTests
         var rates = _fixture.Create<Dictionary<ExchangeCurrency, ExchangeRate>>();
 
         var mock = new Mock<IGetExchangeRatesUseCase>();
-        mock.Setup(x => x.Execute(It.IsAny<GetExchangeRatesInput>(), It.IsAny<CancellationToken>()))
+        mock.Setup(x => x.Execute(GetExchangeRatesInput.Instance, It.IsAny<CancellationToken>()))
             .ReturnsAsync(rates);
 
         var client = _factory.WithWebHostBuilder(b => b.ConfigureServices(s =>
@@ -39,6 +39,12 @@ public class ExchangeRateControllerTests
         var body = await response.Content.ReadFromJsonAsync<GetExchangeRatesResponse>();
         body.Should().NotBeNull();
         body!.Rates.Should().HaveCount(rates.Count);
+        var (expectedCurrency, expectedRate) = rates.First();
+        body.Rates.Should().Contain(r =>
+            r.Currency == expectedCurrency &&
+            r.Rate.Rate == expectedRate.Rate &&
+            r.Rate.Date == expectedRate.Date);
+        mock.Verify(x => x.Execute(GetExchangeRatesInput.Instance, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

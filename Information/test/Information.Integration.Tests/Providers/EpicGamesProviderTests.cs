@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Information.Application.Interfaces.Providers;
-using Information.Infrastructure.Providers.EpicGames;
 using Information.Integration.Tests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,11 +12,11 @@ namespace Information.Integration.Tests.Providers;
 public class EpicGamesProviderTests : IDisposable
 {
     private readonly InformationWebApplicationFactory _factory = new();
-    private readonly EpicGamesProvider _provider;
+    private readonly IEpicGamesProvider _provider;
 
     public EpicGamesProviderTests()
     {
-        _provider = _factory.Services.GetRequiredService<EpicGamesProvider>();
+        _provider = _factory.Services.GetRequiredService<IEpicGamesProvider>();
     }
 
     [Fact]

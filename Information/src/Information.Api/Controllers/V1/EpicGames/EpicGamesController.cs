@@ -17,7 +17,7 @@ public class EpicGamesController : ControllerBase
         [FromServices] IGetEpicFreeGamesUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var data = await useCase.Execute(new GetEpicFreeGamesInput(), cancellationToken);
+        var data = await useCase.Execute(GetEpicFreeGamesInput.Instance, cancellationToken);
         return Ok(new GetEpicFreeGamesResponse(data.Select(GetEpicFreeGamesResponseMapper.Map).ToList()));
     }
 }

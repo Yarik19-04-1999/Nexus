@@ -1,9 +1,9 @@
-using Information.Application.Constants;
 using Information.Application.Enums;
 using Information.Application.Interfaces.Providers;
 using Information.Application.Interfaces.UseCases;
 using Information.Application.Models;
 using Information.Application.Models.Input;
+using Nexus.Application.Core.Exceptions;
 using Nexus.Application.Core.Utils;
 
 namespace Information.Application.UseCases;
@@ -24,7 +24,7 @@ public class GetExchangeRatesUseCase : IGetExchangeRatesUseCase
 
         if (rates.Count == 0)
         {
-            throw InformationExceptions.ProviderUnavailable(nameof(IExchangeRateProvider));
+            throw CommonExceptions.ExternalProviderNoData();
         }
 
         return rates;

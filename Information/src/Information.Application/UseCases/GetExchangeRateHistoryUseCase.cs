@@ -1,9 +1,9 @@
-using Information.Application.Constants;
 using Information.Application.Enums;
 using Information.Application.Interfaces.Providers;
 using Information.Application.Interfaces.UseCases;
 using Information.Application.Models;
 using Information.Application.Models.Input;
+using Nexus.Application.Core.Exceptions;
 using Nexus.Application.Core.Extensions;
 using Nexus.Application.Core.Utils;
 
@@ -11,6 +11,8 @@ namespace Information.Application.UseCases;
 
 public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
 {
+    private static readonly ExchangeCurrency[] AllCurrencies = Enum.GetValues<ExchangeCurrency>();
+
     private readonly IExchangeRateProvider _exchangeRateProvider;
 
     public GetExchangeRateHistoryUseCase(IExchangeRateProvider exchangeRateProvider)
@@ -22,25 +24,28 @@ public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
     {
         var currencies = input.Currency.HasValue
             ? (IEnumerable<ExchangeCurrency>)[input.Currency.Value]
-            : Enum.GetValues<ExchangeCurrency>();
+            : AllCurrencies;
 
         var today = DateOnlyUtils.CurrentDate;
-        var dates = new[]
-        {
-            today,
-            today.Yesterday(),
-            today.WeekAgo(),
-            today.MonthAgo(),
-            today.YearAgo(),
-        };
 
-        var tasks = dates.Select(date => _exchangeRateProvider.GetRates(date, cancellationToken));
-        var results = await Task.WhenAll(tasks);
+        var todayTask = _exchangeRateProvider.GetRates(today, cancellationToken);
+        var yesterdayTask = _exchangeRateProvider.GetRates(today.Yesterday(), cancellationToken);
+        var weekAgoTask = _exchangeRateProvider.GetRates(today.WeekAgo(), cancellationToken);
+        var monthAgoTask = _exchangeRateProvider.GetRates(today.MonthAgo(), cancellationToken);
+        var yearAgoTask = _exchangeRateProvider.GetRates(today.YearAgo(), cancellationToken);
+
+        await Task.WhenAll(todayTask, yesterdayTask, weekAgoTask, monthAgoTask, yearAgoTask);
+
+        var todayRates = await todayTask;
+        var yesterdayRates = await yesterdayTask;
+        var weekAgoRates = await weekAgoTask;
+        var monthAgoRates = await monthAgoTask;
+        var yearAgoRates = await yearAgoTask;
 
         var histories = currencies
             .Select(currency =>
             {
-                var current = results[0].GetValueOrDefault(currency);
+                var current = todayRates.GetValueOrDefault(currency);
                 if (current is null)
                 {
                     return null;
@@ -50,10 +55,10 @@ public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
                 {
                     Currency = currency,
                     Current = current,
-                    Yesterday = results[1].GetValueOrDefault(currency),
-                    WeekAgo = results[2].GetValueOrDefault(currency),
-                    MonthAgo = results[3].GetValueOrDefault(currency),
-                    YearAgo = results[4].GetValueOrDefault(currency),
+                    Yesterday = yesterdayRates.GetValueOrDefault(currency),
+                    WeekAgo = weekAgoRates.GetValueOrDefault(currency),
+                    MonthAgo = monthAgoRates.GetValueOrDefault(currency),
+                    YearAgo = yearAgoRates.GetValueOrDefault(currency),
                 };
             })
             .Where(h => h is not null)
@@ -62,7 +67,7 @@ public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
 
         if (histories.Count == 0)
         {
-            throw InformationExceptions.ProviderUnavailable(nameof(IExchangeRateProvider));
+            throw CommonExceptions.ExternalProviderNoData();
         }
 
         return histories;

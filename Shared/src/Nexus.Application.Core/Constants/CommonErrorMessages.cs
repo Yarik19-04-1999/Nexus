@@ -13,4 +13,7 @@ public static class CommonErrorMessages
 
     public static string CodeAlreadyExists<T>(string code)
         => $"{typeof(T).Name} with code '{code}' already exists.";
+
+    public static string ExternalProviderNoData()
+        => "The external data provider returned no results. Please try again later.";
 }

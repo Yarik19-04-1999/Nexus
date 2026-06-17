@@ -25,7 +25,7 @@ public class OptionsErrorMessagesTests
     {
         var result = OptionsErrorMessages.MustBeNotEmpty(null, "Token");
 
-        Assert.Equal("[null] Token must not be empty.", result);
+        Assert.Equal("[] Token must not be empty.", result);
     }
 
     [Fact]

@@ -1,5 +1,6 @@
 using Dvizh.Application.Extensions;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Nexus.Api.Core.Extensions;
 using Nexus.Api.Core.Options;
 using Nexus.Infrastructure.Core.Constants;

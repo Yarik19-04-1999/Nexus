@@ -9,22 +9,17 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Dvizh.Integration.Tests.UseCases;
 
-public class RespondToInviteUseCaseTests : IAsyncDisposable
+public class RespondToInviteUseCaseTests
 {
     private readonly DvizhWebApplicationFactory _factory = new();
-    private readonly DbScope _db;
-
-    public RespondToInviteUseCaseTests()
-    {
-        _db = new DbScope(_factory);
-    }
 
     [Theory]
     [InlineData(InviteAnswer.Yes, InviteEventType.SaidYes)]
     [InlineData(InviteAnswer.No, InviteEventType.SaidNo)]
     public async Task Execute_UpdatesAnswerInDb_AndCreatesCorrectEvent(InviteAnswer answer, InviteEventType expectedEvent)
     {
-        var invite = await _db.SeedInvite();
+        await using var db = new DbScope(_factory);
+        var invite = await db.SeedInvite();
 
         using var scope = _factory.Services.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IRespondToInviteUseCase>();
@@ -33,12 +28,12 @@ public class RespondToInviteUseCaseTests : IAsyncDisposable
 
         result.HasError.Should().BeFalse();
 
-        _db.Db.Entry(invite).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-        var fromDb = await _db.Db.Invites.FindAsync(invite.Id);
+        db.Db.Entry(invite).State = EntityState.Detached;
+        var fromDb = await db.Db.Invites.FindAsync(invite.Id);
         fromDb!.Answer.Should().Be(answer);
         fromDb.UpdatedAt.Should().BeAfter(invite.UpdatedAt);
 
-        var events = await _db.Db.InviteEvents
+        var events = await db.Db.InviteEvents
             .Where(e => e.InviteId == invite.Id)
             .ToListAsync();
         events.Should().ContainSingle(e => e.EventType == expectedEvent);
@@ -48,7 +43,8 @@ public class RespondToInviteUseCaseTests : IAsyncDisposable
     [Fact]
     public async Task Execute_WhenAlreadyAnswered_ReturnsAlreadyAnsweredError()
     {
-        var invite = await _db.SeedInvite(i => i.Answer = InviteAnswer.Yes);
+        await using var db = new DbScope(_factory);
+        var invite = await db.SeedInvite(i => i.Answer = InviteAnswer.Yes);
 
         using var scope = _factory.Services.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IRespondToInviteUseCase>();
@@ -62,7 +58,8 @@ public class RespondToInviteUseCaseTests : IAsyncDisposable
     [Fact]
     public async Task Execute_WhenExpired_ReturnsAlreadyExpiredError()
     {
-        var invite = await _db.SeedInvite(i => i.ExpiresAt = DateTime.UtcNow.AddDays(-1));
+        await using var db = new DbScope(_factory);
+        var invite = await db.SeedInvite(i => i.ExpiresAt = DateTime.UtcNow.AddDays(-1));
 
         using var scope = _factory.Services.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IRespondToInviteUseCase>();
@@ -83,11 +80,5 @@ public class RespondToInviteUseCaseTests : IAsyncDisposable
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be("NotFound");
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await _db.DisposeAsync();
-        _factory.Dispose();
     }
 }

@@ -4,24 +4,18 @@ using Dvizh.Application.Interfaces.UseCases;
 using Dvizh.Application.Models.Input;
 using Dvizh.Integration.Tests.Infrastructure;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dvizh.Integration.Tests.UseCases;
 
-public class CreateInviteUseCaseTests : IAsyncDisposable
+public class CreateInviteUseCaseTests
 {
     private readonly DvizhWebApplicationFactory _factory = new();
-    private readonly DbScope _db;
-
-    public CreateInviteUseCaseTests()
-    {
-        _db = new DbScope(_factory);
-    }
 
     [Fact]
     public async Task Execute_SavesInviteToDb_WithGeneratedCode()
     {
+        await using var db = new DbScope(_factory);
         using var scope = _factory.Services.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<ICreateInviteUseCase>();
 
@@ -30,14 +24,12 @@ public class CreateInviteUseCaseTests : IAsyncDisposable
         var result = await useCase.Execute(input);
 
         result.HasError.Should().BeFalse();
-        _db.Track(result.Data.Id);
-
         result.Data.Id.Should().BeGreaterThan(0);
         result.Data.Code.Should().NotBeNullOrEmpty();
         result.Data.Code.Length.Should().BeLessOrEqualTo(InviteValidationConstants.CodeMaxLength);
         result.Data.Answer.Should().Be(InviteAnswer.Pending);
 
-        var fromDb = await _db.Db.Invites.FindAsync(result.Data.Id);
+        var fromDb = await db.Db.Invites.FindAsync(result.Data.Id);
         fromDb.Should().NotBeNull();
         fromDb!.Code.Should().Be(result.Data.Code);
         fromDb.Message.Should().Be("Приходи завтра");
@@ -59,30 +51,28 @@ public class CreateInviteUseCaseTests : IAsyncDisposable
         var r1 = await useCase.Execute(input);
         var r2 = await useCase.Execute(input);
 
-        _db.Track(r1.Data.Id);
-        _db.Track(r2.Data.Id);
-
         r1.Data.Code.Should().NotBe(r2.Data.Code);
     }
 
     [Fact]
     public async Task Execute_WithDescription_SavesDescriptionToDb()
     {
+        await using var db = new DbScope(_factory);
         using var scope = _factory.Services.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<ICreateInviteUseCase>();
 
         var input = new CreateInviteInput("Test", "Описание встречи", null, InviteLanguage.Russian, InviteMascot.MochiPeachCat);
 
         var result = await useCase.Execute(input);
-        _db.Track(result.Data.Id);
 
-        var fromDb = await _db.Db.Invites.FindAsync(result.Data.Id);
+        var fromDb = await db.Db.Invites.FindAsync(result.Data.Id);
         fromDb!.Description.Should().Be("Описание встречи");
     }
 
     [Fact]
     public async Task Execute_WithExpiresAt_SavesExpiresAtToDb()
     {
+        await using var db = new DbScope(_factory);
         using var scope = _factory.Services.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<ICreateInviteUseCase>();
 
@@ -90,15 +80,8 @@ public class CreateInviteUseCaseTests : IAsyncDisposable
         var input = new CreateInviteInput("Test", null, expiresAt, InviteLanguage.Russian, InviteMascot.MochiPeachCat);
 
         var result = await useCase.Execute(input);
-        _db.Track(result.Data.Id);
 
-        var fromDb = await _db.Db.Invites.FindAsync(result.Data.Id);
+        var fromDb = await db.Db.Invites.FindAsync(result.Data.Id);
         fromDb!.ExpiresAt.Should().BeCloseTo(expiresAt, TimeSpan.FromSeconds(1));
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await _db.DisposeAsync();
-        _factory.Dispose();
     }
 }

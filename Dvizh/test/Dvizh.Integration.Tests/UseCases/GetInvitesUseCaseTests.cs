@@ -8,25 +8,20 @@ using Sieve.Models;
 
 namespace Dvizh.Integration.Tests.UseCases;
 
-public class GetInvitesUseCaseTests : IAsyncDisposable
+public class GetInvitesUseCaseTests
 {
     private readonly DvizhWebApplicationFactory _factory = new();
-    private readonly DbScope _db;
-
-    public GetInvitesUseCaseTests()
-    {
-        _db = new DbScope(_factory);
-    }
 
     [Fact]
     public async Task Execute_ExpiryFilter_Active_ExcludesExpiredInvites()
     {
-        var active = await _db.SeedInvite(i =>
+        await using var db = new DbScope(_factory);
+        var active = await db.SeedInvite(i =>
         {
             i.Message = $"Active-{Guid.NewGuid()}";
             i.ExpiresAt = DateTime.UtcNow.AddDays(7);
         });
-        var expired = await _db.SeedInvite(i =>
+        var expired = await db.SeedInvite(i =>
         {
             i.Message = $"Expired-{Guid.NewGuid()}";
             i.ExpiresAt = DateTime.UtcNow.AddDays(-1);
@@ -46,12 +41,13 @@ public class GetInvitesUseCaseTests : IAsyncDisposable
     [Fact]
     public async Task Execute_ExpiryFilter_Expired_ExcludesActiveInvites()
     {
-        var active = await _db.SeedInvite(i =>
+        await using var db = new DbScope(_factory);
+        var active = await db.SeedInvite(i =>
         {
             i.Message = $"Active-{Guid.NewGuid()}";
             i.ExpiresAt = DateTime.UtcNow.AddDays(7);
         });
-        var expired = await _db.SeedInvite(i =>
+        var expired = await db.SeedInvite(i =>
         {
             i.Message = $"Expired-{Guid.NewGuid()}";
             i.ExpiresAt = DateTime.UtcNow.AddDays(-1);
@@ -71,12 +67,13 @@ public class GetInvitesUseCaseTests : IAsyncDisposable
     [Fact]
     public async Task Execute_ExpiryFilter_All_IncludesBoth()
     {
-        var active = await _db.SeedInvite(i =>
+        await using var db = new DbScope(_factory);
+        var active = await db.SeedInvite(i =>
         {
             i.Message = $"Active-{Guid.NewGuid()}";
             i.ExpiresAt = DateTime.UtcNow.AddDays(7);
         });
-        var expired = await _db.SeedInvite(i =>
+        var expired = await db.SeedInvite(i =>
         {
             i.Message = $"Expired-{Guid.NewGuid()}";
             i.ExpiresAt = DateTime.UtcNow.AddDays(-1);
@@ -96,9 +93,10 @@ public class GetInvitesUseCaseTests : IAsyncDisposable
     [Fact]
     public async Task Execute_Pagination_ReturnsTotalCount()
     {
-        await _db.SeedInvite(i => i.Message = $"P-{Guid.NewGuid()}");
-        await _db.SeedInvite(i => i.Message = $"P-{Guid.NewGuid()}");
-        await _db.SeedInvite(i => i.Message = $"P-{Guid.NewGuid()}");
+        await using var db = new DbScope(_factory);
+        await db.SeedInvite(i => i.Message = $"P-{Guid.NewGuid()}");
+        await db.SeedInvite(i => i.Message = $"P-{Guid.NewGuid()}");
+        await db.SeedInvite(i => i.Message = $"P-{Guid.NewGuid()}");
 
         using var scope = _factory.Services.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IGetInvitesUseCase>();
@@ -112,11 +110,5 @@ public class GetInvitesUseCaseTests : IAsyncDisposable
         result.Data.Page.Should().Be(1);
         result.Data.PageSize.Should().Be(1);
         result.Data.TotalPages.Should().BeGreaterThanOrEqualTo(3);
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await _db.DisposeAsync();
-        _factory.Dispose();
     }
 }

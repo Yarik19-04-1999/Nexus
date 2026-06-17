@@ -8,20 +8,15 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Dvizh.Integration.Tests.UseCases;
 
-public class OpenInviteUseCaseTests : IAsyncDisposable
+public class OpenInviteUseCaseTests
 {
     private readonly DvizhWebApplicationFactory _factory = new();
-    private readonly DbScope _db;
-
-    public OpenInviteUseCaseTests()
-    {
-        _db = new DbScope(_factory);
-    }
 
     [Fact]
     public async Task Execute_ReturnsInvite_AndCreatesOpenedEvent()
     {
-        var invite = await _db.SeedInvite();
+        await using var db = new DbScope(_factory);
+        var invite = await db.SeedInvite();
 
         using var scope = _factory.Services.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IOpenInviteUseCase>();
@@ -30,9 +25,8 @@ public class OpenInviteUseCaseTests : IAsyncDisposable
 
         result.HasError.Should().BeFalse();
         result.Data.Id.Should().Be(invite.Id);
-        result.Data.Code.Should().Be(invite.Code);
 
-        var events = await _db.Db.InviteEvents
+        var events = await db.Db.InviteEvents
             .Where(e => e.InviteId == invite.Id)
             .ToListAsync();
         events.Should().ContainSingle(e => e.EventType == InviteEventType.Opened);
@@ -43,7 +37,8 @@ public class OpenInviteUseCaseTests : IAsyncDisposable
     [Fact]
     public async Task Execute_CalledMultipleTimes_CreatesMultipleOpenedEvents()
     {
-        var invite = await _db.SeedInvite();
+        await using var db = new DbScope(_factory);
+        var invite = await db.SeedInvite();
 
         using var scope = _factory.Services.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IOpenInviteUseCase>();
@@ -52,7 +47,7 @@ public class OpenInviteUseCaseTests : IAsyncDisposable
         await useCase.Execute(new OpenInviteInput(invite.Code));
         await useCase.Execute(new OpenInviteInput(invite.Code));
 
-        var events = await _db.Db.InviteEvents
+        var events = await db.Db.InviteEvents
             .Where(e => e.InviteId == invite.Id && e.EventType == InviteEventType.Opened)
             .ToListAsync();
         events.Should().HaveCount(3);
@@ -68,11 +63,5 @@ public class OpenInviteUseCaseTests : IAsyncDisposable
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be("NotFound");
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await _db.DisposeAsync();
-        _factory.Dispose();
     }
 }

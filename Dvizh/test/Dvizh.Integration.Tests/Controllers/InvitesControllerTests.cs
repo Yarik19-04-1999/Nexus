@@ -136,7 +136,7 @@ public class InvitesControllerTests
 
         var response = await client.GetAsync("/api/v1/invites/999");
 
-        response.StatusCode.Should().Be(HttpStatusCode.ImATeapot);
+        response.StatusCode.Should().Be((HttpStatusCode)418);
     }
 
     // ── GetAll ────────────────────────────────────────────────────────────────
@@ -212,7 +212,7 @@ public class InvitesControllerTests
         var request = new { Id = 999, Message = "X", Description = (string?)null, ExpiresAt = (DateTime?)null, Language = InviteLanguage.Russian, Mascot = InviteMascot.MochiPeachCat };
         var response = await client.PutAsJsonAsync("/api/v1/invites", request);
 
-        response.StatusCode.Should().Be(HttpStatusCode.ImATeapot);
+        response.StatusCode.Should().Be((HttpStatusCode)418);
     }
 
     // ── Delete ────────────────────────────────────────────────────────────────
@@ -249,7 +249,7 @@ public class InvitesControllerTests
 
         var response = await client.DeleteAsync("/api/v1/invites/999");
 
-        response.StatusCode.Should().Be(HttpStatusCode.ImATeapot);
+        response.StatusCode.Should().Be((HttpStatusCode)418);
     }
 
     // ── Open ──────────────────────────────────────────────────────────────────
@@ -292,7 +292,7 @@ public class InvitesControllerTests
 
         var response = await client.GetAsync("/api/v1/invites/nocode");
 
-        response.StatusCode.Should().Be(HttpStatusCode.ImATeapot);
+        response.StatusCode.Should().Be((HttpStatusCode)418);
     }
 
     // ── Respond ───────────────────────────────────────────────────────────────

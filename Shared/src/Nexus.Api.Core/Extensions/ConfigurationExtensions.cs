@@ -7,6 +7,6 @@ namespace Nexus.Api.Core.Extensions;
 
 public static class ConfigurationExtensions
 {
-    public static NexusOptions GetNexusOptionsOrDefault(this IConfiguration configuration)
+    public static NexusOptions GetNexusOptions(this IConfiguration configuration)
         => configuration.GetOptions<NexusOptions>(ConfigSectionConstants.Configuration) ?? new NexusOptions();
 }

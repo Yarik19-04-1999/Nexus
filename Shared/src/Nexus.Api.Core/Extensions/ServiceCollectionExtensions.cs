@@ -14,12 +14,6 @@ namespace Nexus.Api.Core.Extensions;
 
 public static partial class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddNexusServices(this IServiceCollection services, IConfiguration configuration)
-    {
-        var options = configuration.GetNexusOptionsOrDefault();
-        return services.AddNexusServices(options);
-    }
-
     public static IServiceCollection AddNexusServices(this IServiceCollection services, NexusOptions options)
     {
         services

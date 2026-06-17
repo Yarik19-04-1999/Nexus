@@ -2,26 +2,24 @@ using Information.Api.Bot.Extensions;
 using Information.Application.Extensions;
 using Information.Infrastructure.Extensions;
 using Nexus.Api.Core.Extensions;
-using Nexus.Api.Core.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var services = builder.Services;
 var configuration = builder.Configuration;
 
-services.AddControllers();
+var nexusOptions = configuration.GetNexusOptions();
 services
-    .AddNexusServices(NexusOptions.Default)
+    .AddNexusServices(nexusOptions)
     .AddApplication()
     .AddInfrastructure(configuration, builder.Environment)
-    .AddIceAgeBriefTelegramBot(configuration);
+    .AddIceAgeBriefTelegramBot()
+    .AddControllers();
 
 var app = builder.Build();
-
-app.UseNexus(NexusOptions.Default);
-
+app.UseNexus(nexusOptions);
 app.MapControllers();
-app.MapNexus(NexusOptions.Default);
+app.MapNexus(nexusOptions);
 
 app.Run();
 

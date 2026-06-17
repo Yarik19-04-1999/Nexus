@@ -3,7 +3,6 @@ using Information.Api.Controllers.V1.Weather.GetHourlyWeather;
 using Information.Application.Enums;
 using Information.Application.Interfaces.UseCases;
 using Information.Application.Models.Input;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nexus.Api.Core.Attributes;
 

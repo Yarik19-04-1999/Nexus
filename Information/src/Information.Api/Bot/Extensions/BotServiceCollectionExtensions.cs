@@ -1,3 +1,4 @@
+using Information.Api.Bot.Constants;
 using Information.Api.Bot.Handlers;
 using Information.Api.Bot.Options;
 using Information.Api.Bot.Services;
@@ -11,22 +12,17 @@ namespace Information.Api.Bot.Extensions;
 
 public static class BotServiceCollectionExtensions
 {
-    public static IServiceCollection AddIceAgeBriefTelegramBot(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddOptions<BotOptions>()
-            .BindConfiguration("IceAgeBrief")
+    public static IServiceCollection AddIceAgeBriefTelegramBot(this IServiceCollection services)
+        => services
+            .AddOptions<BotOptions>()
+            .BindConfiguration(ConfigurationConstants.IceAgeBriefSection)
             .WithValidator<BotOptions, BotOptionsValidator>()
-            .ValidateOnStart();
-
-        services.AddSingleton<ITelegramBotClient>(sp =>
-        {
-            var options = sp.GetRequiredService<IOptions<BotOptions>>().Value;
-            return new TelegramBotClient(options.Token);
-        });
-
-        services.AddSingleton<BotUpdateHandler>();
-        services.AddHostedService<BotPollingService>();
-
-        return services;
-    }
+            .ValidateOnStart().Services
+            .AddSingleton<ITelegramBotClient>(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<BotOptions>>().Value;
+                return new TelegramBotClient(options.Token);
+            })
+            .AddSingleton<BotUpdateHandler>()
+            .AddHostedService<BotPollingService>();
 }

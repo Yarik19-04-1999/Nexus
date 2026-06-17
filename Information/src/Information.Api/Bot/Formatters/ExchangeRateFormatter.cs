@@ -58,8 +58,12 @@ public static class ExchangeRateFormatter
 
         var change = (current.Rate - historical.Rate) / historical.Rate * 100m;
         var changeInt = (int)Math.Round(change);
-        var arrow = changeInt >= 0 ? "🟢 ↑" : "🔴 ↓";
-        var sign = changeInt >= 0 ? "+" : "";
-        sb.AppendLine($"  {label}: {historical.Rate:F2} ₴  {arrow}{sign}{changeInt}%");
+        var changeStr = changeInt switch
+        {
+            0 => "0%",
+            > 0 => $"🟢 ↑+{changeInt}%",
+            _ => $"🔴 ↓{changeInt}%"
+        };
+        sb.AppendLine($"  {label}: {historical.Rate:F2} ₴  {changeStr}");
     }
 }

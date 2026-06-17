@@ -1,12 +1,10 @@
 using Information.Api.Bot.Handlers;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 
 namespace Information.Api.Bot.Services;
 
-public class BotPollingService : BackgroundService
+public partial class BotPollingService : BackgroundService
 {
     private readonly ITelegramBotClient _botClient;
     private readonly BotUpdateHandler _updateHandler;
@@ -24,11 +22,14 @@ public class BotPollingService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Ice Age Brief bot started");
+        LogBotStarted();
         _botClient.StartReceiving(
             _updateHandler,
             receiverOptions: new ReceiverOptions { AllowedUpdates = [] },
             cancellationToken: stoppingToken);
         await Task.Delay(Timeout.Infinite, stoppingToken);
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Ice Age Brief bot started")]
+    private partial void LogBotStarted();
 }

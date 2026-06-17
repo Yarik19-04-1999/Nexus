@@ -20,9 +20,9 @@ public class GetExchangeRatesUseCase : IGetExchangeRatesUseCase
     public async Task<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>> Execute(GetExchangeRatesInput input, CancellationToken cancellationToken = default)
     {
         var today = DateOnlyUtils.CurrentDate;
-        var rates = await _exchangeRateProvider.GetRates(today, cancellationToken);
+        var ratesByDate = await _exchangeRateProvider.GetRates([today], cancellationToken);
 
-        if (rates.Count == 0)
+        if (!ratesByDate.TryGetValue(today, out var rates))
         {
             throw CommonExceptions.ExternalProviderNoData();
         }

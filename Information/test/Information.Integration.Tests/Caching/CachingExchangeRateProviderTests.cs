@@ -38,18 +38,25 @@ public class CachingExchangeRateProviderTests : IDisposable
         var rates = _fixture.Create<Dictionary<ExchangeCurrency, ExchangeRate>>();
 
         _innerMock
-            .Setup(x => x.GetRates(today, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(rates);
+            .Setup(x => x.GetRates(
+                It.Is<IReadOnlyList<DateOnly>>(l => l.Count == 1 && l[0] == today),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<DateOnly, IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>
+            {
+                [today] = rates
+            });
 
-        var result1 = await _provider.GetRates(today);
-        var result2 = await _provider.GetRates(today);
-        var result3 = await _provider.GetRates(today);
+        var result1 = await _provider.GetRates([today]);
+        var result2 = await _provider.GetRates([today]);
+        var result3 = await _provider.GetRates([today]);
 
-        result1.Should().BeEquivalentTo(rates);
-        result2.Should().BeEquivalentTo(rates);
-        result3.Should().BeEquivalentTo(rates);
+        result1[today].Should().BeEquivalentTo(rates);
+        result2[today].Should().BeEquivalentTo(rates);
+        result3[today].Should().BeEquivalentTo(rates);
 
-        _innerMock.Verify(x => x.GetRates(today, It.IsAny<CancellationToken>()), Times.Once);
+        _innerMock.Verify(x => x.GetRates(
+            It.Is<IReadOnlyList<DateOnly>>(l => l.Count == 1 && l[0] == today),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -59,14 +66,22 @@ public class CachingExchangeRateProviderTests : IDisposable
         var yesterday = today.AddDays(-1);
 
         _innerMock
-            .Setup(x => x.GetRates(It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(_fixture.Create<Dictionary<ExchangeCurrency, ExchangeRate>>());
+            .Setup(x => x.GetRates(It.IsAny<IReadOnlyList<DateOnly>>(), It.IsAny<CancellationToken>()))
+            .Returns((IReadOnlyList<DateOnly> dates, CancellationToken _) =>
+                Task.FromResult<IReadOnlyDictionary<DateOnly, IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>>(
+                    dates.ToDictionary(
+                        d => d,
+                        _ => (IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>)_fixture.Create<Dictionary<ExchangeCurrency, ExchangeRate>>())));
 
-        await _provider.GetRates(today);
-        await _provider.GetRates(yesterday);
+        await _provider.GetRates([today]);
+        await _provider.GetRates([yesterday]);
 
-        _innerMock.Verify(x => x.GetRates(today, It.IsAny<CancellationToken>()), Times.Once);
-        _innerMock.Verify(x => x.GetRates(yesterday, It.IsAny<CancellationToken>()), Times.Once);
+        _innerMock.Verify(x => x.GetRates(
+            It.Is<IReadOnlyList<DateOnly>>(l => l.Count == 1 && l[0] == today),
+            It.IsAny<CancellationToken>()), Times.Once);
+        _innerMock.Verify(x => x.GetRates(
+            It.Is<IReadOnlyList<DateOnly>>(l => l.Count == 1 && l[0] == yesterday),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     public void Dispose() => _factory.Dispose();

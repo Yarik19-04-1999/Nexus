@@ -22,6 +22,23 @@ internal class CachingExchangeRateProvider : IExchangeRateProvider
         _cacheOptions = cacheOptions.Value;
     }
 
-    public async Task<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>> GetRates(DateOnly date, CancellationToken cancellationToken = default) =>
-        await _cacheService.GetOrCreate(_cacheKeyProvider.GetExchangeRatesKey(date), ct => _inner.GetRates(date, ct), _cacheOptions.CacheExpiration, cancellationToken);
+    public async Task<IReadOnlyDictionary<DateOnly, IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>> GetRates(IReadOnlyList<DateOnly> dates, CancellationToken cancellationToken = default)
+    {
+        var tasks = dates.Select(async date =>
+        {
+            var rates = await _cacheService.GetOrCreate(
+                _cacheKeyProvider.GetExchangeRatesKey(date),
+                async ct =>
+                {
+                    var result = await _inner.GetRates([date], ct);
+                    return result[date];
+                },
+                _cacheOptions.CacheExpiration,
+                cancellationToken);
+            return (date, rates);
+        });
+
+        var results = await Task.WhenAll(tasks);
+        return results.ToDictionary(x => x.date, x => x.rates);
+    }
 }

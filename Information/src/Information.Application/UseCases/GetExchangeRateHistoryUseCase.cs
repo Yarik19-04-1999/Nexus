@@ -23,22 +23,28 @@ public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
     {
         var currencies = input.Currency.HasValue
             ? (IEnumerable<ExchangeCurrency>)[input.Currency.Value]
-            : ExchangeCurrencyConstants.All;
+            : ExchangeCurrencies.All;
 
         var today = DateOnlyUtils.CurrentDate;
+        var yesterday = today.Yesterday();
+        var weekAgo = today.WeekAgo();
+        var monthAgo = today.MonthAgo();
+        var yearAgo = today.YearAgo();
 
-        var todayTask = _exchangeRateProvider.GetRates(today, cancellationToken);
-        var yesterdayTask = _exchangeRateProvider.GetRates(today.Yesterday(), cancellationToken);
-        var weekAgoTask = _exchangeRateProvider.GetRates(today.WeekAgo(), cancellationToken);
-        var monthAgoTask = _exchangeRateProvider.GetRates(today.MonthAgo(), cancellationToken);
-        var yearAgoTask = _exchangeRateProvider.GetRates(today.YearAgo(), cancellationToken);
+        var ratesByDate = await _exchangeRateProvider.GetRates(
+            [today, yesterday, weekAgo, monthAgo, yearAgo],
+            cancellationToken);
 
-        await Task.WhenAll(todayTask, yesterdayTask, weekAgoTask, monthAgoTask, yearAgoTask);
+        var todayRates = ratesByDate.GetValueOrDefault(today);
+        var yesterdayRates = ratesByDate.GetValueOrDefault(yesterday);
+        var weekAgoRates = ratesByDate.GetValueOrDefault(weekAgo);
+        var monthAgoRates = ratesByDate.GetValueOrDefault(monthAgo);
+        var yearAgoRates = ratesByDate.GetValueOrDefault(yearAgo);
 
         var histories = currencies
             .Select(currency =>
             {
-                var current = todayTask.Result.GetValueOrDefault(currency);
+                var current = todayRates?.GetValueOrDefault(currency);
                 if (current is null)
                 {
                     return null;
@@ -48,10 +54,10 @@ public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
                 {
                     Currency = currency,
                     Current = current,
-                    Yesterday = yesterdayTask.Result.GetValueOrDefault(currency),
-                    WeekAgo = weekAgoTask.Result.GetValueOrDefault(currency),
-                    MonthAgo = monthAgoTask.Result.GetValueOrDefault(currency),
-                    YearAgo = yearAgoTask.Result.GetValueOrDefault(currency),
+                    Yesterday = yesterdayRates?.GetValueOrDefault(currency),
+                    WeekAgo = weekAgoRates?.GetValueOrDefault(currency),
+                    MonthAgo = monthAgoRates?.GetValueOrDefault(currency),
+                    YearAgo = yearAgoRates?.GetValueOrDefault(currency),
                 };
             })
             .Where(h => h is not null)

@@ -5,5 +5,5 @@ namespace Information.Application.Interfaces.Providers;
 
 public interface IExchangeRateProvider
 {
-    Task<IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>> GetRates(DateOnly date, CancellationToken cancellationToken = default);
+    Task<IReadOnlyDictionary<DateOnly, IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>>> GetRates(IReadOnlyList<DateOnly> dates, CancellationToken cancellationToken = default);
 }

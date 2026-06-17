@@ -36,8 +36,10 @@ public class ExchangeRateProviderTests
         var provider = factory.Services.GetRequiredService<IExchangeRateProvider>();
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-        var rates = await provider.GetRates(today);
+        var result = await provider.GetRates([today]);
 
+        result.Should().ContainKey(today);
+        var rates = result[today];
         rates.Should().NotBeEmpty();
         foreach (var currency in Enum.GetValues<ExchangeCurrency>())
         {
@@ -53,9 +55,10 @@ public class ExchangeRateProviderTests
         var provider = factory.Services.GetRequiredService<IExchangeRateProvider>();
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-        var rates = await provider.GetRates(today);
+        var result = await provider.GetRates([today]);
 
-        foreach (var rate in rates.Values)
+        result.Should().ContainKey(today);
+        foreach (var rate in result[today].Values)
         {
             rate.Rate.Should().BeGreaterThan(0);
             rate.Date.Should().Be(today);
@@ -64,18 +67,19 @@ public class ExchangeRateProviderTests
 
     [Theory]
     [MemberData(nameof(AllProviderTypes))]
-    public async Task GetRates_ForYesterday_ReturnsDifferentOrEqualRates(ExchangeRateProviderType providerType)
+    public async Task GetRates_ForMultipleDates_ReturnsBothDates(ExchangeRateProviderType providerType)
     {
         using var factory = CreateFactory(providerType);
         var provider = factory.Services.GetRequiredService<IExchangeRateProvider>();
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var yesterday = today.AddDays(-1);
 
-        var todayRates = await provider.GetRates(today);
-        var yesterdayRates = await provider.GetRates(yesterday);
+        var result = await provider.GetRates([today, yesterday]);
 
-        todayRates.Should().NotBeEmpty();
-        yesterdayRates.Should().NotBeEmpty();
-        yesterdayRates.Keys.Should().BeEquivalentTo(todayRates.Keys);
+        result.Should().ContainKey(today);
+        result.Should().ContainKey(yesterday);
+        result[today].Should().NotBeEmpty();
+        result[yesterday].Should().NotBeEmpty();
+        result[yesterday].Keys.Should().BeEquivalentTo(result[today].Keys);
     }
 }

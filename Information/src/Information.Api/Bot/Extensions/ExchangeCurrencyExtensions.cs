@@ -9,6 +9,6 @@ public static class ExchangeCurrencyExtensions
         ExchangeCurrency.USD => "🇺🇸",
         ExchangeCurrency.EUR => "🇪🇺",
         ExchangeCurrency.GBP => "🇬🇧",
-        _ => "💱"
+        _ => throw new ArgumentOutOfRangeException(nameof(currency), currency, null)
     };
 }

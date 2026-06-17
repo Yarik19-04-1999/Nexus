@@ -9,7 +9,8 @@ public static class BotLanguageExtensions
     public static CultureInfo ToCulture(this BotLanguage lang) => lang switch
     {
         BotLanguage.Russian => AppCultures.Russian,
+        BotLanguage.Ukrainian => AppCultures.Ukrainian,
         BotLanguage.English => AppCultures.English,
-        _ => AppCultures.Ukrainian
+        _ => throw new ArgumentOutOfRangeException(nameof(lang), lang, null)
     };
 }

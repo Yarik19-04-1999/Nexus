@@ -12,6 +12,7 @@
     <Project Path="src/Information.Infrastructure/Information.Infrastructure.csproj" Id="b3c4f1a2-d5e6-7890-abcd-345678901ef2" />
   </Folder>
   <Folder Name="/test/">
+    <Project Path="test/Information.Api.Tests/Information.Api.Tests.csproj" />
     <Project Path="test/Information.Integration.Tests/Information.Integration.Tests.csproj" />
   </Folder>
 </Solution>

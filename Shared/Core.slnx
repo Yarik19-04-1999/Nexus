@@ -12,5 +12,6 @@
     <Project Path="test/Nexus.AspNetCore.Core.Tests/Nexus.AspNetCore.Core.Tests.csproj" Id="43204c25-cc24-4b54-a958-d9887d82c34c" />
     <Project Path="test/Nexus.Core.Integration.Tests/Nexus.Core.Integration.Tests.csproj" Id="c6195254-d9e2-4adf-a547-23aa0c1ab2d9" />
     <Project Path="test/Nexus.Core.Tests/Nexus.Core.Tests.csproj" Id="0a0d1788-a5d4-4b62-aedc-73dd1fd20687" />
+    <Project Path="test/Nexus.Infrastructure.Core.Tests/Nexus.Infrastructure.Core.Tests.csproj" />
   </Folder>
 </Solution>

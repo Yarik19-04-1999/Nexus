@@ -27,7 +27,7 @@ public class DeleteInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
 
         result.HasError.Should().BeFalse();
 
-        var fromDb = await db.Db.Invites.FindAsync(invite.Id);
+        var fromDb = await db.Db.Invites.AsNoTracking().FirstOrDefaultAsync(x => x.Id == invite.Id);
         fromDb.Should().BeNull();
     }
 

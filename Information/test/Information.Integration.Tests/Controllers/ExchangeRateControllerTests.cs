@@ -10,7 +10,7 @@ using Information.Integration.Tests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Nexus.Core.Integration.Tests.Extensions;
-using Nexus.Core.Integration.Tests.Utils;
+using Nexus.Core.Tests.Utils;
 
 namespace Information.Integration.Tests.Controllers;
 
@@ -20,8 +20,9 @@ public class ExchangeRateControllerTests
     private readonly Fixture _fixture = FixtureUtils.CreateFixture();
 
     [Fact]
-    public async Task GetRates_ReturnsOk_AndMapsRatesCorrectly(CancellationToken cancellationToken)
+    public async Task GetRates_ReturnsOk_AndMapsRatesCorrectly()
     {
+        var ct = TestContext.Current.CancellationToken;
         var rates = _fixture.Create<Dictionary<ExchangeCurrency, ExchangeRate>>();
 
         var mock = new Mock<IGetExchangeRatesUseCase>();
@@ -30,10 +31,10 @@ public class ExchangeRateControllerTests
 
         var client = _factory.CreateClient(s => s.AddSingleton(mock.Object));
 
-        var response = await client.GetAsync("/api/v1/exchangerate", cancellationToken);
+        var response = await client.GetAsync("/api/v1/exchangerate", ct);
 
         response.ShouldBeOk();
-        var body = await response.ReadJsonResponse<GetExchangeRatesResponse>(cancellationToken);
+        var body = await response.ReadResponse<GetExchangeRatesResponse>(ct);
         body.Should().NotBeNull();
         body!.Rates.Should().HaveCount(rates.Count);
         var (expectedCurrency, expectedRate) = rates.First();
@@ -45,8 +46,9 @@ public class ExchangeRateControllerTests
     }
 
     [Fact]
-    public async Task GetAllHistory_ReturnsOk_PassesNullCurrencyToUseCase(CancellationToken cancellationToken)
+    public async Task GetAllHistory_ReturnsOk_PassesNullCurrencyToUseCase()
     {
+        var ct = TestContext.Current.CancellationToken;
         var histories = _fixture.Create<List<ExchangeRateHistory>>();
 
         var mock = new Mock<IGetExchangeRateHistoryUseCase>();
@@ -57,10 +59,10 @@ public class ExchangeRateControllerTests
 
         var client = _factory.CreateClient(s => s.AddSingleton(mock.Object));
 
-        var response = await client.GetAsync("/api/v1/exchangerate/history", cancellationToken);
+        var response = await client.GetAsync("/api/v1/exchangerate/history", ct);
 
         response.ShouldBeOk();
-        var body = await response.ReadJsonResponse<IReadOnlyList<GetExchangeRateHistoryResponse>>(cancellationToken);
+        var body = await response.ReadResponse<IReadOnlyList<GetExchangeRateHistoryResponse>>(ct);
         body.Should().HaveCount(histories.Count);
         mock.Verify(x => x.Execute(
             It.Is<GetExchangeRateHistoryInput>(i => i.Currency == null),
@@ -68,8 +70,9 @@ public class ExchangeRateControllerTests
     }
 
     [Fact]
-    public async Task GetHistory_WithCurrency_PassesCurrencyToUseCase(CancellationToken cancellationToken)
+    public async Task GetHistory_WithCurrency_PassesCurrencyToUseCase()
     {
+        var ct = TestContext.Current.CancellationToken;
         var history = _fixture.Create<List<ExchangeRateHistory>>();
 
         var mock = new Mock<IGetExchangeRateHistoryUseCase>();
@@ -80,7 +83,7 @@ public class ExchangeRateControllerTests
 
         var client = _factory.CreateClient(s => s.AddSingleton(mock.Object));
 
-        var response = await client.GetAsync("/api/v1/exchangerate/USD/history", cancellationToken);
+        var response = await client.GetAsync("/api/v1/exchangerate/USD/history", ct);
 
         response.ShouldBeOk();
         mock.Verify(x => x.Execute(
@@ -89,12 +92,13 @@ public class ExchangeRateControllerTests
     }
 
     [Fact]
-    public async Task GetHistory_WithInvalidCurrency_ReturnsBadRequest(CancellationToken cancellationToken)
+    public async Task GetHistory_WithInvalidCurrency_ReturnsBadRequest()
     {
+        var ct = TestContext.Current.CancellationToken;
         var mock = new Mock<IGetExchangeRateHistoryUseCase>();
         var client = _factory.CreateClient(s => s.AddSingleton(mock.Object));
 
-        var response = await client.GetAsync("/api/v1/exchangerate/INVALID/history", cancellationToken);
+        var response = await client.GetAsync("/api/v1/exchangerate/INVALID/history", ct);
 
         response.ShouldBeBadRequest();
     }

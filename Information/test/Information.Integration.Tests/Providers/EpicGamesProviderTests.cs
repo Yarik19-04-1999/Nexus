@@ -22,7 +22,7 @@ public class EpicGamesProviderTests : IDisposable
     [Fact]
     public async Task GetFreeGames_WhenGamesAvailable_HaveRequiredFields()
     {
-        var games = await _provider.GetFreeGames();
+        var games = await _provider.GetFreeGames(TestContext.Current.CancellationToken);
 
         games.Should().NotBeNull();
         foreach (var game in games)

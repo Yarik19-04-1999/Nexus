@@ -18,15 +18,16 @@ public class RespondToInviteUseCaseTests(DvizhWebApplicationFactory factory) : I
     [Theory]
     [InlineData(InviteAnswer.Yes, InviteEventType.SaidYes)]
     [InlineData(InviteAnswer.No, InviteEventType.SaidNo)]
-    public async Task Execute_UpdatesAnswerInDb_AndCreatesCorrectEvent(InviteAnswer answer, InviteEventType expectedEvent, CancellationToken cancellationToken)
+    public async Task Execute_UpdatesAnswerInDb_AndCreatesCorrectEvent(InviteAnswer answer, InviteEventType expectedEvent)
     {
+        var ct = TestContext.Current.CancellationToken;
         await using var db = new DbScope(_factory);
         var invite = await db.SeedInvite();
 
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IRespondToInviteUseCase>();
 
-        var result = await useCase.Execute(new RespondToInviteInput(invite.Code, answer), cancellationToken);
+        var result = await useCase.Execute(new RespondToInviteInput(invite.Code, answer), ct);
 
         result.HasError.Should().BeFalse();
 
@@ -37,48 +38,51 @@ public class RespondToInviteUseCaseTests(DvizhWebApplicationFactory factory) : I
 
         var events = await db.Db.InviteEvents
             .Where(e => e.InviteId == invite.Id)
-            .ToListAsync(cancellationToken);
+            .ToListAsync(ct);
         events.Should().ContainSingle(e => e.EventType == expectedEvent);
         events[0].CreatedAt.Should().NotBe(default);
     }
 
     [Fact]
-    public async Task Execute_WhenAlreadyAnswered_ReturnsAlreadyAnsweredError(CancellationToken cancellationToken)
+    public async Task Execute_WhenAlreadyAnswered_ReturnsAlreadyAnsweredError()
     {
+        var ct = TestContext.Current.CancellationToken;
         await using var db = new DbScope(_factory);
         var invite = await db.SeedInvite(i => i.Answer = InviteAnswer.Yes);
 
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IRespondToInviteUseCase>();
 
-        var result = await useCase.Execute(new RespondToInviteInput(invite.Code, InviteAnswer.No), cancellationToken);
+        var result = await useCase.Execute(new RespondToInviteInput(invite.Code, InviteAnswer.No), ct);
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be(DvizhErrorCodes.AlreadyAnswered);
     }
 
     [Fact]
-    public async Task Execute_WhenExpired_ReturnsAlreadyExpiredError(CancellationToken cancellationToken)
+    public async Task Execute_WhenExpired_ReturnsAlreadyExpiredError()
     {
+        var ct = TestContext.Current.CancellationToken;
         await using var db = new DbScope(_factory);
         var invite = await db.SeedInvite(i => i.ExpiresAt = DateTime.UtcNow.AddDays(-1));
 
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IRespondToInviteUseCase>();
 
-        var result = await useCase.Execute(new RespondToInviteInput(invite.Code, InviteAnswer.Yes), cancellationToken);
+        var result = await useCase.Execute(new RespondToInviteInput(invite.Code, InviteAnswer.Yes), ct);
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be("AlreadyExpired");
     }
 
     [Fact]
-    public async Task Execute_WhenNotFound_ReturnsNotFoundError(CancellationToken cancellationToken)
+    public async Task Execute_WhenNotFound_ReturnsNotFoundError()
     {
+        var ct = TestContext.Current.CancellationToken;
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IRespondToInviteUseCase>();
 
-        var result = await useCase.Execute(new RespondToInviteInput("doesntexist", InviteAnswer.Yes), cancellationToken);
+        var result = await useCase.Execute(new RespondToInviteInput("doesntexist", InviteAnswer.Yes), ct);
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be("NotFound");

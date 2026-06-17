@@ -16,51 +16,54 @@ public class DeleteInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
     private readonly DvizhWebApplicationFactory _factory = factory;
 
     [Fact]
-    public async Task Execute_RemovesInviteFromDb(CancellationToken cancellationToken)
+    public async Task Execute_RemovesInviteFromDb()
     {
+        var ct = TestContext.Current.CancellationToken;
         await using var db = new DbScope(_factory);
         var invite = await db.SeedInvite();
 
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IDeleteInviteUseCase>();
 
-        var result = await useCase.Execute(new DeleteInviteInput(invite.Id), cancellationToken);
+        var result = await useCase.Execute(new DeleteInviteInput(invite.Id), ct);
 
         result.HasError.Should().BeFalse();
 
-        var fromDb = await db.Db.Invites.AsNoTracking().FirstOrDefaultAsync(x => x.Id == invite.Id, cancellationToken);
+        var fromDb = await db.Db.Invites.AsNoTracking().FirstOrDefaultAsync(x => x.Id == invite.Id, ct);
         fromDb.Should().BeNull();
     }
 
     [Fact]
-    public async Task Execute_CascadeDeletesEvents(CancellationToken cancellationToken)
+    public async Task Execute_CascadeDeletesEvents()
     {
+        var ct = TestContext.Current.CancellationToken;
         await using var db = new DbScope(_factory);
         var invite = await db.SeedInvite();
 
         db.Db.InviteEvents.AddRange(
             EventUtils.CreateEvent(invite, InviteEventType.Opened),
             EventUtils.CreateEvent(invite, InviteEventType.SaidYes));
-        await db.Db.SaveChangesAsync(cancellationToken);
+        await db.Db.SaveChangesAsync(ct);
 
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IDeleteInviteUseCase>();
 
-        await useCase.Execute(new DeleteInviteInput(invite.Id), cancellationToken);
+        await useCase.Execute(new DeleteInviteInput(invite.Id), ct);
 
         var events = await db.Db.InviteEvents
             .Where(e => e.InviteId == invite.Id)
-            .ToListAsync(cancellationToken);
+            .ToListAsync(ct);
         events.Should().BeEmpty();
     }
 
     [Fact]
-    public async Task Execute_WhenNotFound_ReturnsError(CancellationToken cancellationToken)
+    public async Task Execute_WhenNotFound_ReturnsError()
     {
+        var ct = TestContext.Current.CancellationToken;
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IDeleteInviteUseCase>();
 
-        var result = await useCase.Execute(new DeleteInviteInput(-999), cancellationToken);
+        var result = await useCase.Execute(new DeleteInviteInput(-999), ct);
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be("NotFound");

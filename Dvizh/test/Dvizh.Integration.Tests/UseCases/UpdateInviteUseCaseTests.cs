@@ -15,8 +15,9 @@ public class UpdateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
     private readonly DvizhWebApplicationFactory _factory = factory;
 
     [Fact]
-    public async Task Execute_UpdatesFieldsInDb(CancellationToken cancellationToken)
+    public async Task Execute_UpdatesFieldsInDb()
     {
+        var ct = TestContext.Current.CancellationToken;
         await using var db = new DbScope(_factory);
         var invite = await db.SeedInvite(i =>
         {
@@ -29,7 +30,7 @@ public class UpdateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
         var useCase = scope.ServiceProvider.GetRequiredService<IUpdateInviteUseCase>();
 
         var input = new UpdateInviteInput(invite.Id, "Новое сообщение", "Описание", null, InviteLanguage.Ukrainian, InviteMascot.UtyaDuck);
-        var result = await useCase.Execute(input, cancellationToken);
+        var result = await useCase.Execute(input, ct);
 
         result.HasError.Should().BeFalse();
         result.Data.Message.Should().Be("Новое сообщение");
@@ -45,18 +46,19 @@ public class UpdateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
     }
 
     [Fact]
-    public async Task Execute_UpdatesUpdatedAt(CancellationToken cancellationToken)
+    public async Task Execute_UpdatesUpdatedAt()
     {
+        var ct = TestContext.Current.CancellationToken;
         await using var db = new DbScope(_factory);
         var invite = await db.SeedInvite();
         var originalUpdatedAt = invite.UpdatedAt;
 
-        await Task.Delay(10, cancellationToken);
+        await Task.Delay(10, ct);
 
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IUpdateInviteUseCase>();
 
-        await useCase.Execute(new UpdateInviteInput(invite.Id, "Changed", null, null, InviteLanguage.Russian, InviteMascot.MochiPeachCat), cancellationToken);
+        await useCase.Execute(new UpdateInviteInput(invite.Id, "Changed", null, null, InviteLanguage.Russian, InviteMascot.MochiPeachCat), ct);
 
         db.Db.Entry(invite).State = EntityState.Detached;
         var fromDb = await db.Db.Invites.FindAsync(invite.Id);
@@ -64,12 +66,13 @@ public class UpdateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
     }
 
     [Fact]
-    public async Task Execute_WhenNotFound_ReturnsError(CancellationToken cancellationToken)
+    public async Task Execute_WhenNotFound_ReturnsError()
     {
+        var ct = TestContext.Current.CancellationToken;
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IUpdateInviteUseCase>();
 
-        var result = await useCase.Execute(new UpdateInviteInput(-999, "X", null, null, InviteLanguage.Russian, InviteMascot.MochiPeachCat), cancellationToken);
+        var result = await useCase.Execute(new UpdateInviteInput(-999, "X", null, null, InviteLanguage.Russian, InviteMascot.MochiPeachCat), ct);
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be("NotFound");

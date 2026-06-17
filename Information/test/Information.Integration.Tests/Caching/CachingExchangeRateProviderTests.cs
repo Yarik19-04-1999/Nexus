@@ -8,7 +8,7 @@ using Information.Integration.Tests.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Nexus.Core.Integration.Tests.Utils;
+using Nexus.Core.Tests.Utils;
 
 namespace Information.Integration.Tests.Caching;
 
@@ -31,8 +31,9 @@ public class CachingExchangeRateProviderTests : IDisposable
     }
 
     [Fact]
-    public async Task GetRates_CalledMultipleTimes_OnlyCallsInnerOnce(CancellationToken cancellationToken)
+    public async Task GetRates_CalledMultipleTimes_OnlyCallsInnerOnce()
     {
+        var ct = TestContext.Current.CancellationToken;
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var rates = _fixture.Create<Dictionary<ExchangeCurrency, ExchangeRate>>();
 
@@ -45,9 +46,9 @@ public class CachingExchangeRateProviderTests : IDisposable
                 [today] = rates
             });
 
-        var result1 = await _provider.GetRates([today], cancellationToken);
-        var result2 = await _provider.GetRates([today], cancellationToken);
-        var result3 = await _provider.GetRates([today], cancellationToken);
+        var result1 = await _provider.GetRates([today], ct);
+        var result2 = await _provider.GetRates([today], ct);
+        var result3 = await _provider.GetRates([today], ct);
 
         result1[today].Should().BeEquivalentTo(rates);
         result2[today].Should().BeEquivalentTo(rates);
@@ -59,8 +60,9 @@ public class CachingExchangeRateProviderTests : IDisposable
     }
 
     [Fact]
-    public async Task GetRates_ForDifferentDates_CallsInnerForEachDate(CancellationToken cancellationToken)
+    public async Task GetRates_ForDifferentDates_CallsInnerForEachDate()
     {
+        var ct = TestContext.Current.CancellationToken;
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var yesterday = today.AddDays(-1);
 
@@ -72,8 +74,8 @@ public class CachingExchangeRateProviderTests : IDisposable
                         d => d,
                         _ => (IReadOnlyDictionary<ExchangeCurrency, ExchangeRate>)_fixture.Create<Dictionary<ExchangeCurrency, ExchangeRate>>())));
 
-        await _provider.GetRates([today], cancellationToken);
-        await _provider.GetRates([yesterday], cancellationToken);
+        await _provider.GetRates([today], ct);
+        await _provider.GetRates([yesterday], ct);
 
         _innerMock.Verify(x => x.GetRates(
             It.Is<IReadOnlyList<DateOnly>>(l => l.Count == 1 && l[0] == today),

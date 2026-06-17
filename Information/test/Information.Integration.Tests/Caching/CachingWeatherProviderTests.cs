@@ -5,7 +5,7 @@ using Information.Application.Interfaces.Providers;
 using Information.Application.Models;
 using Information.Infrastructure.Decorators;
 using Information.Integration.Tests.Infrastructure;
-using Nexus.Core.Integration.Tests.Utils;
+using Nexus.Core.Tests.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,9 +40,9 @@ public class CachingWeatherProviderTests : IDisposable
             .Setup(x => x.GetHourlyForecast(WeatherCity.Kharkiv, It.IsAny<CancellationToken>()))
             .ReturnsAsync(hourly);
 
-        var result1 = await _provider.GetHourlyForecast(WeatherCity.Kharkiv);
-        var result2 = await _provider.GetHourlyForecast(WeatherCity.Kharkiv);
-        var result3 = await _provider.GetHourlyForecast(WeatherCity.Kharkiv);
+        var result1 = await _provider.GetHourlyForecast(WeatherCity.Kharkiv, TestContext.Current.CancellationToken);
+        var result2 = await _provider.GetHourlyForecast(WeatherCity.Kharkiv, TestContext.Current.CancellationToken);
+        var result3 = await _provider.GetHourlyForecast(WeatherCity.Kharkiv, TestContext.Current.CancellationToken);
 
         result1.Should().BeEquivalentTo(hourly);
         result2.Should().BeEquivalentTo(hourly);
@@ -60,8 +60,8 @@ public class CachingWeatherProviderTests : IDisposable
             .Setup(x => x.GetDailyForecast(WeatherCity.Kyiv, It.IsAny<CancellationToken>()))
             .ReturnsAsync(daily);
 
-        var result1 = await _provider.GetDailyForecast(WeatherCity.Kyiv);
-        var result2 = await _provider.GetDailyForecast(WeatherCity.Kyiv);
+        var result1 = await _provider.GetDailyForecast(WeatherCity.Kyiv, TestContext.Current.CancellationToken);
+        var result2 = await _provider.GetDailyForecast(WeatherCity.Kyiv, TestContext.Current.CancellationToken);
 
         result1.Should().BeEquivalentTo(daily);
         result2.Should().BeEquivalentTo(daily);
@@ -76,8 +76,8 @@ public class CachingWeatherProviderTests : IDisposable
             .Setup(x => x.GetHourlyForecast(It.IsAny<WeatherCity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(_fixture.Create<List<HourlyWeather>>());
 
-        await _provider.GetHourlyForecast(WeatherCity.Kharkiv);
-        await _provider.GetHourlyForecast(WeatherCity.Kyiv);
+        await _provider.GetHourlyForecast(WeatherCity.Kharkiv, TestContext.Current.CancellationToken);
+        await _provider.GetHourlyForecast(WeatherCity.Kyiv, TestContext.Current.CancellationToken);
 
         _innerMock.Verify(x => x.GetHourlyForecast(WeatherCity.Kharkiv, It.IsAny<CancellationToken>()), Times.Once);
         _innerMock.Verify(x => x.GetHourlyForecast(WeatherCity.Kyiv, It.IsAny<CancellationToken>()), Times.Once);

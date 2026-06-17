@@ -4,7 +4,7 @@ using Information.Application.Interfaces.Providers;
 using Information.Application.Models;
 using Information.Infrastructure.Decorators;
 using Information.Integration.Tests.Infrastructure;
-using Nexus.Core.Integration.Tests.Utils;
+using Nexus.Core.Tests.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,9 +39,9 @@ public class CachingEpicGamesProviderTests : IDisposable
             .Setup(x => x.GetFreeGames(It.IsAny<CancellationToken>()))
             .ReturnsAsync(games);
 
-        var result1 = await _provider.GetFreeGames();
-        var result2 = await _provider.GetFreeGames();
-        var result3 = await _provider.GetFreeGames();
+        var result1 = await _provider.GetFreeGames(TestContext.Current.CancellationToken);
+        var result2 = await _provider.GetFreeGames(TestContext.Current.CancellationToken);
+        var result3 = await _provider.GetFreeGames(TestContext.Current.CancellationToken);
 
         result1.Should().BeEquivalentTo(games);
         result2.Should().BeEquivalentTo(games);

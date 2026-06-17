@@ -3,7 +3,9 @@ using Information.Application.Constants;
 using Information.Application.Enums;
 using Information.Application.Interfaces.Providers;
 using Information.Infrastructure.Enums;
+using Information.Infrastructure.Options;
 using Information.Integration.Tests.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Nexus.Core.Integration.Tests.Extensions;
 
 namespace Information.Integration.Tests.Providers;
@@ -19,14 +21,15 @@ public class ExchangeRateProviderTests
 
     [Theory]
     [MemberData(nameof(AllProviderTypes))]
-    public async Task GetRates_ForToday_ReturnsAllKnownCurrencies(ExchangeRateProviderType providerType, CancellationToken cancellationToken)
+    public async Task GetRates_ForToday_ReturnsAllKnownCurrencies(ExchangeRateProviderType providerType)
     {
+        var ct = TestContext.Current.CancellationToken;
         using var factory = new InformationWebApplicationFactory()
             .WithConfiguration($"{ConfigurationConstants.ExchangeRateSection}:ProviderType", providerType.ToString());
         var provider = factory.Services.GetRequiredService<IExchangeRateProvider>();
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-        var result = await provider.GetRates([today], cancellationToken);
+        var result = await provider.GetRates([today], ct);
 
         result.Should().ContainKey(today);
         var rates = result[today];
@@ -39,14 +42,15 @@ public class ExchangeRateProviderTests
 
     [Theory]
     [MemberData(nameof(AllProviderTypes))]
-    public async Task GetRates_ForToday_ReturnsPositiveRates(ExchangeRateProviderType providerType, CancellationToken cancellationToken)
+    public async Task GetRates_ForToday_ReturnsPositiveRates(ExchangeRateProviderType providerType)
     {
+        var ct = TestContext.Current.CancellationToken;
         using var factory = new InformationWebApplicationFactory()
-            .WithConfiguration($"{ConfigurationConstants.ExchangeRateSection}:ProviderType", providerType.ToString());
+            .WithConfiguration($"{ConfigurationConstants.ExchangeRateSection}:{nameof(ExchangeRateOptions.ProviderType)}", providerType.ToString());
         var provider = factory.Services.GetRequiredService<IExchangeRateProvider>();
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-        var result = await provider.GetRates([today], cancellationToken);
+        var result = await provider.GetRates([today], ct);
 
         result.Should().ContainKey(today);
         foreach (var rate in result[today].Values)
@@ -58,15 +62,16 @@ public class ExchangeRateProviderTests
 
     [Theory]
     [MemberData(nameof(AllProviderTypes))]
-    public async Task GetRates_ForMultipleDates_ReturnsBothDates(ExchangeRateProviderType providerType, CancellationToken cancellationToken)
+    public async Task GetRates_ForMultipleDates_ReturnsBothDates(ExchangeRateProviderType providerType)
     {
+        var ct = TestContext.Current.CancellationToken;
         using var factory = new InformationWebApplicationFactory()
             .WithConfiguration($"{ConfigurationConstants.ExchangeRateSection}:ProviderType", providerType.ToString());
         var provider = factory.Services.GetRequiredService<IExchangeRateProvider>();
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var yesterday = today.AddDays(-1);
 
-        var result = await provider.GetRates([today, yesterday], cancellationToken);
+        var result = await provider.GetRates([today, yesterday], ct);
 
         result.Should().ContainKey(today);
         result.Should().ContainKey(yesterday);

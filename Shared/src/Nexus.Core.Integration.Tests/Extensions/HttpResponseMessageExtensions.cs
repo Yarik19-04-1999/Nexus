@@ -32,12 +32,12 @@ public static class HttpResponseMessageExtensions
     public static void ShouldBeStatusCode(this HttpResponseMessage response, HttpStatusCode statusCode) =>
         response.StatusCode.Should().Be(statusCode);
 
-    public static Task<T?> ReadJsonResponse<T>(this HttpResponseMessage response, CancellationToken cancellationToken = default) =>
+    public static Task<T?> ReadResponse<T>(this HttpResponseMessage response, CancellationToken cancellationToken = default) =>
         response.Content.ReadFromJsonAsync<T>(cancellationToken);
 
     public static Task<DomainErrorResponse?> ReadDomainErrorResponse(this HttpResponseMessage response, CancellationToken cancellationToken = default) =>
-        response.ReadJsonResponse<DomainErrorResponse>(cancellationToken);
+        response.ReadResponse<DomainErrorResponse>(cancellationToken);
 
     public static Task<UnexpectedErrorResponse?> ReadUnexpectedErrorResponse(this HttpResponseMessage response, CancellationToken cancellationToken = default) =>
-        response.ReadJsonResponse<UnexpectedErrorResponse>(cancellationToken);
+        response.ReadResponse<UnexpectedErrorResponse>(cancellationToken);
 }

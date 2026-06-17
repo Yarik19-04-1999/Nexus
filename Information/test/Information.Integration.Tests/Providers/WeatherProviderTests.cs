@@ -3,6 +3,7 @@ using Information.Application.Constants;
 using Information.Application.Enums;
 using Information.Application.Interfaces.Providers;
 using Information.Infrastructure.Enums;
+using Information.Infrastructure.Options;
 using Information.Integration.Tests.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -28,7 +29,7 @@ public class WeatherProviderTests
             .WithWebHostBuilder(b => b.ConfigureAppConfiguration((_, config) =>
                 config.AddInMemoryCollection(new Dictionary<string, string?>
                 {
-                    [$"{ConfigurationConstants.WeatherSection}:ProviderType"] = providerType.ToString()
+                    [$"{ConfigurationConstants.WeatherSection}:{nameof(WeatherOptions.ProviderType)}"] = providerType.ToString()
                 })));
 
     [Theory]
@@ -38,7 +39,7 @@ public class WeatherProviderTests
         using var factory = CreateFactory(providerType);
         var provider = factory.Services.GetRequiredService<IWeatherProvider>();
 
-        var forecast = await provider.GetHourlyForecast(WeatherCity.Kharkiv);
+        var forecast = await provider.GetHourlyForecast(WeatherCity.Kharkiv, TestContext.Current.CancellationToken);
 
         forecast.Should().HaveCount(24);
         forecast.Should().AllSatisfy(h =>
@@ -56,7 +57,7 @@ public class WeatherProviderTests
         using var factory = CreateFactory(providerType);
         var provider = factory.Services.GetRequiredService<IWeatherProvider>();
 
-        var forecast = await provider.GetDailyForecast(WeatherCity.Kyiv);
+        var forecast = await provider.GetDailyForecast(WeatherCity.Kyiv, TestContext.Current.CancellationToken);
 
         forecast.Should().HaveCount(5);
         forecast.Should().AllSatisfy(d =>
@@ -74,7 +75,7 @@ public class WeatherProviderTests
         using var factory = CreateFactory(WeatherProviderType.OpenMeteo);
         var provider = factory.Services.GetRequiredService<IWeatherProvider>();
 
-        var forecast = await provider.GetHourlyForecast(city);
+        var forecast = await provider.GetHourlyForecast(city, TestContext.Current.CancellationToken);
 
         forecast.Should().NotBeEmpty();
     }

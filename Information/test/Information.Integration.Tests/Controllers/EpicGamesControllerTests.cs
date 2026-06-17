@@ -8,7 +8,7 @@ using Information.Integration.Tests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Nexus.Core.Integration.Tests.Extensions;
-using Nexus.Core.Integration.Tests.Utils;
+using Nexus.Core.Tests.Utils;
 
 namespace Information.Integration.Tests.Controllers;
 
@@ -18,8 +18,9 @@ public class EpicGamesControllerTests
     private readonly Fixture _fixture = FixtureUtils.CreateFixture();
 
     [Fact]
-    public async Task GetFreeGames_ReturnsOk_WithMappedGames(CancellationToken cancellationToken)
+    public async Task GetFreeGames_ReturnsOk_WithMappedGames()
     {
+        var ct = TestContext.Current.CancellationToken;
         var games = _fixture.Create<List<EpicGame>>();
 
         var mock = new Mock<IGetEpicFreeGamesUseCase>();
@@ -28,10 +29,10 @@ public class EpicGamesControllerTests
 
         var client = _factory.CreateClient(s => s.AddSingleton(mock.Object));
 
-        var response = await client.GetAsync("/api/v1/epicgames", cancellationToken);
+        var response = await client.GetAsync("/api/v1/epicgames", ct);
 
         response.ShouldBeOk();
-        var body = await response.ReadJsonResponse<GetEpicFreeGamesResponse>(cancellationToken);
+        var body = await response.ReadResponse<GetEpicFreeGamesResponse>(ct);
         body.Should().NotBeNull();
         body!.Games.Should().HaveCount(games.Count);
         for (var i = 0; i < games.Count; i++)

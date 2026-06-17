@@ -1,6 +1,6 @@
 using AutoFixture;
 
-namespace Nexus.Core.Integration.Tests.Utils;
+namespace Nexus.Core.Tests.Utils;
 
 public static class FixtureUtils
 {

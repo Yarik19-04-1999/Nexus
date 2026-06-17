@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using Information.Application.Constants;
 using Information.Application.Enums;
 using Information.Application.Interfaces.Providers;
+using Information.Application.Interfaces.Services;
 using Information.Application.Models;
 using Information.Infrastructure.Models.OpenMeteo;
 using Nexus.Application.Core.Exceptions;
@@ -16,10 +17,12 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
     private const string DailyFields = "temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,weathercode,windspeed_10m_max";
 
     private readonly HttpClient _httpClient;
+    private readonly ICityCoordinatesService _cityCoordinates;
 
-    public OpenMeteoWeatherProvider(HttpClient httpClient)
+    public OpenMeteoWeatherProvider(HttpClient httpClient, ICityCoordinatesService cityCoordinates)
     {
         _httpClient = httpClient;
+        _cityCoordinates = cityCoordinates;
     }
 
     private static string FormHourlyUrl(double lat, double lon)
@@ -34,12 +37,12 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
 
     public async Task<IReadOnlyList<HourlyWeather>> GetHourlyForecast(WeatherCity city, CancellationToken cancellationToken = default)
     {
-        var (lat, lon) = CityCoordinates.All[city];
+        var (lat, lon) = _cityCoordinates.Get(city);
         var url = FormHourlyUrl(lat, lon);
 
         var response = await _httpClient.GetFromJsonAsync<OpenMeteoForecastResponse>(url, cancellationToken);
 
-        if (response is null)
+        if (response?.Hourly is null)
         {
             throw CommonExceptions.ExternalProviderNoData();
         }
@@ -65,12 +68,12 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
 
     public async Task<IReadOnlyList<DailyWeather>> GetDailyForecast(WeatherCity city, CancellationToken cancellationToken = default)
     {
-        var (lat, lon) = CityCoordinates.All[city];
+        var (lat, lon) = _cityCoordinates.Get(city);
         var url = FormDailyUrl(lat, lon);
 
         var response = await _httpClient.GetFromJsonAsync<OpenMeteoForecastResponse>(url, cancellationToken);
 
-        if (response is null)
+        if (response?.Daily is null)
         {
             throw CommonExceptions.ExternalProviderNoData();
         }

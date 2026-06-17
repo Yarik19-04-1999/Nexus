@@ -31,6 +31,7 @@ public static class ServiceCollectionExtensions
             .ValidateOnStart();
 
         services.AddSingleton<ICacheKeyProvider, CacheKeyProvider>();
+        services.AddSingleton<ICityCoordinatesService, CityCoordinatesService>();
 
         services.AddScoped<IGetExchangeRatesUseCase, GetExchangeRatesUseCase>();
         services.AddScoped<IGetExchangeRateHistoryUseCase, GetExchangeRateHistoryUseCase>();

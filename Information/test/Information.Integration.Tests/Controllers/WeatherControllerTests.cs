@@ -10,7 +10,7 @@ using Information.Integration.Tests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Nexus.Core.Integration.Tests.Extensions;
-using Nexus.Core.Integration.Tests.Utils;
+using Nexus.Core.Tests.Utils;
 
 namespace Information.Integration.Tests.Controllers;
 
@@ -20,8 +20,9 @@ public class WeatherControllerTests
     private readonly Fixture _fixture = FixtureUtils.CreateFixture();
 
     [Fact]
-    public async Task GetHourlyWeather_ReturnsOk_AndPassesCityToUseCase(CancellationToken cancellationToken)
+    public async Task GetHourlyWeather_ReturnsOk_AndPassesCityToUseCase()
     {
+        var ct = TestContext.Current.CancellationToken;
         var hourly = _fixture.Create<List<HourlyWeather>>();
 
         var mock = new Mock<IGetHourlyWeatherUseCase>();
@@ -32,10 +33,10 @@ public class WeatherControllerTests
 
         var client = _factory.CreateClient(s => s.AddSingleton(mock.Object));
 
-        var response = await client.GetAsync("/api/v1/weather/Kharkiv/hourly", cancellationToken);
+        var response = await client.GetAsync("/api/v1/weather/Kharkiv/hourly", ct);
 
         response.ShouldBeOk();
-        var body = await response.ReadJsonResponse<GetHourlyWeatherResponse>(cancellationToken);
+        var body = await response.ReadResponse<GetHourlyWeatherResponse>(ct);
         body.Should().NotBeNull();
         body!.City.Should().Be(WeatherCity.Kharkiv);
         body.Hourly.Should().HaveCount(hourly.Count);
@@ -51,8 +52,9 @@ public class WeatherControllerTests
     }
 
     [Fact]
-    public async Task GetDailyWeather_ReturnsOk_AndPassesCityToUseCase(CancellationToken cancellationToken)
+    public async Task GetDailyWeather_ReturnsOk_AndPassesCityToUseCase()
     {
+        var ct = TestContext.Current.CancellationToken;
         var daily = _fixture.Create<List<DailyWeather>>();
 
         var mock = new Mock<IGetDailyWeatherUseCase>();
@@ -63,10 +65,10 @@ public class WeatherControllerTests
 
         var client = _factory.CreateClient(s => s.AddSingleton(mock.Object));
 
-        var response = await client.GetAsync("/api/v1/weather/Kyiv/daily", cancellationToken);
+        var response = await client.GetAsync("/api/v1/weather/Kyiv/daily", ct);
 
         response.ShouldBeOk();
-        var body = await response.ReadJsonResponse<GetDailyWeatherResponse>(cancellationToken);
+        var body = await response.ReadResponse<GetDailyWeatherResponse>(ct);
         body.Should().NotBeNull();
         body!.City.Should().Be(WeatherCity.Kyiv);
         body.Daily.Should().HaveCount(daily.Count);
@@ -82,23 +84,25 @@ public class WeatherControllerTests
     }
 
     [Fact]
-    public async Task GetHourlyWeather_WithInvalidCity_ReturnsBadRequest(CancellationToken cancellationToken)
+    public async Task GetHourlyWeather_WithInvalidCity_ReturnsBadRequest()
     {
+        var ct = TestContext.Current.CancellationToken;
         var mock = new Mock<IGetHourlyWeatherUseCase>();
         var client = _factory.CreateClient(s => s.AddSingleton(mock.Object));
 
-        var response = await client.GetAsync("/api/v1/weather/Moscow/hourly", cancellationToken);
+        var response = await client.GetAsync("/api/v1/weather/Moscow/hourly", ct);
 
         response.ShouldBeBadRequest();
     }
 
     [Fact]
-    public async Task GetDailyWeather_WithInvalidCity_ReturnsBadRequest(CancellationToken cancellationToken)
+    public async Task GetDailyWeather_WithInvalidCity_ReturnsBadRequest()
     {
+        var ct = TestContext.Current.CancellationToken;
         var mock = new Mock<IGetDailyWeatherUseCase>();
         var client = _factory.CreateClient(s => s.AddSingleton(mock.Object));
 
-        var response = await client.GetAsync("/api/v1/weather/London/daily", cancellationToken);
+        var response = await client.GetAsync("/api/v1/weather/Moscow/daily", ct);
 
         response.ShouldBeBadRequest();
     }

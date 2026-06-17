@@ -11,13 +11,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoFixture" Version="4.18.1" />
     <PackageReference Include="FluentAssertions" Version="6.12.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Nexus.Api.Core\Nexus.Api.Core.csproj" />
+    <ProjectReference Include="..\..\test\Nexus.Core.Tests\Nexus.Core.Tests.csproj" />
   </ItemGroup>
 
 </Project>

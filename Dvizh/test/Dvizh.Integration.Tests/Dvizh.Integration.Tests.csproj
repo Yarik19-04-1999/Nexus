@@ -24,7 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Dvizh.Api\Dvizh.Api.csproj" />
     <ProjectReference Include="..\..\src\Dvizh.Application\Dvizh.Application.csproj" />
-    <ProjectReference Include="..\..\..\Shared\test\Nexus.Core.Integration.Tests\Nexus.Core.Integration.Tests.csproj" />
+    <ProjectReference Include="..\..\..\Shared\src\Nexus.Core.Integration.Tests\Nexus.Core.Integration.Tests.csproj" />
   </ItemGroup>
 
   <ItemGroup>

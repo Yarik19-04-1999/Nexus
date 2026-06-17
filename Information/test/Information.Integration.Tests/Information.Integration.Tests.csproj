@@ -22,7 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Information.Api\Information.Api.csproj" />
     <ProjectReference Include="..\..\src\Information.Infrastructure\Information.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\..\Shared\test\Nexus.Core.Integration.Tests\Nexus.Core.Integration.Tests.csproj" />
+    <ProjectReference Include="..\..\..\Shared\src\Nexus.Core.Integration.Tests\Nexus.Core.Integration.Tests.csproj" />
   </ItemGroup>
 
 </Project>

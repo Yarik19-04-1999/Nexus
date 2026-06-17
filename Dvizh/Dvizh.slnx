@@ -3,7 +3,7 @@
     <Project Path="../Shared/src/Nexus.Api.Core/Nexus.Api.Core.csproj" />
     <Project Path="../Shared/src/Nexus.Application.Core/Nexus.Application.Core.csproj" />
     <Project Path="../Shared/src/Nexus.Infrastructure.EfCore.SqlServer/Nexus.Infrastructure.EfCore.SqlServer.csproj" />
-    <Project Path="../Shared/test/Nexus.Core.Integration.Tests/Nexus.Core.Integration.Tests.csproj" />
+    <Project Path="../Shared/src/Nexus.Core.Integration.Tests/Nexus.Core.Integration.Tests.csproj" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Dvizh.Api/Dvizh.Api.csproj" />

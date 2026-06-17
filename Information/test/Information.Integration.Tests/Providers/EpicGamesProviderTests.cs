@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Information.Application.Interfaces.Providers;
 using Information.Infrastructure.Providers.EpicGames;
 using Information.Integration.Tests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,18 +21,11 @@ public class EpicGamesProviderTests : IDisposable
     }
 
     [Fact]
-    public async Task GetFreeGames_ReturnsResult()
-    {
-        var games = await _provider.GetFreeGames();
-
-        games.Should().NotBeNull();
-    }
-
-    [Fact]
     public async Task GetFreeGames_WhenGamesAvailable_HaveRequiredFields()
     {
         var games = await _provider.GetFreeGames();
 
+        games.Should().NotBeNull();
         foreach (var game in games)
         {
             game.Title.Should().NotBeNullOrWhiteSpace();

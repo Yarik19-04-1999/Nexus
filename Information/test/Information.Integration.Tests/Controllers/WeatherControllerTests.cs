@@ -1,5 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
 using AutoFixture;
 using FluentAssertions;
 using Information.Api.Controllers.V1.Weather.GetDailyWeather;
@@ -9,16 +7,19 @@ using Information.Application.Interfaces.UseCases;
 using Information.Application.Models;
 using Information.Application.Models.Input;
 using Information.Integration.Tests.Infrastructure;
+using Information.Integration.Tests.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace Information.Integration.Tests.Controllers;
 
 public class WeatherControllerTests
 {
     private readonly InformationWebApplicationFactory _factory = new();
-    private readonly Fixture _fixture = new();
+    private readonly Fixture _fixture = FixtureUtils.CreateFixture();
 
     [Fact]
     public async Task GetHourlyWeather_ReturnsOk_AndPassesCityToUseCase()

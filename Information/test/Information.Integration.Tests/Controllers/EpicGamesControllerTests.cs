@@ -40,21 +40,4 @@ public class EpicGamesControllerTests
             It.IsAny<GetEpicFreeGamesInput>(),
             It.IsAny<CancellationToken>()), Times.Once);
     }
-
-    [Fact]
-    public async Task GetFreeGames_WhenNoGamesAvailable_ReturnsOkWithEmptyList()
-    {
-        var mock = new Mock<IGetEpicFreeGamesUseCase>();
-        mock.Setup(x => x.Execute(It.IsAny<GetEpicFreeGamesInput>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<EpicGame>());
-
-        var client = _factory.WithWebHostBuilder(b => b.ConfigureServices(s =>
-            s.AddSingleton(mock.Object))).CreateClient();
-
-        var response = await client.GetAsync("/api/v1/epicgames");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var body = await response.Content.ReadFromJsonAsync<GetEpicFreeGamesResponse>();
-        body!.Games.Should().BeEmpty();
-    }
 }

@@ -4,6 +4,7 @@ using Information.Application.Interfaces.Providers;
 using Information.Application.Models;
 using Information.Infrastructure.Decorators;
 using Information.Integration.Tests.Infrastructure;
+using Information.Integration.Tests.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +17,7 @@ public class CachingEpicGamesProviderTests : IDisposable
     private readonly Mock<IEpicGamesProvider> _innerMock = new();
     private readonly WebApplicationFactory<Program> _factory;
     private readonly IEpicGamesProvider _provider;
-    private readonly Fixture _fixture = new();
+    private readonly Fixture _fixture = FixtureUtils.CreateFixture();
 
     public CachingEpicGamesProviderTests()
     {
@@ -45,18 +46,6 @@ public class CachingEpicGamesProviderTests : IDisposable
         result1.Should().BeEquivalentTo(games);
         result2.Should().BeEquivalentTo(games);
         result3.Should().BeEquivalentTo(games);
-
-        _innerMock.Verify(x => x.GetFreeGames(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task GetFreeGames_WhenCacheMiss_CallsInnerAndCachesResult()
-    {
-        _innerMock
-            .Setup(x => x.GetFreeGames(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(_fixture.Create<List<EpicGame>>());
-
-        await _provider.GetFreeGames();
 
         _innerMock.Verify(x => x.GetFreeGames(It.IsAny<CancellationToken>()), Times.Once);
     }

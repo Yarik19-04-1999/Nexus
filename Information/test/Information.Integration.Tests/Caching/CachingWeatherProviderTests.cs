@@ -5,6 +5,7 @@ using Information.Application.Interfaces.Providers;
 using Information.Application.Models;
 using Information.Infrastructure.Decorators;
 using Information.Integration.Tests.Infrastructure;
+using Information.Integration.Tests.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +18,7 @@ public class CachingWeatherProviderTests : IDisposable
     private readonly Mock<IWeatherProvider> _innerMock = new();
     private readonly WebApplicationFactory<Program> _factory;
     private readonly IWeatherProvider _provider;
-    private readonly Fixture _fixture = new();
+    private readonly Fixture _fixture = FixtureUtils.CreateFixture();
 
     public CachingWeatherProviderTests()
     {

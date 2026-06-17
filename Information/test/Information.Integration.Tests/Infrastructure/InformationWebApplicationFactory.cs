@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nexus.Core.Integration.Tests.Factories;
@@ -10,9 +9,6 @@ public class InformationWebApplicationFactory : NexusWebApplicationFactory<Progr
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.ConfigureAppConfiguration(config =>
-            config.AddInMemoryCollection(TestConfiguration.Values));
-
         builder.ConfigureServices(services =>
         {
             // Remove all hosted services:

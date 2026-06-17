@@ -1,40 +1,40 @@
+using AutoFixture;
 using FluentAssertions;
 using Information.Application.Enums;
 using Information.Application.Interfaces.Providers;
 using Information.Application.Models;
-using Information.Application.Models.Options;
-using Information.Application.Services;
 using Information.Infrastructure.Decorators;
-using Information.Integration.Tests.TestDoubles;
-using Microsoft.Extensions.Options;
+using Information.Integration.Tests.Infrastructure;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
 namespace Information.Integration.Tests.Caching;
 
-public class CachingExchangeRateProviderTests
+public class CachingExchangeRateProviderTests : IDisposable
 {
-    private readonly Mock<IExchangeRateProvider> _innerMock;
-    private readonly InMemoryCacheService _cacheService;
-    private readonly CachingExchangeRateProvider _provider;
+    private readonly Mock<IExchangeRateProvider> _innerMock = new();
+    private readonly WebApplicationFactory<Program> _factory;
+    private readonly IExchangeRateProvider _provider;
+    private readonly Fixture _fixture = new();
 
     public CachingExchangeRateProviderTests()
     {
-        _innerMock = new Mock<IExchangeRateProvider>();
-        _cacheService = new InMemoryCacheService();
-        var cacheKeyProvider = new CacheKeyProvider();
-        var options = Options.Create(new ExchangeRateCacheOptions { CacheExpiration = TimeSpan.FromHours(1) });
-
-        _provider = new CachingExchangeRateProvider(_innerMock.Object, _cacheService, cacheKeyProvider, options);
+        _factory = new InformationWebApplicationFactory()
+            .WithWebHostBuilder(b => b.ConfigureServices(s =>
+            {
+                s.AddSingleton(_innerMock.Object);
+                s.Decorate<IExchangeRateProvider, CachingExchangeRateProvider>();
+            }));
+        _provider = _factory.Services.GetRequiredService<IExchangeRateProvider>();
     }
 
     [Fact]
     public async Task GetRates_CalledMultipleTimes_OnlyCallsInnerOnce()
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var rates = new Dictionary<ExchangeCurrency, ExchangeRate>
-        {
-            [ExchangeCurrency.USD] = new() { Rate = 41.5m, Date = today },
-        };
+        var rates = _fixture.Create<Dictionary<ExchangeCurrency, ExchangeRate>>();
 
         _innerMock
             .Setup(x => x.GetRates(today, It.IsAny<CancellationToken>()))
@@ -59,7 +59,7 @@ public class CachingExchangeRateProviderTests
 
         _innerMock
             .Setup(x => x.GetRates(It.IsAny<DateOnly>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<ExchangeCurrency, ExchangeRate>());
+            .ReturnsAsync(_fixture.Create<Dictionary<ExchangeCurrency, ExchangeRate>>());
 
         await _provider.GetRates(today);
         await _provider.GetRates(yesterday);
@@ -67,4 +67,6 @@ public class CachingExchangeRateProviderTests
         _innerMock.Verify(x => x.GetRates(today, It.IsAny<CancellationToken>()), Times.Once);
         _innerMock.Verify(x => x.GetRates(yesterday, It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    public void Dispose() => _factory.Dispose();
 }

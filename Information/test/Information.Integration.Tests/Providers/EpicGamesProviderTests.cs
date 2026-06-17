@@ -1,5 +1,7 @@
 using FluentAssertions;
 using Information.Infrastructure.Providers.EpicGames;
+using Information.Integration.Tests.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Information.Integration.Tests.Providers;
 
@@ -7,14 +9,14 @@ namespace Information.Integration.Tests.Providers;
 /// Real integration tests against the live Epic Games Store API.
 /// These tests make actual HTTP calls and require network access.
 /// </summary>
-public class EpicGamesProviderTests
+public class EpicGamesProviderTests : IDisposable
 {
+    private readonly InformationWebApplicationFactory _factory = new();
     private readonly EpicGamesProvider _provider;
 
     public EpicGamesProviderTests()
     {
-        var httpClient = new HttpClient { BaseAddress = new Uri("https://store-site-backend-static.ak.epicgames.com") };
-        _provider = new EpicGamesProvider(httpClient);
+        _provider = _factory.Services.GetRequiredService<EpicGamesProvider>();
     }
 
     [Fact]
@@ -36,4 +38,6 @@ public class EpicGamesProviderTests
             game.FreeUntil.Should().NotBe(default);
         }
     }
+
+    public void Dispose() => _factory.Dispose();
 }

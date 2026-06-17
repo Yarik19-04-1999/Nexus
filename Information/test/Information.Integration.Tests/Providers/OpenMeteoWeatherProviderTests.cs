@@ -1,6 +1,8 @@
 using FluentAssertions;
 using Information.Application.Enums;
 using Information.Infrastructure.Providers.OpenMeteo;
+using Information.Integration.Tests.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Information.Integration.Tests.Providers;
 
@@ -8,14 +10,16 @@ namespace Information.Integration.Tests.Providers;
 /// Real integration tests against the live Open-Meteo API.
 /// These tests make actual HTTP calls and require network access.
 /// </summary>
-public class OpenMeteoWeatherProviderTests
+public class OpenMeteoWeatherProviderTests : IDisposable
 {
+    private readonly InformationWebApplicationFactory _factory = new();
     private readonly OpenMeteoWeatherProvider _provider;
+
+    public static TheoryData<WeatherCity> AllCities { get; } = new(Enum.GetValues<WeatherCity>());
 
     public OpenMeteoWeatherProviderTests()
     {
-        var httpClient = new HttpClient { BaseAddress = new Uri("https://api.open-meteo.com") };
-        _provider = new OpenMeteoWeatherProvider(httpClient);
+        _provider = _factory.Services.GetRequiredService<OpenMeteoWeatherProvider>();
     }
 
     [Fact]
@@ -47,14 +51,13 @@ public class OpenMeteoWeatherProviderTests
     }
 
     [Theory]
-    [InlineData(WeatherCity.Kharkiv)]
-    [InlineData(WeatherCity.Kyiv)]
-    [InlineData(WeatherCity.Odesa)]
-    [InlineData(WeatherCity.Lviv)]
+    [MemberData(nameof(AllCities))]
     public async Task GetHourlyForecast_ForAllCities_ReturnsForecast(WeatherCity city)
     {
         var forecast = await _provider.GetHourlyForecast(city);
 
         forecast.Should().NotBeEmpty();
     }
+
+    public void Dispose() => _factory.Dispose();
 }

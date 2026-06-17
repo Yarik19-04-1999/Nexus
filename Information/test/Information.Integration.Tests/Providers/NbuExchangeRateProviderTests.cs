@@ -1,6 +1,8 @@
 using FluentAssertions;
 using Information.Application.Enums;
 using Information.Infrastructure.Providers.Nbu;
+using Information.Integration.Tests.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Information.Integration.Tests.Providers;
 
@@ -8,14 +10,14 @@ namespace Information.Integration.Tests.Providers;
 /// Real integration tests against the live NBU (National Bank of Ukraine) API.
 /// These tests make actual HTTP calls and require network access.
 /// </summary>
-public class NbuExchangeRateProviderTests
+public class NbuExchangeRateProviderTests : IDisposable
 {
+    private readonly InformationWebApplicationFactory _factory = new();
     private readonly NbuExchangeRateProvider _provider;
 
     public NbuExchangeRateProviderTests()
     {
-        var httpClient = new HttpClient { BaseAddress = new Uri("https://bank.gov.ua") };
-        _provider = new NbuExchangeRateProvider(httpClient);
+        _provider = _factory.Services.GetRequiredService<NbuExchangeRateProvider>();
     }
 
     [Fact]
@@ -56,8 +58,8 @@ public class NbuExchangeRateProviderTests
 
         todayRates.Should().NotBeEmpty();
         yesterdayRates.Should().NotBeEmpty();
-
-        // Both should have the same currencies
         yesterdayRates.Keys.Should().BeEquivalentTo(todayRates.Keys);
     }
+
+    public void Dispose() => _factory.Dispose();
 }

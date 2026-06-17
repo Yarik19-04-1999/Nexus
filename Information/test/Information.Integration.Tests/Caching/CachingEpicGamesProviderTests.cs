@@ -1,45 +1,38 @@
+using AutoFixture;
 using FluentAssertions;
 using Information.Application.Interfaces.Providers;
 using Information.Application.Models;
-using Information.Application.Models.Options;
-using Information.Application.Services;
 using Information.Infrastructure.Decorators;
-using Information.Integration.Tests.TestDoubles;
-using Microsoft.Extensions.Options;
+using Information.Integration.Tests.Infrastructure;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
 namespace Information.Integration.Tests.Caching;
 
-public class CachingEpicGamesProviderTests
+public class CachingEpicGamesProviderTests : IDisposable
 {
-    private readonly Mock<IEpicGamesProvider> _innerMock;
-    private readonly InMemoryCacheService _cacheService;
-    private readonly CachingEpicGamesProvider _provider;
+    private readonly Mock<IEpicGamesProvider> _innerMock = new();
+    private readonly WebApplicationFactory<Program> _factory;
+    private readonly IEpicGamesProvider _provider;
+    private readonly Fixture _fixture = new();
 
     public CachingEpicGamesProviderTests()
     {
-        _innerMock = new Mock<IEpicGamesProvider>();
-        _cacheService = new InMemoryCacheService();
-        var cacheKeyProvider = new CacheKeyProvider();
-        var options = Options.Create(new EpicGamesCacheOptions { CacheExpiration = TimeSpan.FromMinutes(10) });
-
-        _provider = new CachingEpicGamesProvider(_innerMock.Object, _cacheService, cacheKeyProvider, options);
+        _factory = new InformationWebApplicationFactory()
+            .WithWebHostBuilder(b => b.ConfigureServices(s =>
+            {
+                s.AddSingleton(_innerMock.Object);
+                s.Decorate<IEpicGamesProvider, CachingEpicGamesProvider>();
+            }));
+        _provider = _factory.Services.GetRequiredService<IEpicGamesProvider>();
     }
 
     [Fact]
     public async Task GetFreeGames_CalledMultipleTimes_OnlyCallsInnerOnce()
     {
-        var games = new List<EpicGame>
-        {
-            new()
-            {
-                Title = "Free Game",
-                Description = "A free game",
-                ImageUrl = "https://example.com/img.jpg",
-                FreeUntil = DateTimeOffset.UtcNow.AddDays(7),
-                StoreUrl = "https://store.epicgames.com/en-US/p/free-game",
-            },
-        };
+        var games = _fixture.Create<List<EpicGame>>();
 
         _innerMock
             .Setup(x => x.GetFreeGames(It.IsAny<CancellationToken>()))
@@ -61,10 +54,12 @@ public class CachingEpicGamesProviderTests
     {
         _innerMock
             .Setup(x => x.GetFreeGames(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<EpicGame>());
+            .ReturnsAsync(_fixture.Create<List<EpicGame>>());
 
         await _provider.GetFreeGames();
 
         _innerMock.Verify(x => x.GetFreeGames(It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    public void Dispose() => _factory.Dispose();
 }

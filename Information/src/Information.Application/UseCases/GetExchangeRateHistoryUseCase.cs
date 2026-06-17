@@ -1,3 +1,4 @@
+using Information.Application.Constants;
 using Information.Application.Enums;
 using Information.Application.Interfaces.Providers;
 using Information.Application.Interfaces.UseCases;
@@ -11,8 +12,6 @@ namespace Information.Application.UseCases;
 
 public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
 {
-    private static readonly ExchangeCurrency[] AllCurrencies = Enum.GetValues<ExchangeCurrency>();
-
     private readonly IExchangeRateProvider _exchangeRateProvider;
 
     public GetExchangeRateHistoryUseCase(IExchangeRateProvider exchangeRateProvider)
@@ -24,7 +23,7 @@ public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
     {
         var currencies = input.Currency.HasValue
             ? (IEnumerable<ExchangeCurrency>)[input.Currency.Value]
-            : AllCurrencies;
+            : ExchangeCurrencyConstants.All;
 
         var today = DateOnlyUtils.CurrentDate;
 
@@ -36,16 +35,10 @@ public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
 
         await Task.WhenAll(todayTask, yesterdayTask, weekAgoTask, monthAgoTask, yearAgoTask);
 
-        var todayRates = await todayTask;
-        var yesterdayRates = await yesterdayTask;
-        var weekAgoRates = await weekAgoTask;
-        var monthAgoRates = await monthAgoTask;
-        var yearAgoRates = await yearAgoTask;
-
         var histories = currencies
             .Select(currency =>
             {
-                var current = todayRates.GetValueOrDefault(currency);
+                var current = todayTask.Result.GetValueOrDefault(currency);
                 if (current is null)
                 {
                     return null;
@@ -55,10 +48,10 @@ public class GetExchangeRateHistoryUseCase : IGetExchangeRateHistoryUseCase
                 {
                     Currency = currency,
                     Current = current,
-                    Yesterday = yesterdayRates.GetValueOrDefault(currency),
-                    WeekAgo = weekAgoRates.GetValueOrDefault(currency),
-                    MonthAgo = monthAgoRates.GetValueOrDefault(currency),
-                    YearAgo = yearAgoRates.GetValueOrDefault(currency),
+                    Yesterday = yesterdayTask.Result.GetValueOrDefault(currency),
+                    WeekAgo = weekAgoTask.Result.GetValueOrDefault(currency),
+                    MonthAgo = monthAgoTask.Result.GetValueOrDefault(currency),
+                    YearAgo = yearAgoTask.Result.GetValueOrDefault(currency),
                 };
             })
             .Where(h => h is not null)

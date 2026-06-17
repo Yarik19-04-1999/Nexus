@@ -8,5 +8,7 @@
     <Project Path="src/Dvizh.Api/Dvizh.Api.csproj" />
     <Project Path="src/Dvizh.Application/Dvizh.Application.csproj" />
   </Folder>
-  <Folder Name="/test/" />
+  <Folder Name="/test/">
+    <Project Path="test/Dvizh.Integration.Tests/Dvizh.Integration.Tests.csproj" />
+  </Folder>
 </Solution>

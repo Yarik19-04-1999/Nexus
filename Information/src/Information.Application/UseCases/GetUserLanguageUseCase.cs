@@ -1,3 +1,4 @@
+using Information.Application.Constants;
 using Information.Application.Enums;
 using Information.Application.Interfaces.Repositories;
 using Information.Application.Interfaces.UseCases;
@@ -17,6 +18,6 @@ public class GetUserLanguageUseCase : IGetUserLanguageUseCase
     public async Task<BotLanguage> Execute(GetUserLanguageInput input, CancellationToken cancellationToken = default)
     {
         var user = await _userRepository.GetById(input.TelegramUserId, cancellationToken);
-        return user?.Language ?? BotLanguage.Ukrainian;
+        return user?.Language ?? BotConstants.DefaultLanguage;
     }
 }

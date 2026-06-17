@@ -5,8 +5,6 @@ using Information.Api.Bot.Constants;
 using Information.Api.Bot.Extensions;
 using Information.Api.Bot.Formatters;
 using Information.Api.Bot.Localization;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -15,8 +13,31 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Information.Api.Bot.Handlers;
 
-public class BotUpdateHandler : IUpdateHandler
+public partial class BotUpdateHandler : IUpdateHandler
 {
+    private static readonly InlineKeyboardMarkup LanguageKeyboard = new(new[]
+    {
+        new[] { InlineKeyboardButton.WithCallbackData("🇺🇦 Українська", IceAgeBriefTelegramBotConstants.Callbacks.LangUk) },
+        new[] { InlineKeyboardButton.WithCallbackData("🇷🇺 Русский",    IceAgeBriefTelegramBotConstants.Callbacks.LangRu) },
+        new[] { InlineKeyboardButton.WithCallbackData("🇬🇧 English",    IceAgeBriefTelegramBotConstants.Callbacks.LangEn) }
+    });
+
+    private static readonly IReadOnlyDictionary<BotLanguage, InlineKeyboardMarkup> MainMenuKeyboards =
+        Enum.GetValues<BotLanguage>().ToDictionary(lang => lang, lang => new InlineKeyboardMarkup(new[]
+        {
+            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnWeather(lang),      IceAgeBriefTelegramBotConstants.Callbacks.WeatherMenu) },
+            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnRatesToday(lang),   IceAgeBriefTelegramBotConstants.Callbacks.RatesToday) },
+            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnRatesHistory(lang), IceAgeBriefTelegramBotConstants.Callbacks.RatesHistory) },
+            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnEpicGames(lang),    IceAgeBriefTelegramBotConstants.Callbacks.EpicGames) },
+            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnLanguage(lang),     IceAgeBriefTelegramBotConstants.Callbacks.LangMenu) }
+        }));
+
+    private static readonly IReadOnlyDictionary<BotLanguage, InlineKeyboardMarkup> BackToMenuKeyboards =
+        Enum.GetValues<BotLanguage>().ToDictionary(lang => lang, lang => new InlineKeyboardMarkup(new[]
+        {
+            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnBackToMenu(lang), IceAgeBriefTelegramBotConstants.Callbacks.MenuMain) }
+        }));
+
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<BotUpdateHandler> _logger;
 
@@ -34,14 +55,14 @@ public class BotUpdateHandler : IUpdateHandler
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled error processing update {UpdateId}", update.Id);
+            LogUnhandledUpdateError(ex, update.Id);
             await TrySendErrorAsync(bot, update, ct);
         }
     }
 
     public Task HandleErrorAsync(ITelegramBotClient bot, Exception exception, HandleErrorSource source, CancellationToken ct)
     {
-        _logger.LogError(exception, "Telegram polling error — source: {Source}", source);
+        LogPollingError(exception, source);
         return Task.CompletedTask;
     }
 
@@ -62,16 +83,21 @@ public class BotUpdateHandler : IUpdateHandler
     {
         var userId = message.From!.Id;
         var chatId = message.Chat.Id;
+        var lang = await GetLanguage(userId, ct);
 
         if (message.Text == IceAgeBriefTelegramBotConstants.Commands.Start)
         {
-            var lang = await GetLanguage(userId, ct);
-            await SendLanguageSelectionAsync(bot, chatId, lang, ct);
+            await bot.SendMessage(chatId,
+                BotMessages.Welcome(lang) + "\n\n" + BotMessages.ChooseLanguage(lang),
+                replyMarkup: LanguageKeyboard,
+                cancellationToken: ct);
         }
         else
         {
-            var lang = await GetLanguage(userId, ct);
-            await SendMainMenuAsync(bot, chatId, lang, ct);
+            await bot.SendMessage(chatId,
+                BotMessages.MainMenu(lang),
+                replyMarkup: MainMenuKeyboards[lang],
+                cancellationToken: ct);
         }
     }
 
@@ -82,7 +108,9 @@ public class BotUpdateHandler : IUpdateHandler
         var messageId = query.Message.MessageId;
         var data = query.Data!;
 
-        if (data is IceAgeBriefTelegramBotConstants.Callbacks.LangRu or IceAgeBriefTelegramBotConstants.Callbacks.LangUk or IceAgeBriefTelegramBotConstants.Callbacks.LangEn)
+        if (data is IceAgeBriefTelegramBotConstants.Callbacks.LangRu
+                 or IceAgeBriefTelegramBotConstants.Callbacks.LangUk
+                 or IceAgeBriefTelegramBotConstants.Callbacks.LangEn)
         {
             await HandleSetLanguageAsync(bot, chatId, messageId, userId, data, ct);
             return;
@@ -93,7 +121,10 @@ public class BotUpdateHandler : IUpdateHandler
         switch (data)
         {
             case IceAgeBriefTelegramBotConstants.Callbacks.LangMenu:
-                await EditToLanguageSelectionAsync(bot, chatId, messageId, lang, ct);
+                await bot.EditMessageText(chatId, messageId,
+                    BotMessages.ChooseLanguage(lang),
+                    replyMarkup: LanguageKeyboard,
+                    cancellationToken: ct);
                 break;
 
             case IceAgeBriefTelegramBotConstants.Callbacks.MenuMain:
@@ -105,7 +136,10 @@ public class BotUpdateHandler : IUpdateHandler
                 break;
 
             case IceAgeBriefTelegramBotConstants.Callbacks.RatesHistory:
-                await EditToCurrencyHistorySelectionAsync(bot, chatId, messageId, lang, ct);
+                await bot.EditMessageText(chatId, messageId,
+                    BotMessages.ChooseCurrencyHistory(lang),
+                    replyMarkup: BuildCurrencyHistoryKeyboard(lang),
+                    cancellationToken: ct);
                 break;
 
             case IceAgeBriefTelegramBotConstants.Callbacks.RatesHistoryAll:
@@ -125,7 +159,10 @@ public class BotUpdateHandler : IUpdateHandler
                 break;
 
             case IceAgeBriefTelegramBotConstants.Callbacks.WeatherMenu:
-                await EditToCitySelectionAsync(bot, chatId, messageId, lang, ct);
+                await bot.EditMessageText(chatId, messageId,
+                    BotMessages.ChooseCity(lang),
+                    replyMarkup: BuildCitySelectionKeyboard(lang),
+                    cancellationToken: ct);
                 break;
 
             case IceAgeBriefTelegramBotConstants.Callbacks.EpicGames:
@@ -157,23 +194,6 @@ public class BotUpdateHandler : IUpdateHandler
         }
     }
 
-    private async Task SendLanguageSelectionAsync(ITelegramBotClient bot, long chatId, BotLanguage lang, CancellationToken ct)
-    {
-        var keyboard = BuildLanguageKeyboard();
-        await bot.SendMessage(chatId,
-            BotMessages.Welcome(lang) + "\n\n" + BotMessages.ChooseLanguage(lang),
-            replyMarkup: keyboard,
-            cancellationToken: ct);
-    }
-
-    private async Task EditToLanguageSelectionAsync(ITelegramBotClient bot, long chatId, int messageId, BotLanguage lang, CancellationToken ct)
-    {
-        await bot.EditMessageText(chatId, messageId,
-            BotMessages.ChooseLanguage(lang),
-            replyMarkup: BuildLanguageKeyboard(),
-            cancellationToken: ct);
-    }
-
     private async Task HandleSetLanguageAsync(ITelegramBotClient bot, long chatId, int messageId, long userId, string data, CancellationToken ct)
     {
         var lang = data.ToBotLanguage();
@@ -185,39 +205,13 @@ public class BotUpdateHandler : IUpdateHandler
         await EditToMainMenuAsync(bot, chatId, messageId, lang, ct);
     }
 
-    private static InlineKeyboardMarkup BuildLanguageKeyboard() =>
-        new(new[]
-        {
-            new[] { InlineKeyboardButton.WithCallbackData("🇺🇦 Українська", IceAgeBriefTelegramBotConstants.Callbacks.LangUk) },
-            new[] { InlineKeyboardButton.WithCallbackData("🇷🇺 Русский", IceAgeBriefTelegramBotConstants.Callbacks.LangRu) },
-            new[] { InlineKeyboardButton.WithCallbackData("🇬🇧 English", IceAgeBriefTelegramBotConstants.Callbacks.LangEn) }
-        });
-
-    private async Task SendMainMenuAsync(ITelegramBotClient bot, long chatId, BotLanguage lang, CancellationToken ct)
-    {
-        await bot.SendMessage(chatId,
-            BotMessages.MainMenu(lang),
-            replyMarkup: BuildMainMenuKeyboard(lang),
-            cancellationToken: ct);
-    }
-
     private async Task EditToMainMenuAsync(ITelegramBotClient bot, long chatId, int messageId, BotLanguage lang, CancellationToken ct)
     {
         await bot.EditMessageText(chatId, messageId,
             BotMessages.MainMenu(lang),
-            replyMarkup: BuildMainMenuKeyboard(lang),
+            replyMarkup: MainMenuKeyboards[lang],
             cancellationToken: ct);
     }
-
-    private static InlineKeyboardMarkup BuildMainMenuKeyboard(BotLanguage lang) =>
-        new(new[]
-        {
-            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnWeather(lang), IceAgeBriefTelegramBotConstants.Callbacks.WeatherMenu) },
-            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnRatesToday(lang), IceAgeBriefTelegramBotConstants.Callbacks.RatesToday) },
-            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnRatesHistory(lang), IceAgeBriefTelegramBotConstants.Callbacks.RatesHistory) },
-            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnEpicGames(lang), IceAgeBriefTelegramBotConstants.Callbacks.EpicGames) },
-            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnLanguage(lang), IceAgeBriefTelegramBotConstants.Callbacks.LangMenu) }
-        });
 
     private async Task HandleRatesTodayAsync(ITelegramBotClient bot, long chatId, int messageId, BotLanguage lang, CancellationToken ct)
     {
@@ -225,24 +219,7 @@ public class BotUpdateHandler : IUpdateHandler
         var useCase = scope.ServiceProvider.GetRequiredService<IGetExchangeRatesUseCase>();
         var data = await useCase.Execute(GetExchangeRatesInput.Instance, ct);
         var text = ExchangeRateFormatter.FormatToday(data, lang);
-        await bot.EditMessageText(chatId, messageId, text, replyMarkup: BackToMenuKeyboard(lang), cancellationToken: ct);
-    }
-
-    private async Task EditToCurrencyHistorySelectionAsync(ITelegramBotClient bot, long chatId, int messageId, BotLanguage lang, CancellationToken ct)
-    {
-        var keyboard = new InlineKeyboardMarkup(new[]
-        {
-            new[] { InlineKeyboardButton.WithCallbackData("🇺🇸 USD", IceAgeBriefTelegramBotConstants.Callbacks.RatesHistoryUsd) },
-            new[] { InlineKeyboardButton.WithCallbackData("🇪🇺 EUR", IceAgeBriefTelegramBotConstants.Callbacks.RatesHistoryEur) },
-            new[] { InlineKeyboardButton.WithCallbackData("🇬🇧 GBP", IceAgeBriefTelegramBotConstants.Callbacks.RatesHistoryGbp) },
-            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnAllCurrencies(lang), IceAgeBriefTelegramBotConstants.Callbacks.RatesHistoryAll) },
-            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnBackToMenu(lang), IceAgeBriefTelegramBotConstants.Callbacks.MenuMain) }
-        });
-
-        await bot.EditMessageText(chatId, messageId,
-            BotMessages.ChooseCurrencyHistory(lang),
-            replyMarkup: keyboard,
-            cancellationToken: ct);
+        await bot.EditMessageText(chatId, messageId, text, replyMarkup: BackToMenuKeyboards[lang], cancellationToken: ct);
     }
 
     private async Task HandleRatesHistoryAsync(ITelegramBotClient bot, long chatId, int messageId, ExchangeCurrency? currency, BotLanguage lang, CancellationToken ct)
@@ -251,25 +228,7 @@ public class BotUpdateHandler : IUpdateHandler
         var useCase = scope.ServiceProvider.GetRequiredService<IGetExchangeRateHistoryUseCase>();
         var data = await useCase.Execute(new GetExchangeRateHistoryInput(currency), ct);
         var text = ExchangeRateFormatter.FormatHistory(data, lang);
-        await bot.EditMessageText(chatId, messageId, text, replyMarkup: BackToMenuKeyboard(lang), cancellationToken: ct);
-    }
-
-    private async Task EditToCitySelectionAsync(ITelegramBotClient bot, long chatId, int messageId, BotLanguage lang, CancellationToken ct)
-    {
-        var rows = Enum.GetValues<WeatherCity>()
-            .Select(city => new[]
-            {
-                InlineKeyboardButton.WithCallbackData(
-                    BotMessages.GetCityName(city, lang),
-                    IceAgeBriefTelegramBotConstants.Callbacks.WeatherCityPrefix + city)
-            })
-            .Append(new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnBackToMenu(lang), IceAgeBriefTelegramBotConstants.Callbacks.MenuMain) })
-            .ToArray();
-
-        await bot.EditMessageText(chatId, messageId,
-            BotMessages.ChooseCity(lang),
-            replyMarkup: new InlineKeyboardMarkup(rows),
-            cancellationToken: ct);
+        await bot.EditMessageText(chatId, messageId, text, replyMarkup: BackToMenuKeyboards[lang], cancellationToken: ct);
     }
 
     private async Task HandleCitySelectedAsync(ITelegramBotClient bot, long chatId, int messageId, string data, BotLanguage lang, CancellationToken ct)
@@ -280,16 +239,9 @@ public class BotUpdateHandler : IUpdateHandler
             return;
         }
 
-        var keyboard = new InlineKeyboardMarkup(new[]
-        {
-            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnHourly(lang), IceAgeBriefTelegramBotConstants.Callbacks.WeatherHourlyPrefix + city) },
-            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnDaily(lang), IceAgeBriefTelegramBotConstants.Callbacks.WeatherDailyPrefix + city) },
-            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnBack(lang), IceAgeBriefTelegramBotConstants.Callbacks.WeatherMenu) }
-        });
-
         await bot.EditMessageText(chatId, messageId,
             BotMessages.ChooseWeatherType(lang),
-            replyMarkup: keyboard,
+            replyMarkup: BuildWeatherTypeKeyboard(city, lang),
             cancellationToken: ct);
     }
 
@@ -299,7 +251,7 @@ public class BotUpdateHandler : IUpdateHandler
         var useCase = scope.ServiceProvider.GetRequiredService<IGetHourlyWeatherUseCase>();
         var data = await useCase.Execute(new GetWeatherInput(city), ct);
         var text = WeatherFormatter.FormatHourly(data, city, lang);
-        await bot.EditMessageText(chatId, messageId, text, replyMarkup: BackToMenuKeyboard(lang), cancellationToken: ct);
+        await bot.EditMessageText(chatId, messageId, text, replyMarkup: BackToMenuKeyboards[lang], cancellationToken: ct);
     }
 
     private async Task HandleDailyWeatherAsync(ITelegramBotClient bot, long chatId, int messageId, WeatherCity city, BotLanguage lang, CancellationToken ct)
@@ -308,7 +260,7 @@ public class BotUpdateHandler : IUpdateHandler
         var useCase = scope.ServiceProvider.GetRequiredService<IGetDailyWeatherUseCase>();
         var data = await useCase.Execute(new GetWeatherInput(city), ct);
         var text = WeatherFormatter.FormatDaily(data, city, lang);
-        await bot.EditMessageText(chatId, messageId, text, replyMarkup: BackToMenuKeyboard(lang), cancellationToken: ct);
+        await bot.EditMessageText(chatId, messageId, text, replyMarkup: BackToMenuKeyboards[lang], cancellationToken: ct);
     }
 
     private async Task HandleEpicGamesAsync(ITelegramBotClient bot, long chatId, int messageId, BotLanguage lang, CancellationToken ct)
@@ -321,7 +273,7 @@ public class BotUpdateHandler : IUpdateHandler
         {
             await bot.EditMessageText(chatId, messageId,
                 BotMessages.NoEpicGames(lang),
-                replyMarkup: BackToMenuKeyboard(lang),
+                replyMarkup: BackToMenuKeyboards[lang],
                 cancellationToken: ct);
             return;
         }
@@ -329,7 +281,7 @@ public class BotUpdateHandler : IUpdateHandler
         var text = EpicGamesFormatter.Format(data, lang);
         await bot.EditMessageText(chatId, messageId, text,
             parseMode: ParseMode.Html,
-            replyMarkup: BackToMenuKeyboard(lang),
+            replyMarkup: BackToMenuKeyboards[lang],
             cancellationToken: ct);
     }
 
@@ -357,7 +309,42 @@ public class BotUpdateHandler : IUpdateHandler
         return await useCase.Execute(new GetUserLanguageInput(userId), ct);
     }
 
-    private static InlineKeyboardMarkup BackToMenuKeyboard(BotLanguage lang) =>
-        new(new[] { new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnBackToMenu(lang), IceAgeBriefTelegramBotConstants.Callbacks.MenuMain) } });
+    private static InlineKeyboardMarkup BuildCurrencyHistoryKeyboard(BotLanguage lang) =>
+        new(new[]
+        {
+            new[] { InlineKeyboardButton.WithCallbackData("🇺🇸 USD", IceAgeBriefTelegramBotConstants.Callbacks.RatesHistoryUsd) },
+            new[] { InlineKeyboardButton.WithCallbackData("🇪🇺 EUR", IceAgeBriefTelegramBotConstants.Callbacks.RatesHistoryEur) },
+            new[] { InlineKeyboardButton.WithCallbackData("🇬🇧 GBP", IceAgeBriefTelegramBotConstants.Callbacks.RatesHistoryGbp) },
+            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnAllCurrencies(lang), IceAgeBriefTelegramBotConstants.Callbacks.RatesHistoryAll) },
+            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnBackToMenu(lang),    IceAgeBriefTelegramBotConstants.Callbacks.MenuMain) }
+        });
 
+    private static InlineKeyboardMarkup BuildCitySelectionKeyboard(BotLanguage lang)
+    {
+        var rows = Enum.GetValues<WeatherCity>()
+            .Select(city => new[]
+            {
+                InlineKeyboardButton.WithCallbackData(
+                    BotMessages.GetCityName(city, lang),
+                    IceAgeBriefTelegramBotConstants.Callbacks.WeatherCityPrefix + city)
+            })
+            .Append(new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnBackToMenu(lang), IceAgeBriefTelegramBotConstants.Callbacks.MenuMain) })
+            .ToArray();
+
+        return new InlineKeyboardMarkup(rows);
+    }
+
+    private static InlineKeyboardMarkup BuildWeatherTypeKeyboard(WeatherCity city, BotLanguage lang) =>
+        new(new[]
+        {
+            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnHourly(lang), IceAgeBriefTelegramBotConstants.Callbacks.WeatherHourlyPrefix + city) },
+            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnDaily(lang),  IceAgeBriefTelegramBotConstants.Callbacks.WeatherDailyPrefix + city) },
+            new[] { InlineKeyboardButton.WithCallbackData(BotMessages.BtnBack(lang),   IceAgeBriefTelegramBotConstants.Callbacks.WeatherMenu) }
+        });
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled error processing update {UpdateId}")]
+    private partial void LogUnhandledUpdateError(Exception ex, int updateId);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Telegram polling error — source: {Source}")]
+    private partial void LogPollingError(Exception exception, HandleErrorSource source);
 }

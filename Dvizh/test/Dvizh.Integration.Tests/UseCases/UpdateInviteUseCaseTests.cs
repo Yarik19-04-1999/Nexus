@@ -5,12 +5,13 @@ using Dvizh.Integration.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace Dvizh.Integration.Tests.UseCases;
 
-public class UpdateInviteUseCaseTests
+public class UpdateInviteUseCaseTests(DvizhWebApplicationFactory factory) : IClassFixture<DvizhWebApplicationFactory>
 {
-    private readonly DvizhWebApplicationFactory _factory = new();
+    private readonly DvizhWebApplicationFactory _factory = factory;
 
     [Fact]
     public async Task Execute_UpdatesFieldsInDb()

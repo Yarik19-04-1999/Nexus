@@ -5,12 +5,13 @@ using Dvizh.Application.Models.Input;
 using Dvizh.Integration.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace Dvizh.Integration.Tests.UseCases;
 
-public class CreateInviteUseCaseTests
+public class CreateInviteUseCaseTests(DvizhWebApplicationFactory factory) : IClassFixture<DvizhWebApplicationFactory>
 {
-    private readonly DvizhWebApplicationFactory _factory = new();
+    private readonly DvizhWebApplicationFactory _factory = factory;
 
     [Fact]
     public async Task Execute_SavesInviteToDb_WithGeneratedCode()

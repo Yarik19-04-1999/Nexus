@@ -16,12 +16,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Nexus.Application.Core.Constants;
 using Nexus.Application.Core.Models;
+using Xunit;
 
 namespace Dvizh.Integration.Tests.Controllers;
 
-public class InvitesControllerTests
+public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClassFixture<DvizhWebApplicationFactory>
 {
-    private readonly DvizhWebApplicationFactory _factory = new();
+    private readonly DvizhWebApplicationFactory _factory = factory;
     private readonly Fixture _fixture = CreateFixture();
 
     private static Fixture CreateFixture()

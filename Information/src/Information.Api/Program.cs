@@ -2,13 +2,17 @@ using Information.Api.Bot.Extensions;
 using Information.Application.Extensions;
 using Information.Infrastructure.Extensions;
 using Nexus.Api.Core.Extensions;
+using Nexus.Infrastructure.Core.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var services = builder.Services;
 var configuration = builder.Configuration;
 
-var nexusOptions = configuration.GetNexusOptions();
+var sqlServerOptions = configuration.GetSqlServerOptions();
+var nexusOptions = configuration.GetNexusOptions()
+    .WithHealthCheckCustomAction(hc => hc.AddNexusSqlServerHealthCheck(sqlServerOptions.ConnectionString));
+
 services
     .AddNexusServices(nexusOptions)
     .AddApplication()

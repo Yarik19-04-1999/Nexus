@@ -16,10 +16,12 @@ public static partial class ServiceCollectionExtensions
 {
     public static IServiceCollection AddNexusServices(this IServiceCollection services, NexusOptions options)
     {
-        services
+        var healthChecks = services
             .AddNexusApiVersioning()
             .AddNexusCorrelationId()
             .AddHealthChecks();
+
+        options.HealthCheckCustomAction?.Invoke(healthChecks);
 
         if (options.UseOpenApi)
         {

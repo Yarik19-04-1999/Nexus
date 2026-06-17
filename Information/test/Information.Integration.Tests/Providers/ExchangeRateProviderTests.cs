@@ -4,10 +4,7 @@ using Information.Application.Enums;
 using Information.Application.Interfaces.Providers;
 using Information.Infrastructure.Enums;
 using Information.Integration.Tests.Infrastructure;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using Nexus.Core.Integration.Tests.Extensions;
 
 namespace Information.Integration.Tests.Providers;
 
@@ -20,23 +17,16 @@ public class ExchangeRateProviderTests
     public static TheoryData<ExchangeRateProviderType> AllProviderTypes { get; } =
         new(Enum.GetValues<ExchangeRateProviderType>());
 
-    private static WebApplicationFactory<Program> CreateFactory(ExchangeRateProviderType providerType) =>
-        new InformationWebApplicationFactory()
-            .WithWebHostBuilder(b => b.ConfigureAppConfiguration((_, config) =>
-                config.AddInMemoryCollection(new Dictionary<string, string?>
-                {
-                    [$"{ConfigurationConstants.ExchangeRateSection}:ProviderType"] = providerType.ToString()
-                })));
-
     [Theory]
     [MemberData(nameof(AllProviderTypes))]
-    public async Task GetRates_ForToday_ReturnsAllKnownCurrencies(ExchangeRateProviderType providerType)
+    public async Task GetRates_ForToday_ReturnsAllKnownCurrencies(ExchangeRateProviderType providerType, CancellationToken cancellationToken)
     {
-        using var factory = CreateFactory(providerType);
+        using var factory = new InformationWebApplicationFactory()
+            .WithConfiguration($"{ConfigurationConstants.ExchangeRateSection}:ProviderType", providerType.ToString());
         var provider = factory.Services.GetRequiredService<IExchangeRateProvider>();
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-        var result = await provider.GetRates([today]);
+        var result = await provider.GetRates([today], cancellationToken);
 
         result.Should().ContainKey(today);
         var rates = result[today];
@@ -49,13 +39,14 @@ public class ExchangeRateProviderTests
 
     [Theory]
     [MemberData(nameof(AllProviderTypes))]
-    public async Task GetRates_ForToday_ReturnsPositiveRates(ExchangeRateProviderType providerType)
+    public async Task GetRates_ForToday_ReturnsPositiveRates(ExchangeRateProviderType providerType, CancellationToken cancellationToken)
     {
-        using var factory = CreateFactory(providerType);
+        using var factory = new InformationWebApplicationFactory()
+            .WithConfiguration($"{ConfigurationConstants.ExchangeRateSection}:ProviderType", providerType.ToString());
         var provider = factory.Services.GetRequiredService<IExchangeRateProvider>();
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-        var result = await provider.GetRates([today]);
+        var result = await provider.GetRates([today], cancellationToken);
 
         result.Should().ContainKey(today);
         foreach (var rate in result[today].Values)
@@ -67,14 +58,15 @@ public class ExchangeRateProviderTests
 
     [Theory]
     [MemberData(nameof(AllProviderTypes))]
-    public async Task GetRates_ForMultipleDates_ReturnsBothDates(ExchangeRateProviderType providerType)
+    public async Task GetRates_ForMultipleDates_ReturnsBothDates(ExchangeRateProviderType providerType, CancellationToken cancellationToken)
     {
-        using var factory = CreateFactory(providerType);
+        using var factory = new InformationWebApplicationFactory()
+            .WithConfiguration($"{ConfigurationConstants.ExchangeRateSection}:ProviderType", providerType.ToString());
         var provider = factory.Services.GetRequiredService<IExchangeRateProvider>();
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var yesterday = today.AddDays(-1);
 
-        var result = await provider.GetRates([today, yesterday]);
+        var result = await provider.GetRates([today, yesterday], cancellationToken);
 
         result.Should().ContainKey(today);
         result.Should().ContainKey(yesterday);

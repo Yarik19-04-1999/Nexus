@@ -6,6 +6,7 @@ using Dvizh.Integration.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Nexus.Core.Integration.Tests.Extensions;
 using Xunit;
 
 namespace Dvizh.Integration.Tests.UseCases;
@@ -17,15 +18,15 @@ public class RespondToInviteUseCaseTests(DvizhWebApplicationFactory factory) : I
     [Theory]
     [InlineData(InviteAnswer.Yes, InviteEventType.SaidYes)]
     [InlineData(InviteAnswer.No, InviteEventType.SaidNo)]
-    public async Task Execute_UpdatesAnswerInDb_AndCreatesCorrectEvent(InviteAnswer answer, InviteEventType expectedEvent)
+    public async Task Execute_UpdatesAnswerInDb_AndCreatesCorrectEvent(InviteAnswer answer, InviteEventType expectedEvent, CancellationToken cancellationToken)
     {
         await using var db = new DbScope(_factory);
         var invite = await db.SeedInvite();
 
-        using var scope = _factory.Services.CreateScope();
+        using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IRespondToInviteUseCase>();
 
-        var result = await useCase.Execute(new RespondToInviteInput(invite.Code, answer));
+        var result = await useCase.Execute(new RespondToInviteInput(invite.Code, answer), cancellationToken);
 
         result.HasError.Should().BeFalse();
 
@@ -36,48 +37,48 @@ public class RespondToInviteUseCaseTests(DvizhWebApplicationFactory factory) : I
 
         var events = await db.Db.InviteEvents
             .Where(e => e.InviteId == invite.Id)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
         events.Should().ContainSingle(e => e.EventType == expectedEvent);
         events[0].CreatedAt.Should().NotBe(default);
     }
 
     [Fact]
-    public async Task Execute_WhenAlreadyAnswered_ReturnsAlreadyAnsweredError()
+    public async Task Execute_WhenAlreadyAnswered_ReturnsAlreadyAnsweredError(CancellationToken cancellationToken)
     {
         await using var db = new DbScope(_factory);
         var invite = await db.SeedInvite(i => i.Answer = InviteAnswer.Yes);
 
-        using var scope = _factory.Services.CreateScope();
+        using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IRespondToInviteUseCase>();
 
-        var result = await useCase.Execute(new RespondToInviteInput(invite.Code, InviteAnswer.No));
+        var result = await useCase.Execute(new RespondToInviteInput(invite.Code, InviteAnswer.No), cancellationToken);
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be(DvizhErrorCodes.AlreadyAnswered);
     }
 
     [Fact]
-    public async Task Execute_WhenExpired_ReturnsAlreadyExpiredError()
+    public async Task Execute_WhenExpired_ReturnsAlreadyExpiredError(CancellationToken cancellationToken)
     {
         await using var db = new DbScope(_factory);
         var invite = await db.SeedInvite(i => i.ExpiresAt = DateTime.UtcNow.AddDays(-1));
 
-        using var scope = _factory.Services.CreateScope();
+        using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IRespondToInviteUseCase>();
 
-        var result = await useCase.Execute(new RespondToInviteInput(invite.Code, InviteAnswer.Yes));
+        var result = await useCase.Execute(new RespondToInviteInput(invite.Code, InviteAnswer.Yes), cancellationToken);
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be("AlreadyExpired");
     }
 
     [Fact]
-    public async Task Execute_WhenNotFound_ReturnsNotFoundError()
+    public async Task Execute_WhenNotFound_ReturnsNotFoundError(CancellationToken cancellationToken)
     {
-        using var scope = _factory.Services.CreateScope();
+        using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IRespondToInviteUseCase>();
 
-        var result = await useCase.Execute(new RespondToInviteInput("doesntexist", InviteAnswer.Yes));
+        var result = await useCase.Execute(new RespondToInviteInput("doesntexist", InviteAnswer.Yes), cancellationToken);
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be("NotFound");

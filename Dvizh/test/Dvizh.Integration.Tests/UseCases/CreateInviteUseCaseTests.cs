@@ -5,6 +5,7 @@ using Dvizh.Application.Models.Input;
 using Dvizh.Integration.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Nexus.Core.Integration.Tests.Extensions;
 using Xunit;
 
 namespace Dvizh.Integration.Tests.UseCases;
@@ -14,15 +15,15 @@ public class CreateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
     private readonly DvizhWebApplicationFactory _factory = factory;
 
     [Fact]
-    public async Task Execute_SavesInviteToDb_WithGeneratedCode()
+    public async Task Execute_SavesInviteToDb_WithGeneratedCode(CancellationToken cancellationToken)
     {
         await using var db = new DbScope(_factory);
-        using var scope = _factory.Services.CreateScope();
+        using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<ICreateInviteUseCase>();
 
         var input = new CreateInviteInput("Приходи завтра", null, null, InviteLanguage.Ukrainian, InviteMascot.UtyaDuck);
 
-        var result = await useCase.Execute(input);
+        var result = await useCase.Execute(input, cancellationToken);
 
         result.HasError.Should().BeFalse();
         result.Data.Id.Should().BeGreaterThan(0);
@@ -42,45 +43,45 @@ public class CreateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
     }
 
     [Fact]
-    public async Task Execute_TwoInvites_HaveDifferentCodes()
+    public async Task Execute_TwoInvites_HaveDifferentCodes(CancellationToken cancellationToken)
     {
-        using var scope = _factory.Services.CreateScope();
+        using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<ICreateInviteUseCase>();
 
         var input = new CreateInviteInput("Test", null, null, InviteLanguage.English, InviteMascot.MochiPeachCat);
 
-        var r1 = await useCase.Execute(input);
-        var r2 = await useCase.Execute(input);
+        var r1 = await useCase.Execute(input, cancellationToken);
+        var r2 = await useCase.Execute(input, cancellationToken);
 
         r1.Data.Code.Should().NotBe(r2.Data.Code);
     }
 
     [Fact]
-    public async Task Execute_WithDescription_SavesDescriptionToDb()
+    public async Task Execute_WithDescription_SavesDescriptionToDb(CancellationToken cancellationToken)
     {
         await using var db = new DbScope(_factory);
-        using var scope = _factory.Services.CreateScope();
+        using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<ICreateInviteUseCase>();
 
         var input = new CreateInviteInput("Test", "Описание встречи", null, InviteLanguage.Russian, InviteMascot.MochiPeachCat);
 
-        var result = await useCase.Execute(input);
+        var result = await useCase.Execute(input, cancellationToken);
 
         var fromDb = await db.Db.Invites.FindAsync(result.Data.Id);
         fromDb!.Description.Should().Be("Описание встречи");
     }
 
     [Fact]
-    public async Task Execute_WithExpiresAt_SavesExpiresAtToDb()
+    public async Task Execute_WithExpiresAt_SavesExpiresAtToDb(CancellationToken cancellationToken)
     {
         await using var db = new DbScope(_factory);
-        using var scope = _factory.Services.CreateScope();
+        using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<ICreateInviteUseCase>();
 
         var expiresAt = DateTime.UtcNow.AddDays(7);
         var input = new CreateInviteInput("Test", null, expiresAt, InviteLanguage.Russian, InviteMascot.MochiPeachCat);
 
-        var result = await useCase.Execute(input);
+        var result = await useCase.Execute(input, cancellationToken);
 
         var fromDb = await db.Db.Invites.FindAsync(result.Data.Id);
         fromDb!.ExpiresAt.Should().BeCloseTo(expiresAt, TimeSpan.FromSeconds(1));

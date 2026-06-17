@@ -5,6 +5,7 @@ using Dvizh.Integration.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Nexus.Core.Integration.Tests.Extensions;
 using Xunit;
 
 namespace Dvizh.Integration.Tests.UseCases;
@@ -14,15 +15,15 @@ public class ResetInviteAnswerUseCaseTests(DvizhWebApplicationFactory factory) :
     private readonly DvizhWebApplicationFactory _factory = factory;
 
     [Fact]
-    public async Task Execute_ResetsAnswerToPending_AndCreatesResetEvent()
+    public async Task Execute_ResetsAnswerToPending_AndCreatesResetEvent(CancellationToken cancellationToken)
     {
         await using var db = new DbScope(_factory);
         var invite = await db.SeedInvite(i => i.Answer = InviteAnswer.Yes);
 
-        using var scope = _factory.Services.CreateScope();
+        using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IResetInviteAnswerUseCase>();
 
-        var result = await useCase.Execute(new ResetInviteAnswerInput(invite.Id));
+        var result = await useCase.Execute(new ResetInviteAnswerInput(invite.Id), cancellationToken);
 
         result.HasError.Should().BeFalse();
 
@@ -33,7 +34,7 @@ public class ResetInviteAnswerUseCaseTests(DvizhWebApplicationFactory factory) :
 
         var events = await db.Db.InviteEvents
             .Where(e => e.InviteId == invite.Id)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
         events.Should().ContainSingle(e => e.EventType == InviteEventType.Reset);
         events[0].Id.Should().BeGreaterThan(0);
         events[0].InviteId.Should().Be(invite.Id);
@@ -41,31 +42,31 @@ public class ResetInviteAnswerUseCaseTests(DvizhWebApplicationFactory factory) :
     }
 
     [Fact]
-    public async Task Execute_WhenAlreadyPending_StillSucceeds_AndCreatesResetEvent()
+    public async Task Execute_WhenAlreadyPending_StillSucceeds_AndCreatesResetEvent(CancellationToken cancellationToken)
     {
         await using var db = new DbScope(_factory);
-        var invite = await db.SeedInvite(); // Answer = Pending by default
+        var invite = await db.SeedInvite();
 
-        using var scope = _factory.Services.CreateScope();
+        using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IResetInviteAnswerUseCase>();
 
-        var result = await useCase.Execute(new ResetInviteAnswerInput(invite.Id));
+        var result = await useCase.Execute(new ResetInviteAnswerInput(invite.Id), cancellationToken);
 
         result.HasError.Should().BeFalse();
 
         var events = await db.Db.InviteEvents
             .Where(e => e.InviteId == invite.Id && e.EventType == InviteEventType.Reset)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
         events.Should().ContainSingle();
     }
 
     [Fact]
-    public async Task Execute_WhenNotFound_ReturnsError()
+    public async Task Execute_WhenNotFound_ReturnsError(CancellationToken cancellationToken)
     {
-        using var scope = _factory.Services.CreateScope();
+        using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IResetInviteAnswerUseCase>();
 
-        var result = await useCase.Execute(new ResetInviteAnswerInput(-999));
+        var result = await useCase.Execute(new ResetInviteAnswerInput(-999), cancellationToken);
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be("NotFound");

@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Nexus.Infrastructure.Core.Constants;
 using Nexus.Core.Integration.Tests.Factories;
+using Nexus.Infrastructure.Core.Constants;
 
 namespace Dvizh.Integration.Tests.Infrastructure;
 
@@ -12,23 +10,11 @@ namespace Dvizh.Integration.Tests.Infrastructure;
 /// Injects the container connection string via ConfigureHostConfiguration — this runs before
 /// Program.cs service registration, so GetSqlServerOptions() sees the real connection string.
 /// </summary>
-public class DvizhWebApplicationFactory(DvizhSqlFixture sqlFixture) : NexusWebApplicationFactory<Program>
+public class DvizhWebApplicationFactory(DvizhSqlFixture sqlFixture) : NexusWebApplicationFactoryWithoutHostedServices<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseSetting($"{OptionsConstants.SqlServer.SectionName}:ConnectionString", sqlFixture.ConnectionString);
-
-        builder.ConfigureServices(services =>
-        {
-            var hostedServices = services
-                .Where(d => d.ServiceType == typeof(IHostedService))
-                .ToList();
-            foreach (var descriptor in hostedServices)
-            {
-                services.Remove(descriptor);
-            }
-        });
-
         base.ConfigureWebHost(builder);
     }
 }

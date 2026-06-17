@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Nexus.Application.Core.Extensions;
 using Nexus.Infrastructure.Core.Options;
+using Nexus.Infrastructure.Core.PostConfigures;
 using Nexus.Infrastructure.Core.Validators;
 using Nexus.Infrastructure.Http.HttpHandlers;
 using Nexus.Infrastructure.Http.Policies;

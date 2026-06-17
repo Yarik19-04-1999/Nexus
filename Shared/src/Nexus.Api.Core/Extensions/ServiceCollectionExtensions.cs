@@ -1,5 +1,4 @@
 using System.IO.Compression;
-using Asp.Versioning;
 using CorrelationId.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Timeouts;
@@ -7,6 +6,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nexus.Api.Core.Constants;
+using Nexus.Api.Core.OpenApi;
 using Nexus.Api.Core.Options;
 using Nexus.Application.Core.Extensions;
 
@@ -14,14 +14,18 @@ namespace Nexus.Api.Core.Extensions;
 
 public static partial class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddNexusServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        var options = configuration.GetNexusOptionsOrDefault();
+        return services.AddNexusServices(options);
+    }
+
     public static IServiceCollection AddNexusServices(this IServiceCollection services, NexusOptions options)
     {
-        services.AddNexusApiVersioning();
-
-        if (options.UseCorrelationId)
-        {
-            services.AddNexusCorrelationId();
-        }
+        services
+            .AddNexusApiVersioning()
+            .AddNexusCorrelationId()
+            .AddHealthChecks();
 
         if (options.UseOpenApi)
         {
@@ -33,14 +37,9 @@ public static partial class ServiceCollectionExtensions
             services.AddNexusResponseCompression();
         }
 
-        if (options.UseRequestTimeouts)
+        if (options.HasRequestTimeout())
         {
             services.AddNexusRequestTimeouts(options.RequestTimeout);
-        }
-
-        if (options.UseHealthChecks)
-        {
-            services.AddHealthChecks();
         }
 
         return services;
@@ -61,7 +60,7 @@ public static partial class ServiceCollectionExtensions
     {
         services.AddOpenApi(options =>
         {
-            options.AddOperationTransformer<OpenApi.CommonErrorResponsesOperationTransformer>();
+            options.AddOperationTransformer<CommonErrorResponsesOperationTransformer>();
         });
         return services;
     }
@@ -101,11 +100,16 @@ public static partial class ServiceCollectionExtensions
 
     public static IServiceCollection AddNexusRequestTimeouts(this IServiceCollection services, TimeSpan? defaultRequestTimeout = null)
     {
+        if (defaultRequestTimeout <= TimeSpan.Zero)
+        {
+            throw new ArgumentException(ValidationErrorMessages.RequestTimeoutShouldBeGreaterThenZero, nameof(defaultRequestTimeout));
+        }
+
         services.AddRequestTimeouts(options =>
         {
             options.DefaultPolicy = new RequestTimeoutPolicy
             {
-                Timeout = defaultRequestTimeout ?? RequestTimeoutConstants.Default,
+                Timeout = defaultRequestTimeout ?? CommonConstants.DefaultRequestTimeout,
             };
         });
 

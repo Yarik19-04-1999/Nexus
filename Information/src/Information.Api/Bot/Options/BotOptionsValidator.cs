@@ -7,7 +7,7 @@ public class BotOptionsValidator : IValidateOptions<BotOptions>
 {
     public ValidateOptionsResult Validate(string? name, BotOptions options)
     {
-        if (string.IsNullOrEmpty(options.Token))
+        if (string.IsNullOrWhiteSpace(options.Token))
         {
             return ValidateOptionsResult.Fail(OptionsErrorMessages.MustBeNotEmpty(name, nameof(BotOptions.Token)));
         }

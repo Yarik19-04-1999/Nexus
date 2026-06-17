@@ -8,6 +8,6 @@ public class NexusWebApplicationFactory<TProgram> : WebApplicationFactory<TProgr
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.UseEnvironment("Integration");
+        // TODO: 
     }
 }

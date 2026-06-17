@@ -18,13 +18,6 @@ public static class BotMessages
         _ => "Оберіть мову:"
     };
 
-    public static string LanguageSet(BotLanguage lang) => lang switch
-    {
-        BotLanguage.Russian => "✅ Язык установлен.",
-        BotLanguage.English => "✅ Language set.",
-        _ => "✅ Мову встановлено."
-    };
-
     public static string MainMenu(BotLanguage lang) => lang switch
     {
         BotLanguage.Russian => "Главное меню:",
@@ -163,13 +156,6 @@ public static class BotMessages
         BotLanguage.Russian => "📈 Курс за год",
         BotLanguage.English => "📈 Yearly rate history",
         _ => "📈 Курс за рік"
-    };
-
-    public static string TodayLabel(BotLanguage lang) => lang switch
-    {
-        BotLanguage.Russian => "Сегодня",
-        BotLanguage.English => "Today",
-        _ => "Сьогодні"
     };
 
     public static string YesterdayLabel(BotLanguage lang) => lang switch

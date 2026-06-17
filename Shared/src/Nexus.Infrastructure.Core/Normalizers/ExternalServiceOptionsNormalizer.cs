@@ -1,4 +1,6 @@
-namespace Nexus.Infrastructure.Core.Options;
+using Nexus.Infrastructure.Core.Options;
+
+namespace Nexus.Infrastructure.Core.Normalizers;
 
 internal static class ExternalServiceOptionsNormalizer
 {

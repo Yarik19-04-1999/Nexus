@@ -68,7 +68,6 @@ public class Result<T> : Result
 
 public class NullableResult<T> : Result
 {
-    [MemberNotNullWhen(true, nameof(Data))]
     public override bool IsSuccess => base.IsSuccess;
 
     [MemberNotNullWhen(false, nameof(Data))]

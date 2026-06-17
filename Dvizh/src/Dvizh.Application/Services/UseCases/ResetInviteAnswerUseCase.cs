@@ -3,6 +3,7 @@ using Dvizh.Application.Enums;
 using Dvizh.Application.Interfaces.UseCases;
 using Dvizh.Application.Models;
 using Dvizh.Application.Models.Input;
+using Dvizh.Application.Utils;
 using Microsoft.EntityFrameworkCore;
 using Nexus.Application.Core.Constants;
 using Nexus.Application.Core.Models;
@@ -38,11 +39,7 @@ public class ResetInviteAnswerUseCase : IResetInviteAnswerUseCase
                 return ResultConstants.NotFound<Invite>(input.Id);
             }
 
-            _context.InviteEvents.Add(new InviteEvent
-            {
-                InviteId = input.Id,
-                EventType = InviteEventType.Reset
-            });
+            _context.InviteEvents.Add(EventUtils.CreateEvent(input.Id, InviteEventType.Reset));
 
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);

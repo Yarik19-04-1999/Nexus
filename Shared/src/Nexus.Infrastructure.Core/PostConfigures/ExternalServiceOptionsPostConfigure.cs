@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Options;
+using Nexus.Infrastructure.Core.Normalizers;
+using Nexus.Infrastructure.Core.Options;
 
-namespace Nexus.Infrastructure.Core.Options;
+namespace Nexus.Infrastructure.Core.PostConfigures;
 
 public class ExternalServiceOptionsPostConfigure : IPostConfigureOptions<ExternalServiceOptions>
 {

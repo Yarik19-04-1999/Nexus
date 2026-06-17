@@ -1,4 +1,5 @@
 using Information.Application.Models;
+using Information.Infrastructure.Constants;
 using Microsoft.EntityFrameworkCore;
 
 namespace Information.Infrastructure.DbContexts;
@@ -11,7 +12,7 @@ public class InformationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema("IceAgeBrief");
+        modelBuilder.HasDefaultSchema(SqlConstants.Schema);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(InformationDbContext).Assembly);
     }
 }

@@ -2,5 +2,8 @@
 
 public static class TagsConstants
 {
-    public const string Ready = "ready";
+    public static class HealthChecks
+    {
+        public const string Ready = "ready";
+    }
 }

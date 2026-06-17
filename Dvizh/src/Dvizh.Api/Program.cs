@@ -19,8 +19,7 @@ services
     .AddNexusCors(configuration)
     .AddApplication(configuration, environment);
 
-services
-    .AddNexusHealthChecks()
+services.AddHealthChecks()
     .AddNexusSqlServerHealthCheck(configuration[$"{OptionsConstants.SqlServer.SectionName}:ConnectionString"]!);
 
 var app = builder.Build();

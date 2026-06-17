@@ -1,6 +1,8 @@
 using CorrelationId.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Nexus.Api.Core.Constants;
+using Nexus.Api.Core.Extensions;
 using Nexus.Api.Core.Mappers;
 using Nexus.Api.Core.ViewModels;
 using Nexus.Application.Core.Exceptions;
@@ -18,25 +20,23 @@ public class ExceptionResponseMiddleware(RequestDelegate next)
         }
         catch (Exception ex)
         {
-            await HandleExceptionAsync(context, ex);
+            await HandleException(context, ex);
         }
     }
 
-    private static async Task HandleExceptionAsync(HttpContext context, Exception ex)
+    private static async Task HandleException(HttpContext context, Exception ex)
     {
         context.Response.ContentType = MediaTypeNames.Application.Json;
 
         if (ex is DomainException domainException)
         {
-            context.Response.StatusCode = StatusCodes.Status418ImATeapot;
+            context.Response.StatusCode = StatusCodeConstants.DomainError;
             await context.Response.WriteAsJsonAsync(ResponsesMappers.Map(domainException));
         }
         else
         {
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            var correlationId = context.RequestServices.GetService<ICorrelationContextAccessor>()?.CorrelationContext?.CorrelationId
-                ?? context.TraceIdentifier;
-            await context.Response.WriteAsJsonAsync(new UnexpectedErrorResponse(correlationId));
+            context.Response.StatusCode = StatusCodeConstants.InternalError;
+            await context.Response.WriteAsJsonAsync(new UnexpectedErrorResponse(context.GetRequestIdentifier()));
         }
     }
 }

@@ -1,6 +1,7 @@
+using Information.Application.Models.Options;
 using Microsoft.Extensions.Options;
 
-namespace Information.Application.Models.Options;
+namespace Information.Application.Validators;
 
 internal class ExchangeRateCacheOptionsValidator : IValidateOptions<ExchangeRateCacheOptions>
 {

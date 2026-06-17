@@ -11,7 +11,7 @@ namespace Information.Infrastructure.Providers.OpenMeteo;
 internal class OpenMeteoWeatherProvider : IWeatherProvider
 {
     private const string SourceName = "OpenMeteo";
-    private const string Timezone = "Europe%2FKiev";
+    private const string Timezone = "Europe%2FKyiv";
     private const int HourlyCount = 24;
     private const int HourlyFetchDays = 2;
     private const int ForecastDays = 5;

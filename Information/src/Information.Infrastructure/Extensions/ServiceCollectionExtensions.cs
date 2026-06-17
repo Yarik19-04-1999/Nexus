@@ -16,8 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nexus.Application.Core.Extensions;
-using Nexus.Infrastructure.Core.Constants;
-using Nexus.Infrastructure.Core.Options;
+using Nexus.Infrastructure.Core.Extensions;
 using Nexus.Infrastructure.EfCore.SqlServer.Extensions;
 using Nexus.Infrastructure.Http.Extensions;
 
@@ -30,7 +29,7 @@ public static class ServiceCollectionExtensions
         services.AddMemoryCache();
         services.AddSingleton<ICacheService, CacheService>();
 
-        var sqlOptions = configuration.GetRequiredOptions<SqlServerOptions>(OptionsConstants.SqlServer.SectionName);
+        var sqlOptions = configuration.GetSqlServerOptions();
         services.AddNexusDbContext<InformationDbContext>(sqlOptions, environment);
         services.AddScoped<ITelegramUserRepository, TelegramUserRepository>();
 

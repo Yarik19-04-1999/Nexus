@@ -182,10 +182,7 @@ public class BotUpdateHandler : IUpdateHandler
         var useCase = scope.ServiceProvider.GetRequiredService<ISetUserLanguageUseCase>();
         await useCase.Execute(new SetUserLanguageInput(userId, lang), ct);
 
-        await bot.EditMessageText(chatId, messageId,
-            BotMessages.LanguageSet(lang),
-            cancellationToken: ct);
-        await SendMainMenuAsync(bot, chatId, lang, ct);
+        await EditToMainMenuAsync(bot, chatId, messageId, lang, ct);
     }
 
     private static InlineKeyboardMarkup BuildLanguageKeyboard() =>
@@ -226,7 +223,7 @@ public class BotUpdateHandler : IUpdateHandler
     {
         using var scope = _scopeFactory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IGetExchangeRatesUseCase>();
-        var data = await useCase.Execute(new GetExchangeRatesInput(), ct);
+        var data = await useCase.Execute(GetExchangeRatesInput.Instance, ct);
         var text = ExchangeRateFormatter.FormatToday(data, lang);
         await bot.EditMessageText(chatId, messageId, text, replyMarkup: BackToMenuKeyboard(lang), cancellationToken: ct);
     }
@@ -318,7 +315,7 @@ public class BotUpdateHandler : IUpdateHandler
     {
         using var scope = _scopeFactory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IGetEpicFreeGamesUseCase>();
-        var data = await useCase.Execute(new GetEpicFreeGamesInput(), ct);
+        var data = await useCase.Execute(GetEpicFreeGamesInput.Instance, ct);
 
         if (data.Count == 0)
         {

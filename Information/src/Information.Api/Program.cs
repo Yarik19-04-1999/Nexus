@@ -24,3 +24,5 @@ app.MapControllers();
 app.MapNexus(NexusOptions.Default);
 
 app.Run();
+
+public partial class Program { }

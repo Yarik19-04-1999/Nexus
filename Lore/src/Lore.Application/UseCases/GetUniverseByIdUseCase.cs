@@ -1,4 +1,4 @@
-﻿using Lore.Application.Interfaces.Stores;
+using Lore.Application.Interfaces.Stores;
 using Lore.Application.Interfaces.UseCases;
 using Lore.Application.Models;
 using Lore.Application.Models.Inputs;
@@ -11,16 +11,15 @@ public class GetUniverseByIdUseCase : IGetUniverseByIdUseCase
 {
     private readonly ILoreStore store;
 
-    public GetUniverseByIdUseCase(
-        ILoreStore store) 
+    public GetUniverseByIdUseCase(ILoreStore store)
     {
         this.store = store;
     }
 
-    public async Task<Result<Universe>> ExecuteAsync(GetUniverseByIdInput input, CancellationToken cancellationToken = default)
+    public async Task<Result<Universe>> Execute(GetUniverseByIdInput input, CancellationToken cancellationToken = default)
     {
         var universe = await this.store.GetUniverseById(input.Id, cancellationToken);
-        if (universe == null)
+        if (universe is null)
         {
             return ResultConstants.NotFound<Universe>(input.Id);
         }

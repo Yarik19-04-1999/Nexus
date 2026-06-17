@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\..\Shared\src\Nexus.Api.Core\Nexus.Api.Core.csproj" />
     <ProjectReference Include="..\Dvizh.Application\Dvizh.Application.csproj" />
   </ItemGroup>

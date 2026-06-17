@@ -1,4 +1,5 @@
 using Dvizh.Application.Extensions;
+using FluentValidation;
 using Nexus.Api.Core.Extensions;
 using Nexus.Api.Core.Options;
 using Nexus.Infrastructure.Core.Constants;
@@ -10,6 +11,8 @@ var configuration = builder.Configuration;
 var environment = builder.Environment;
 
 services.AddControllers();
+services.AddFluentValidationAutoValidation();
+services.AddValidatorsFromAssemblyContaining<Program>();
 services
     .AddNexusServices(NexusOptions.Default)
     .AddNexusCors(configuration)

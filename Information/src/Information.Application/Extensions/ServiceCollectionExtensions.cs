@@ -1,3 +1,4 @@
+using FluentValidation;
 using Information.Application.Constants;
 using Information.Application.Interfaces.Services;
 using Information.Application.Interfaces.UseCases;
@@ -41,6 +42,8 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<ISetUserLanguageUseCase, SetUserLanguageUseCase>();
         services.AddScoped<IGetUserLanguageUseCase, GetUserLanguageUseCase>();
+
+        services.AddValidatorsFromAssemblyContaining<SetUserLanguageInputValidator>();
 
         return services;
     }

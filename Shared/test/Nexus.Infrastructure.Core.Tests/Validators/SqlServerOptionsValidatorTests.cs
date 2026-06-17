@@ -1,3 +1,5 @@
+using Nexus.Application.Core.Constants;
+using Nexus.Infrastructure.Core.Constants;
 using Nexus.Infrastructure.Core.Options;
 using Nexus.Infrastructure.Core.Validators;
 
@@ -7,6 +9,9 @@ public class SqlServerOptionsValidatorTests
 {
     private readonly SqlServerOptionsValidator _validator = new();
 
+    private static string ExpectedMessage
+        => OptionsErrorMessages.Required(ConfigSectionConstants.SqlServer, nameof(SqlServerOptions.ConnectionString));
+
     [Fact]
     public void Validate_WhenConnectionStringIsNull_ReturnsFailed()
     {
@@ -15,6 +20,7 @@ public class SqlServerOptionsValidatorTests
         var result = _validator.Validate(null, options);
 
         Assert.True(result.Failed);
+        Assert.Equal(ExpectedMessage, result.FailureMessage);
     }
 
     [Fact]
@@ -25,6 +31,7 @@ public class SqlServerOptionsValidatorTests
         var result = _validator.Validate(null, options);
 
         Assert.True(result.Failed);
+        Assert.Equal(ExpectedMessage, result.FailureMessage);
     }
 
     [Fact]
@@ -35,6 +42,7 @@ public class SqlServerOptionsValidatorTests
         var result = _validator.Validate(null, options);
 
         Assert.True(result.Failed);
+        Assert.Equal(ExpectedMessage, result.FailureMessage);
     }
 
     [Fact]

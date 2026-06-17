@@ -1,6 +1,4 @@
-﻿using System.Xml.Linq;
-
-namespace Nexus.Application.Core.Constants;
+﻿namespace Nexus.Application.Core.Constants;
 
 public static class OptionsErrorMessages
 {

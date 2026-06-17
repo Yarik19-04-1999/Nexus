@@ -10,11 +10,10 @@ namespace Information.Infrastructure.Providers.OpenMeteo;
 
 internal class OpenMeteoWeatherProvider : IWeatherProvider
 {
-    private const string SourceName = "OpenMeteo";
     private const string Timezone = "Europe%2FKyiv";
-    private const int HourlyCount = 24;
     private const int HourlyFetchDays = 2;
-    private const int ForecastDays = 5;
+    private const string HourlyFields = "temperature_2m,apparent_temperature,precipitation_probability,weathercode,windspeed_10m";
+    private const string DailyFields = "temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,weathercode,windspeed_10m_max";
 
     private readonly HttpClient _httpClient;
 
@@ -25,13 +24,13 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
 
     private static string FormHourlyUrl(double lat, double lon)
         => $"/v1/forecast?latitude={lat}&longitude={lon}" +
-           "&hourly=temperature_2m,apparent_temperature,precipitation_probability,weathercode,windspeed_10m" +
+           $"&hourly={HourlyFields}" +
            $"&timezone={Timezone}&forecast_days={HourlyFetchDays}";
 
     private static string FormDailyUrl(double lat, double lon)
         => $"/v1/forecast?latitude={lat}&longitude={lon}" +
-           "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,weathercode,windspeed_10m_max" +
-           $"&timezone={Timezone}&forecast_days={ForecastDays}";
+           $"&daily={DailyFields}" +
+           $"&timezone={Timezone}&forecast_days={WeatherConstants.ForecastDays}";
 
     public async Task<IReadOnlyList<HourlyWeather>> GetHourlyForecast(WeatherCity city, CancellationToken cancellationToken = default)
     {
@@ -42,7 +41,7 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
 
         if (response is null)
         {
-            throw InformationExceptions.ProviderUnavailable(SourceName);
+            throw CommonExceptions.ExternalProviderNoData();
         }
 
         var now = DateTime.Now;
@@ -51,7 +50,7 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
             .First(x => x.Time >= now)
             .Index;
 
-        return Enumerable.Range(startIndex, HourlyCount)
+        return Enumerable.Range(startIndex, WeatherConstants.HourlyCount)
             .Select(i => new HourlyWeather
             {
                 Time = DateTime.Parse(response.Hourly.Time[i]),
@@ -73,7 +72,7 @@ internal class OpenMeteoWeatherProvider : IWeatherProvider
 
         if (response is null)
         {
-            throw InformationExceptions.ProviderUnavailable(SourceName);
+            throw CommonExceptions.ExternalProviderNoData();
         }
 
         return Enumerable.Range(0, response.Daily.Time.Count)

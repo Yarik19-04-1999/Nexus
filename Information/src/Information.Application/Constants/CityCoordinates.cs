@@ -1,10 +1,10 @@
 using Information.Application.Enums;
 
-namespace Information.Infrastructure.Providers.OpenMeteo;
+namespace Information.Application.Constants;
 
-internal static class CityCoordinates
+public static class CityCoordinates
 {
-    internal static readonly IReadOnlyDictionary<WeatherCity, (double Lat, double Lon)> All =
+    public static readonly IReadOnlyDictionary<WeatherCity, (double Lat, double Lon)> All =
         new Dictionary<WeatherCity, (double, double)>
         {
             [WeatherCity.Kyiv] = (50.4547, 30.5238),

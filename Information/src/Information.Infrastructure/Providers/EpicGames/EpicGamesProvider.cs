@@ -1,5 +1,4 @@
 using System.Net.Http.Json;
-using Information.Application.Constants;
 using Information.Application.Interfaces.Providers;
 using Information.Application.Models;
 using Information.Infrastructure.Models.EpicGames;
@@ -11,7 +10,6 @@ internal class EpicGamesProvider : IEpicGamesProvider
 {
     private const string StoreBaseUrl = "https://store.epicgames.com/en-US/p/";
     private const string FallbackStoreUrl = "https://store.epicgames.com/en-US/free-games";
-    private const string SourceName = "EpicGames";
 
     private readonly HttpClient _httpClient;
 
@@ -28,7 +26,7 @@ internal class EpicGamesProvider : IEpicGamesProvider
 
         if (response?.Data is null)
         {
-            throw InformationExceptions.ProviderUnavailable(SourceName);
+            throw CommonExceptions.ExternalProviderNoData();
         }
 
         var now = DateTimeOffset.UtcNow;

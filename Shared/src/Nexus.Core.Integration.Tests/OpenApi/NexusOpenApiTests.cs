@@ -1,20 +1,16 @@
+using Microsoft.AspNetCore.Mvc.Testing;
 using Nexus.Api.Core.Constants;
 using Nexus.Core.Integration.Tests.Extensions;
 
 namespace Nexus.Core.Integration.Tests.OpenApi;
 
-public abstract class NexusOpenApiTests
+public abstract class NexusOpenApiTests<TProgram, TFactory> : IClassFixture<TFactory>
+    where TProgram : class
+    where TFactory : WebApplicationFactory<TProgram>
 {
     private readonly HttpClient _enabledClient;
     private readonly HttpClient _disabledClient;
     private readonly IReadOnlyList<string> _documentNames;
-
-    protected NexusOpenApiTests(HttpClient enabledClient, HttpClient disabledClient, IReadOnlyList<string> documentNames)
-    {
-        _enabledClient = enabledClient;
-        _disabledClient = disabledClient;
-        _documentNames = documentNames;
-    }
 
     private IEnumerable<string> AllOpenApiUrls =>
         _documentNames.SelectMany(name => new[]
@@ -22,6 +18,15 @@ public abstract class NexusOpenApiTests
             UrlConstants.OpenApi.Document(name),
             UrlConstants.OpenApi.ScalarUi(name),
         });
+
+    protected NexusOpenApiTests(TFactory factory)
+    {
+        _enabledClient = factory.CreateClient();
+        _disabledClient = factory
+            .WithConfiguration($"{ConfigSectionConstants.Configuration}:UseOpenApi", "false")
+            .CreateClient();
+        _documentNames = factory.GetOpenApiDocumentNames();
+    }
 
     [Fact]
     public async Task OpenApi_Enabled_AllEndpointsReturnOk()

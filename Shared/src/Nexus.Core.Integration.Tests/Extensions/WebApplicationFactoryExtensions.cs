@@ -1,7 +1,6 @@
 using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Nexus.Core.Integration.Tests.Extensions;
@@ -19,15 +18,19 @@ public static class WebApplicationFactoryExtensions
         string key,
         string? value)
         where TProgram : class =>
-        factory.WithWebHostBuilder(b => b.ConfigureAppConfiguration((_, config) =>
-            config.AddInMemoryCollection(new Dictionary<string, string?> { [key] = value })));
+        factory.WithWebHostBuilder(b => b.UseSetting(key, value));
 
     public static WebApplicationFactory<TProgram> WithConfiguration<TProgram>(
         this WebApplicationFactory<TProgram> factory,
         IReadOnlyDictionary<string, string?> settings)
         where TProgram : class =>
-        factory.WithWebHostBuilder(b => b.ConfigureAppConfiguration((_, config) =>
-            config.AddInMemoryCollection(settings)));
+        factory.WithWebHostBuilder(b =>
+        {
+            foreach (var (key, value) in settings)
+            {
+                b.UseSetting(key, value);
+            }
+        });
 
     public static IServiceScope CreateScope<TProgram>(
         this WebApplicationFactory<TProgram> factory)

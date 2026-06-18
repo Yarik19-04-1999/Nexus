@@ -1,8 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using FluentAssertions;
 using Nexus.Api.Core.Constants;
 using Nexus.Api.Core.ViewModels;
+using Nexus.Core.Integration.Tests.Constants;
+using Nexus.Core.Integration.Tests.Models;
 
 namespace Nexus.Core.Integration.Tests.Extensions;
 
@@ -32,12 +35,21 @@ public static class HttpResponseMessageExtensions
     public static void ShouldBeStatusCode(this HttpResponseMessage response, HttpStatusCode statusCode) =>
         response.StatusCode.Should().Be(statusCode);
 
-    public static Task<T?> ReadResponse<T>(this HttpResponseMessage response, CancellationToken cancellationToken = default) =>
-        response.Content.ReadFromJsonAsync<T>(cancellationToken);
+    public static async Task<DomainErrorResponse?> ReadDomainErrorResponse(this HttpResponseMessage response, CancellationToken cancellationToken = default) =>
+        await response.ReadResponse<DomainErrorResponse>(cancellationToken);
 
-    public static Task<DomainErrorResponse?> ReadDomainErrorResponse(this HttpResponseMessage response, CancellationToken cancellationToken = default) =>
-        response.ReadResponse<DomainErrorResponse>(cancellationToken);
+    public static async Task<UnexpectedErrorResponse?> ReadUnexpectedErrorResponse(this HttpResponseMessage response, CancellationToken cancellationToken = default) =>
+        await response.ReadResponse<UnexpectedErrorResponse>(cancellationToken);
 
-    public static Task<UnexpectedErrorResponse?> ReadUnexpectedErrorResponse(this HttpResponseMessage response, CancellationToken cancellationToken = default) =>
-        response.ReadResponse<UnexpectedErrorResponse>(cancellationToken);
+    public static async Task<T?> ReadResponse<T>(this HttpResponseMessage response, CancellationToken cancellationToken = default) =>
+        await response.ReadResponse<T>(null, cancellationToken);
+
+    public static async Task<T?> ReadResponse<T>(this HttpResponseMessage response, JsonSerializerOptions? options, CancellationToken cancellationToken = default) =>
+        await response.Content.ReadFromJsonAsync<T>(options, cancellationToken);
+
+    public static async Task<string> ReadResponse(this HttpResponseMessage response, CancellationToken cancellationToken = default) =>
+        await response.Content.ReadAsStringAsync(cancellationToken);
+
+    public static async Task<HealthReportResponse?> ReadHealthCheckReport(this HttpResponseMessage response, CancellationToken cancellationToken = default) =>
+        await response.ReadResponse<HealthReportResponse>(JsonSerializerConstants.HealthCheck, cancellationToken);
 }

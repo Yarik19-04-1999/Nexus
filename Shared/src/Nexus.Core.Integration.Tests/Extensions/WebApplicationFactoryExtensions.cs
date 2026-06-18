@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
-using Nexus.Core.Integration.Tests.Factories;
 
 namespace Nexus.Core.Integration.Tests.Extensions;
 

@@ -14,7 +14,7 @@ public class DvizhWebApplicationFactory(DvizhSqlFixture sqlFixture) : NexusWebAp
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.UseSetting($"{OptionsConstants.SqlServer.SectionName}:ConnectionString", sqlFixture.ConnectionString);
+        builder.UseSetting($"{ConfigSectionConstants.SqlServer}:ConnectionString", sqlFixture.ConnectionString);
         base.ConfigureWebHost(builder);
     }
 }

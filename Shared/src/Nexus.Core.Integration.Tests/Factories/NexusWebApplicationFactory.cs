@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Nexus.Core.Integration.Tests.Factories;
 
-
 public class NexusWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram>
     where TProgram : class
 {

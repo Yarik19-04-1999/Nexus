@@ -20,7 +20,7 @@ services
     .AddApplication(configuration, environment);
 
 services.AddHealthChecks()
-    .AddNexusSqlServerHealthCheck(configuration[$"{OptionsConstants.SqlServer.SectionName}:ConnectionString"]!);
+    .AddNexusSqlServerHealthCheck(configuration[$"{ConfigSectionConstants.SqlServer}:ConnectionString"]!);
 
 var app = builder.Build();
 

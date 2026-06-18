@@ -7,6 +7,7 @@ using Dvizh.Application.Utils;
 using Microsoft.EntityFrameworkCore;
 using Nexus.Application.Core.Constants;
 using Nexus.Application.Core.Models;
+using Nexus.Infrastructure.EfCore.SqlServer.Extensions;
 
 namespace Dvizh.Application.Services.UseCases;
 
@@ -19,14 +20,9 @@ public class ResetInviteAnswerUseCase : IResetInviteAnswerUseCase
         _context = context;
     }
 
-    public async Task<Result> Execute(ResetInviteAnswerInput input, CancellationToken cancellationToken = default)
-    {
-        var strategy = _context.Database.CreateExecutionStrategy();
-
-        return await strategy.ExecuteAsync(async () =>
+    public Task<Result> Execute(ResetInviteAnswerInput input, CancellationToken cancellationToken = default)
+        => _context.Database.ExecuteInTransaction(async () =>
         {
-            await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
-
             var affected = await _context.Invites
                 .Where(x => x.Id == input.Id)
                 .ExecuteUpdateAsync(s => s
@@ -42,9 +38,7 @@ public class ResetInviteAnswerUseCase : IResetInviteAnswerUseCase
             _context.InviteEvents.Add(EventUtils.CreateEvent(input.Id, InviteEventType.Reset));
 
             await _context.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
 
             return Result.Success();
-        });
-    }
+        }, cancellationToken);
 }

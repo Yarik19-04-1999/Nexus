@@ -29,6 +29,29 @@ public static class HttpResponseMessageExtensions
     public static void ShouldBeDomainError(this HttpResponseMessage response) =>
         response.ShouldBeStatusCode(StatusCodeConstants.DomainErrorStatusCode);
 
+    public static async Task ShouldBeDomainError(
+        this HttpResponseMessage response,
+        string? expectedErrorCode = null,
+        string? expectedMessage = null,
+        CancellationToken cancellationToken = default)
+    {
+        response.ShouldBeDomainError();
+        if (expectedErrorCode is null && expectedMessage is null)
+        {
+            return;
+        }
+        var body = await response.ReadDomainErrorResponse(cancellationToken);
+        body.Should().NotBeNull();
+        if (expectedErrorCode is not null)
+        {
+            body!.ErrorCode.Should().Be(expectedErrorCode);
+        }
+        if (expectedMessage is not null)
+        {
+            body!.ErrorMessage.Should().Be(expectedMessage);
+        }
+    }
+
     public static void ShouldBeInternalServerError(this HttpResponseMessage response) =>
         response.ShouldBeStatusCode(StatusCodeConstants.InternalErrorStatusCode);
 

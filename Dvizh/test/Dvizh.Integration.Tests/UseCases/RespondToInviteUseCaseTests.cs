@@ -21,7 +21,7 @@ public class RespondToInviteUseCaseTests(DvizhWebApplicationFactory factory) : I
     public async Task Execute_UpdatesAnswerInDb_AndCreatesCorrectEvent(InviteAnswer answer, InviteEventType expectedEvent)
     {
         var ct = TestContext.Current.CancellationToken;
-        await using var db = new DbScope(_factory);
+        await using var db = new DatabaseScope(_factory);
         var invite = await db.SeedInvite();
 
         using var scope = _factory.CreateScope();
@@ -31,12 +31,12 @@ public class RespondToInviteUseCaseTests(DvizhWebApplicationFactory factory) : I
 
         result.HasError.Should().BeFalse();
 
-        db.Db.Entry(invite).State = EntityState.Detached;
-        var fromDb = await db.Db.Invites.FindAsync(invite.Id);
+        db.Context.Entry(invite).State = EntityState.Detached;
+        var fromDb = await db.Context.Invites.FindAsync(invite.Id);
         fromDb!.Answer.Should().Be(answer);
         fromDb.UpdatedAt.Should().BeAfter(invite.UpdatedAt);
 
-        var events = await db.Db.InviteEvents
+        var events = await db.Context.InviteEvents
             .Where(e => e.InviteId == invite.Id)
             .ToListAsync(ct);
         events.Should().ContainSingle(e => e.EventType == expectedEvent);
@@ -47,7 +47,7 @@ public class RespondToInviteUseCaseTests(DvizhWebApplicationFactory factory) : I
     public async Task Execute_WhenAlreadyAnswered_ReturnsAlreadyAnsweredError()
     {
         var ct = TestContext.Current.CancellationToken;
-        await using var db = new DbScope(_factory);
+        await using var db = new DatabaseScope(_factory);
         var invite = await db.SeedInvite(i => i.Answer = InviteAnswer.Yes);
 
         using var scope = _factory.CreateScope();
@@ -63,7 +63,7 @@ public class RespondToInviteUseCaseTests(DvizhWebApplicationFactory factory) : I
     public async Task Execute_WhenExpired_ReturnsAlreadyExpiredError()
     {
         var ct = TestContext.Current.CancellationToken;
-        await using var db = new DbScope(_factory);
+        await using var db = new DatabaseScope(_factory);
         var invite = await db.SeedInvite(i => i.ExpiresAt = DateTime.UtcNow.AddDays(-1));
 
         using var scope = _factory.CreateScope();

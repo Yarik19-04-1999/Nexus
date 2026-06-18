@@ -1,4 +1,5 @@
 using Dvizh.Application.Models;
+using Nexus.Application.Core.Models;
 using Riok.Mapperly.Abstractions;
 
 namespace Dvizh.Api.Controllers.V1.Invites.GetInviteEvents;

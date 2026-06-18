@@ -18,24 +18,24 @@ public class CreateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
     public async Task Execute_SavesInviteToDb_WithGeneratedCode()
     {
         var ct = TestContext.Current.CancellationToken;
-        await using var db = new DbScope(_factory);
+        await using var db = new DatabaseScope(_factory);
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<ICreateInviteUseCase>();
 
-        var input = new CreateInviteInput("Приходи завтра", null, null, InviteLanguage.Ukrainian, InviteMascot.UtyaDuck);
+        var input = new CreateInviteInput("Come tomorrow", null, null, InviteLanguage.Ukrainian, InviteMascot.UtyaDuck);
 
         var result = await useCase.Execute(input, ct);
 
         result.HasError.Should().BeFalse();
         result.Data.Id.Should().BeGreaterThan(0);
         result.Data.Code.Should().NotBeNullOrEmpty();
-        result.Data.Code.Length.Should().BeLessOrEqualTo(InviteValidationConstants.CodeMaxLength);
+        result.Data.Code.Length.Should().BeLessOrEqualTo(InviteValidationConstants.Invite.CodeMaxLength);
         result.Data.Answer.Should().Be(InviteAnswer.Pending);
 
-        var fromDb = await db.Db.Invites.FindAsync(result.Data.Id);
+        var fromDb = await db.Context.Invites.FindAsync(result.Data.Id);
         fromDb.Should().NotBeNull();
         fromDb!.Code.Should().Be(result.Data.Code);
-        fromDb.Message.Should().Be("Приходи завтра");
+        fromDb.Message.Should().Be("Come tomorrow");
         fromDb.Language.Should().Be(InviteLanguage.Ukrainian);
         fromDb.Mascot.Should().Be(InviteMascot.UtyaDuck);
         fromDb.Answer.Should().Be(InviteAnswer.Pending);
@@ -62,23 +62,23 @@ public class CreateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
     public async Task Execute_WithDescription_SavesDescriptionToDb()
     {
         var ct = TestContext.Current.CancellationToken;
-        await using var db = new DbScope(_factory);
+        await using var db = new DatabaseScope(_factory);
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<ICreateInviteUseCase>();
 
-        var input = new CreateInviteInput("Test", "Описание встречи", null, InviteLanguage.Russian, InviteMascot.MochiPeachCat);
+        var input = new CreateInviteInput("Test", "Meeting description", null, InviteLanguage.Russian, InviteMascot.MochiPeachCat);
 
         var result = await useCase.Execute(input, ct);
 
-        var fromDb = await db.Db.Invites.FindAsync(result.Data.Id);
-        fromDb!.Description.Should().Be("Описание встречи");
+        var fromDb = await db.Context.Invites.FindAsync(result.Data.Id);
+        fromDb!.Description.Should().Be("Meeting description");
     }
 
     [Fact]
     public async Task Execute_WithExpiresAt_SavesExpiresAtToDb()
     {
         var ct = TestContext.Current.CancellationToken;
-        await using var db = new DbScope(_factory);
+        await using var db = new DatabaseScope(_factory);
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<ICreateInviteUseCase>();
 
@@ -87,7 +87,7 @@ public class CreateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
 
         var result = await useCase.Execute(input, ct);
 
-        var fromDb = await db.Db.Invites.FindAsync(result.Data.Id);
+        var fromDb = await db.Context.Invites.FindAsync(result.Data.Id);
         fromDb!.ExpiresAt.Should().BeCloseTo(expiresAt, TimeSpan.FromSeconds(1));
     }
 }

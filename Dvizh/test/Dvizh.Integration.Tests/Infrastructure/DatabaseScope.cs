@@ -4,22 +4,18 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Dvizh.Integration.Tests.Infrastructure;
 
-/// <summary>
-/// Opens a scoped DvizhDbContext for a test. Data created during tests is left in the DB intentionally.
-/// </summary>
-public sealed class DbScope : IAsyncDisposable
+public sealed class DatabaseScope : IAsyncDisposable
 {
     private readonly IServiceScope _scope;
 
-    public DvizhDbContext Db { get; }
+    public DvizhDbContext Context { get; }
 
-    public DbScope(DvizhWebApplicationFactory factory)
+    public DatabaseScope(DvizhWebApplicationFactory factory)
     {
         _scope = factory.Services.CreateScope();
-        Db = _scope.ServiceProvider.GetRequiredService<DvizhDbContext>();
+        Context = _scope.ServiceProvider.GetRequiredService<DvizhDbContext>();
     }
 
-    /// <summary>Seeds a minimal invite directly into the DB.</summary>
     public async Task<Invite> SeedInvite(Action<Invite>? configure = null)
     {
         var invite = new Invite
@@ -28,14 +24,14 @@ public sealed class DbScope : IAsyncDisposable
             Message = $"Test-{Guid.NewGuid()}",
         };
         configure?.Invoke(invite);
-        Db.Invites.Add(invite);
-        await Db.SaveChangesAsync();
+        Context.Invites.Add(invite);
+        await Context.SaveChangesAsync();
         return invite;
     }
 
     public async ValueTask DisposeAsync()
     {
-        await Db.DisposeAsync();
+        await Context.DisposeAsync();
         _scope.Dispose();
     }
 }

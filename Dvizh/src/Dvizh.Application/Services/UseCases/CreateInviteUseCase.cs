@@ -2,6 +2,7 @@ using Dvizh.Application.DbContexts;
 using Dvizh.Application.Extensions;
 using Dvizh.Application.Interfaces;
 using Dvizh.Application.Interfaces.UseCases;
+using Dvizh.Application.Mappers;
 using Dvizh.Application.Models;
 using Dvizh.Application.Models.Input;
 using Nexus.Application.Core.Models;
@@ -11,33 +12,22 @@ namespace Dvizh.Application.Services.UseCases;
 public class CreateInviteUseCase : ICreateInviteUseCase
 {
     private readonly DvizhDbContext _context;
-    private readonly IInviteCodeGenerator _codeGenerator;
+    private readonly IUniqueCodeService _uniqueCodeService;
 
-    public CreateInviteUseCase(DvizhDbContext context, IInviteCodeGenerator codeGenerator)
+    public CreateInviteUseCase(DvizhDbContext context, IUniqueCodeService uniqueCodeService)
     {
         _context = context;
-        _codeGenerator = codeGenerator;
+        _uniqueCodeService = uniqueCodeService;
     }
 
     public async Task<Result<Invite>> Execute(CreateInviteInput input, CancellationToken cancellationToken = default)
     {
-        string code;
+        var code = await _uniqueCodeService.GenerateUniqueCode(
+            _context.Invites.CodeExists,
+            cancellationToken);
 
-        do
-        {
-            code = _codeGenerator.Generate();
-        }
-        while (await _context.Invites.CodeExists(code, cancellationToken));
-
-        var invite = new Invite
-        {
-            Code = code,
-            Message = input.Message,
-            Description = input.Description,
-            ExpiresAt = input.ExpiresAt,
-            Language = input.Language,
-            Mascot = input.Mascot,
-        };
+        var invite = InviteMapper.MapCreate(input);
+        invite.Code = code;
 
         _context.Invites.Add(invite);
         await _context.SaveChangesAsync(cancellationToken);

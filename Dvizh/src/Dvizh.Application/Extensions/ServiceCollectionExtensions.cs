@@ -1,6 +1,7 @@
 using Dvizh.Application.DbContexts;
 using Dvizh.Application.Interfaces;
 using Dvizh.Application.Interfaces.UseCases;
+using Dvizh.Application.Options;
 using Dvizh.Application.Services;
 using Dvizh.Application.Services.UseCases;
 using Microsoft.Extensions.Configuration;
@@ -41,8 +42,10 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         => services
             .Configure<SieveOptions>(opts => configuration.GetSection("Sieve").Bind(opts))
+            .Configure<UniqueCodeServiceOptions>(configuration.GetSection(nameof(UniqueCodeServiceOptions)))
             .AddScoped<ISieveProcessor, DvizhSieveProcessor>()
-            .AddSingleton<IInviteCodeGenerator, InviteCodeGenerator>();
+            .AddSingleton<IInviteCodeGenerator, InviteCodeGenerator>()
+            .AddSingleton<IUniqueCodeService, UniqueCodeService>();
 
     private static IServiceCollection AddDvizhDbContext(
         this IServiceCollection services,

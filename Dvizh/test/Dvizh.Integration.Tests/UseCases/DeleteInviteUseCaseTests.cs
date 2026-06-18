@@ -19,7 +19,7 @@ public class DeleteInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
     public async Task Execute_RemovesInviteFromDb()
     {
         var ct = TestContext.Current.CancellationToken;
-        await using var db = new DbScope(_factory);
+        await using var db = new DatabaseScope(_factory);
         var invite = await db.SeedInvite();
 
         using var scope = _factory.CreateScope();
@@ -29,7 +29,7 @@ public class DeleteInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
 
         result.HasError.Should().BeFalse();
 
-        var fromDb = await db.Db.Invites.AsNoTracking().FirstOrDefaultAsync(x => x.Id == invite.Id, ct);
+        var fromDb = await db.Context.Invites.AsNoTracking().FirstOrDefaultAsync(x => x.Id == invite.Id, ct);
         fromDb.Should().BeNull();
     }
 
@@ -37,20 +37,20 @@ public class DeleteInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
     public async Task Execute_CascadeDeletesEvents()
     {
         var ct = TestContext.Current.CancellationToken;
-        await using var db = new DbScope(_factory);
+        await using var db = new DatabaseScope(_factory);
         var invite = await db.SeedInvite();
 
-        db.Db.InviteEvents.AddRange(
+        db.Context.InviteEvents.AddRange(
             EventUtils.CreateEvent(invite, InviteEventType.Opened),
             EventUtils.CreateEvent(invite, InviteEventType.SaidYes));
-        await db.Db.SaveChangesAsync(ct);
+        await db.Context.SaveChangesAsync(ct);
 
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IDeleteInviteUseCase>();
 
         await useCase.Execute(new DeleteInviteInput(invite.Id), ct);
 
-        var events = await db.Db.InviteEvents
+        var events = await db.Context.InviteEvents
             .Where(e => e.InviteId == invite.Id)
             .ToListAsync(ct);
         events.Should().BeEmpty();

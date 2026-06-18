@@ -15,8 +15,8 @@ using Nexus.Application.Core.Constants;
 using Nexus.Application.Core.Models;
 using Nexus.Core.Integration.Tests.Extensions;
 using Nexus.Core.Tests.Utils;
+using System.Linq.Expressions;
 using System.Net.Http.Json;
-using Xunit;
 
 namespace Dvizh.Integration.Tests.Controllers;
 
@@ -24,8 +24,6 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
 {
     private readonly DvizhWebApplicationFactory _factory = factory;
     private readonly Fixture _fixture = FixtureUtils.CreateFixture();
-
-    // ── Create ────────────────────────────────────────────────────────────────
 
     [Fact]
     public async Task Create_ReturnsCreated_AndMapsRequestToInput()
@@ -35,14 +33,15 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
             .With(i => i.Answer, InviteAnswer.Pending)
             .Create();
 
+        Expression<Func<ICreateInviteUseCase, Task<Result<Invite>>>> execute = x => x.Execute(
+            It.Is<CreateInviteInput>(i =>
+                i.Message == "Hello world" &&
+                i.Language == InviteLanguage.English &&
+                i.Mascot == InviteMascot.UtyaDuck),
+            It.IsAny<CancellationToken>());
+
         var mock = new Mock<ICreateInviteUseCase>();
-        mock.Setup(x => x.Execute(
-                It.Is<CreateInviteInput>(i =>
-                    i.Message == "Hello world" &&
-                    i.Language == InviteLanguage.English &&
-                    i.Mascot == InviteMascot.UtyaDuck),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<Invite>.Success(invite));
+        mock.Setup(execute).ReturnsAsync(Result<Invite>.Success(invite));
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
@@ -58,12 +57,7 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         body.Code.Should().Be(invite.Code);
         body.Message.Should().Be(invite.Message);
         body.Answer.Should().Be(InviteAnswer.Pending);
-        mock.Verify(x => x.Execute(
-            It.Is<CreateInviteInput>(i =>
-                i.Message == "Hello world" &&
-                i.Language == InviteLanguage.English &&
-                i.Mascot == InviteMascot.UtyaDuck),
-            It.IsAny<CancellationToken>()), Times.Once);
+        mock.Verify(execute, Times.Once);
     }
 
     [Fact]
@@ -91,19 +85,18 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         response.ShouldBeBadRequest();
     }
 
-    // ── GetById ───────────────────────────────────────────────────────────────
-
     [Fact]
     public async Task GetById_ReturnsOk_AndPassesIdToUseCase()
     {
         var ct = TestContext.Current.CancellationToken;
         var invite = _fixture.Create<Invite>();
 
+        Expression<Func<IGetInviteByIdUseCase, Task<Result<Invite>>>> execute = x => x.Execute(
+            It.Is<GetInviteByIdInput>(i => i.Id == 42),
+            It.IsAny<CancellationToken>());
+
         var mock = new Mock<IGetInviteByIdUseCase>();
-        mock.Setup(x => x.Execute(
-                It.Is<GetInviteByIdInput>(i => i.Id == 42),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<Invite>.Success(invite));
+        mock.Setup(execute).ReturnsAsync(Result<Invite>.Success(invite));
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
@@ -115,9 +108,7 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         body!.Id.Should().Be(invite.Id);
         body.Code.Should().Be(invite.Code);
         body.Message.Should().Be(invite.Message);
-        mock.Verify(x => x.Execute(
-            It.Is<GetInviteByIdInput>(i => i.Id == 42),
-            It.IsAny<CancellationToken>()), Times.Once);
+        mock.Verify(execute, Times.Once);
     }
 
     [Fact]
@@ -135,19 +126,18 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         response.ShouldBeDomainError();
     }
 
-    // ── GetAll ────────────────────────────────────────────────────────────────
-
     [Fact]
     public async Task GetAll_ReturnsOk_AndPassesExpiryFilterToUseCase()
     {
         var ct = TestContext.Current.CancellationToken;
         var pagedResult = new PagedResult<Invite>([], 0, 1, 20);
 
+        Expression<Func<IGetInvitesUseCase, Task<Result<PagedResult<Invite>>>>> execute = x => x.Execute(
+            It.Is<GetInvitesInput>(i => i.ExpiryFilter == ExpiryFilter.Active),
+            It.IsAny<CancellationToken>());
+
         var mock = new Mock<IGetInvitesUseCase>();
-        mock.Setup(x => x.Execute(
-                It.Is<GetInvitesInput>(i => i.ExpiryFilter == ExpiryFilter.Active),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<PagedResult<Invite>>.Success(pagedResult));
+        mock.Setup(execute).ReturnsAsync(Result<PagedResult<Invite>>.Success(pagedResult));
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
@@ -157,12 +147,8 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         var body = await response.ReadResponse<GetInvitesResponse>(ct);
         body.Should().NotBeNull();
         body!.TotalCount.Should().Be(0);
-        mock.Verify(x => x.Execute(
-            It.Is<GetInvitesInput>(i => i.ExpiryFilter == ExpiryFilter.Active),
-            It.IsAny<CancellationToken>()), Times.Once);
+        mock.Verify(execute, Times.Once);
     }
-
-    // ── Update ────────────────────────────────────────────────────────────────
 
     [Fact]
     public async Task Update_ReturnsOk_AndPassesIdAndFieldsToUseCase()
@@ -170,15 +156,16 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         var ct = TestContext.Current.CancellationToken;
         var invite = _fixture.Create<Invite>();
 
+        Expression<Func<IUpdateInviteUseCase, Task<Result<Invite>>>> execute = x => x.Execute(
+            It.Is<UpdateInviteInput>(i =>
+                i.Id == 7 &&
+                i.Message == "Updated" &&
+                i.Language == InviteLanguage.Ukrainian &&
+                i.Mascot == InviteMascot.MochiPeachCat),
+            It.IsAny<CancellationToken>());
+
         var mock = new Mock<IUpdateInviteUseCase>();
-        mock.Setup(x => x.Execute(
-                It.Is<UpdateInviteInput>(i =>
-                    i.Id == 7 &&
-                    i.Message == "Updated" &&
-                    i.Language == InviteLanguage.Ukrainian &&
-                    i.Mascot == InviteMascot.MochiPeachCat),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<Invite>.Success(invite));
+        mock.Setup(execute).ReturnsAsync(Result<Invite>.Success(invite));
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
@@ -186,13 +173,7 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         var response = await client.PutAsJsonAsync("/api/v1/invites", request, ct);
 
         response.ShouldBeOk();
-        mock.Verify(x => x.Execute(
-            It.Is<UpdateInviteInput>(i =>
-                i.Id == 7 &&
-                i.Message == "Updated" &&
-                i.Language == InviteLanguage.Ukrainian &&
-                i.Mascot == InviteMascot.MochiPeachCat),
-            It.IsAny<CancellationToken>()), Times.Once);
+        mock.Verify(execute, Times.Once);
     }
 
     [Fact]
@@ -211,26 +192,24 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         response.ShouldBeDomainError();
     }
 
-    // ── Delete ────────────────────────────────────────────────────────────────
-
     [Fact]
     public async Task Delete_ReturnsNoContent_AndPassesIdToUseCase()
     {
         var ct = TestContext.Current.CancellationToken;
+
+        Expression<Func<IDeleteInviteUseCase, Task<Result>>> execute = x => x.Execute(
+            It.Is<DeleteInviteInput>(i => i.Id == 5),
+            It.IsAny<CancellationToken>());
+
         var mock = new Mock<IDeleteInviteUseCase>();
-        mock.Setup(x => x.Execute(
-                It.Is<DeleteInviteInput>(i => i.Id == 5),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success());
+        mock.Setup(execute).ReturnsAsync(Result.Success());
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
         var response = await client.DeleteAsync("/api/v1/invites/5", ct);
 
         response.ShouldBeNoContent();
-        mock.Verify(x => x.Execute(
-            It.Is<DeleteInviteInput>(i => i.Id == 5),
-            It.IsAny<CancellationToken>()), Times.Once);
+        mock.Verify(execute, Times.Once);
     }
 
     [Fact]
@@ -248,19 +227,18 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         response.ShouldBeDomainError();
     }
 
-    // ── Open ──────────────────────────────────────────────────────────────────
-
     [Fact]
     public async Task Open_ReturnsOk_AndPassesCodeToUseCase()
     {
         var ct = TestContext.Current.CancellationToken;
         var invite = _fixture.Build<Invite>().With(i => i.Code, "abc123").Create();
 
+        Expression<Func<IOpenInviteUseCase, Task<Result<Invite>>>> execute = x => x.Execute(
+            It.Is<OpenInviteInput>(i => i.Code == "abc123"),
+            It.IsAny<CancellationToken>());
+
         var mock = new Mock<IOpenInviteUseCase>();
-        mock.Setup(x => x.Execute(
-                It.Is<OpenInviteInput>(i => i.Code == "abc123"),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<Invite>.Success(invite));
+        mock.Setup(execute).ReturnsAsync(Result<Invite>.Success(invite));
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
@@ -271,9 +249,7 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         body.Should().NotBeNull();
         body!.Code.Should().Be("abc123");
         body.Message.Should().Be(invite.Message);
-        mock.Verify(x => x.Execute(
-            It.Is<OpenInviteInput>(i => i.Code == "abc123"),
-            It.IsAny<CancellationToken>()), Times.Once);
+        mock.Verify(execute, Times.Once);
     }
 
     [Fact]
@@ -291,19 +267,19 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         response.ShouldBeDomainError();
     }
 
-    // ── Respond ───────────────────────────────────────────────────────────────
-
     [Fact]
     public async Task Respond_ReturnsNoContent_AndPassesCodeAndAnswerToUseCase()
     {
         var ct = TestContext.Current.CancellationToken;
+
+        Expression<Func<IRespondToInviteUseCase, Task<Result>>> execute = x => x.Execute(
+            It.Is<RespondToInviteInput>(i =>
+                i.Code == "abc123" &&
+                i.Answer == InviteAnswer.Yes),
+            It.IsAny<CancellationToken>());
+
         var mock = new Mock<IRespondToInviteUseCase>();
-        mock.Setup(x => x.Execute(
-                It.Is<RespondToInviteInput>(i =>
-                    i.Code == "abc123" &&
-                    i.Answer == InviteAnswer.Yes),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success());
+        mock.Setup(execute).ReturnsAsync(Result.Success());
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
@@ -311,11 +287,7 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         var response = await client.PostAsJsonAsync("/api/v1/invites/answer", request, ct);
 
         response.ShouldBeNoContent();
-        mock.Verify(x => x.Execute(
-            It.Is<RespondToInviteInput>(i =>
-                i.Code == "abc123" &&
-                i.Answer == InviteAnswer.Yes),
-            It.IsAny<CancellationToken>()), Times.Once);
+        mock.Verify(execute, Times.Once);
     }
 
     [Fact]
@@ -330,25 +302,23 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         response.ShouldBeBadRequest();
     }
 
-    // ── ResetAnswer ───────────────────────────────────────────────────────────
-
     [Fact]
     public async Task ResetAnswer_ReturnsNoContent_AndPassesIdToUseCase()
     {
         var ct = TestContext.Current.CancellationToken;
+
+        Expression<Func<IResetInviteAnswerUseCase, Task<Result>>> execute = x => x.Execute(
+            It.Is<ResetInviteAnswerInput>(i => i.Id == 3),
+            It.IsAny<CancellationToken>());
+
         var mock = new Mock<IResetInviteAnswerUseCase>();
-        mock.Setup(x => x.Execute(
-                It.Is<ResetInviteAnswerInput>(i => i.Id == 3),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success());
+        mock.Setup(execute).ReturnsAsync(Result.Success());
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
         var response = await client.PostAsync("/api/v1/invites/3/answer/reset", null, ct);
 
         response.ShouldBeNoContent();
-        mock.Verify(x => x.Execute(
-            It.Is<ResetInviteAnswerInput>(i => i.Id == 3),
-            It.IsAny<CancellationToken>()), Times.Once);
+        mock.Verify(execute, Times.Once);
     }
 }

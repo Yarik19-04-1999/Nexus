@@ -18,7 +18,7 @@ public class ResetInviteAnswerUseCaseTests(DvizhWebApplicationFactory factory) :
     public async Task Execute_ResetsAnswerToPending_AndCreatesResetEvent()
     {
         var ct = TestContext.Current.CancellationToken;
-        await using var db = new DbScope(_factory);
+        await using var db = new DatabaseScope(_factory);
         var invite = await db.SeedInvite(i => i.Answer = InviteAnswer.Yes);
 
         using var scope = _factory.CreateScope();
@@ -28,12 +28,12 @@ public class ResetInviteAnswerUseCaseTests(DvizhWebApplicationFactory factory) :
 
         result.HasError.Should().BeFalse();
 
-        db.Db.Entry(invite).State = EntityState.Detached;
-        var fromDb = await db.Db.Invites.FindAsync(invite.Id);
+        db.Context.Entry(invite).State = EntityState.Detached;
+        var fromDb = await db.Context.Invites.FindAsync(invite.Id);
         fromDb!.Answer.Should().Be(InviteAnswer.Pending);
         fromDb.UpdatedAt.Should().BeAfter(invite.UpdatedAt);
 
-        var events = await db.Db.InviteEvents
+        var events = await db.Context.InviteEvents
             .Where(e => e.InviteId == invite.Id)
             .ToListAsync(ct);
         events.Should().ContainSingle(e => e.EventType == InviteEventType.Reset);
@@ -46,7 +46,7 @@ public class ResetInviteAnswerUseCaseTests(DvizhWebApplicationFactory factory) :
     public async Task Execute_WhenAlreadyPending_StillSucceeds_AndCreatesResetEvent()
     {
         var ct = TestContext.Current.CancellationToken;
-        await using var db = new DbScope(_factory);
+        await using var db = new DatabaseScope(_factory);
         var invite = await db.SeedInvite();
 
         using var scope = _factory.CreateScope();
@@ -56,7 +56,7 @@ public class ResetInviteAnswerUseCaseTests(DvizhWebApplicationFactory factory) :
 
         result.HasError.Should().BeFalse();
 
-        var events = await db.Db.InviteEvents
+        var events = await db.Context.InviteEvents
             .Where(e => e.InviteId == invite.Id && e.EventType == InviteEventType.Reset)
             .ToListAsync(ct);
         events.Should().ContainSingle();

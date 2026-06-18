@@ -1,5 +1,6 @@
 using Dvizh.Application.DbContexts;
 using Dvizh.Application.Enums;
+using Dvizh.Application.Extensions;
 using Dvizh.Application.Interfaces.UseCases;
 using Dvizh.Application.Models;
 using Dvizh.Application.Models.Input;
@@ -33,13 +34,8 @@ public class GetInvitesUseCase : IGetInvitesUseCase
             query = query.Where(x => x.ExpiresAt == null || x.ExpiresAt >= DateTime.UtcNow);
         }
 
-        var total = await _sieve.Apply(input.SieveModel, query, applyPagination: false).CountAsync(cancellationToken);
-        var items = await _sieve.Apply(input.SieveModel, query).ToListAsync(cancellationToken);
+        var result = await _sieve.ToPagedResultAsync(input.SieveModel, query, cancellationToken);
 
-        return Result<PagedResult<Invite>>.Success(new PagedResult<Invite>(
-            items,
-            total,
-            input.SieveModel.Page ?? 1,
-            input.SieveModel.PageSize ?? 20));
+        return Result<PagedResult<Invite>>.Success(result);
     }
 }

@@ -1,4 +1,5 @@
 using Dvizh.Application.DbContexts;
+using Dvizh.Application.Extensions;
 using Dvizh.Application.Interfaces.UseCases;
 using Dvizh.Application.Models;
 using Dvizh.Application.Models.Input;
@@ -29,14 +30,8 @@ public class GetInviteEventsUseCase : IGetInviteEventsUseCase
         }
 
         var query = _context.InviteEvents.AsNoTracking().Where(x => x.InviteId == input.InviteId);
+        var result = await _sieve.ToPagedResultAsync(input.SieveModel, query, cancellationToken);
 
-        var total = await _sieve.Apply(input.SieveModel, query, applyPagination: false).CountAsync(cancellationToken);
-        var items = await _sieve.Apply(input.SieveModel, query).ToListAsync(cancellationToken);
-
-        return Result<PagedResult<InviteEvent>>.Success(new PagedResult<InviteEvent>(
-            items,
-            total,
-            input.SieveModel.Page ?? 1,
-            input.SieveModel.PageSize ?? 20));
+        return Result<PagedResult<InviteEvent>>.Success(result);
     }
 }

@@ -18,7 +18,7 @@ public class GetInvitesUseCaseTests(DvizhWebApplicationFactory factory) : IClass
     public async Task Execute_ExpiryFilter_Active_ExcludesExpiredInvites()
     {
         var ct = TestContext.Current.CancellationToken;
-        await using var db = new DbScope(_factory);
+        await using var db = new DatabaseScope(_factory);
         var active = await db.SeedInvite(i =>
         {
             i.Message = $"Active-{Guid.NewGuid()}";
@@ -45,7 +45,7 @@ public class GetInvitesUseCaseTests(DvizhWebApplicationFactory factory) : IClass
     public async Task Execute_ExpiryFilter_Expired_ExcludesActiveInvites()
     {
         var ct = TestContext.Current.CancellationToken;
-        await using var db = new DbScope(_factory);
+        await using var db = new DatabaseScope(_factory);
         var active = await db.SeedInvite(i =>
         {
             i.Message = $"Active-{Guid.NewGuid()}";
@@ -72,7 +72,7 @@ public class GetInvitesUseCaseTests(DvizhWebApplicationFactory factory) : IClass
     public async Task Execute_ExpiryFilter_All_IncludesBoth()
     {
         var ct = TestContext.Current.CancellationToken;
-        await using var db = new DbScope(_factory);
+        await using var db = new DatabaseScope(_factory);
         var active = await db.SeedInvite(i =>
         {
             i.Message = $"Active-{Guid.NewGuid()}";
@@ -99,7 +99,7 @@ public class GetInvitesUseCaseTests(DvizhWebApplicationFactory factory) : IClass
     public async Task Execute_Pagination_ReturnsTotalCount()
     {
         var ct = TestContext.Current.CancellationToken;
-        await using var db = new DbScope(_factory);
+        await using var db = new DatabaseScope(_factory);
         await db.SeedInvite(i => i.Message = $"P-{Guid.NewGuid()}");
         await db.SeedInvite(i => i.Message = $"P-{Guid.NewGuid()}");
         await db.SeedInvite(i => i.Message = $"P-{Guid.NewGuid()}");

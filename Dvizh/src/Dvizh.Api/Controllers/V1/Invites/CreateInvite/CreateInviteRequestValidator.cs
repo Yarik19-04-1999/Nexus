@@ -9,10 +9,10 @@ public class CreateInviteRequestValidator : AbstractValidator<CreateInviteReques
     {
         RuleFor(x => x.Message)
             .NotEmpty()
-            .MaximumLength(InviteValidationConstants.MessageMaxLength);
+            .MaximumLength(InviteValidationConstants.Invite.MessageMaxLength);
 
         RuleFor(x => x.Description)
-            .MaximumLength(InviteValidationConstants.DescriptionMaxLength);
+            .MaximumLength(InviteValidationConstants.Invite.DescriptionMaxLength);
 
         RuleFor(x => x.ExpiresAt)
             .GreaterThan(_ => DateTime.UtcNow)

@@ -18,7 +18,7 @@ public class OpenInviteUseCaseTests(DvizhWebApplicationFactory factory) : IClass
     public async Task Execute_ReturnsInvite_AndCreatesOpenedEvent()
     {
         var ct = TestContext.Current.CancellationToken;
-        await using var db = new DbScope(_factory);
+        await using var db = new DatabaseScope(_factory);
         var invite = await db.SeedInvite();
 
         using var scope = _factory.CreateScope();
@@ -29,7 +29,7 @@ public class OpenInviteUseCaseTests(DvizhWebApplicationFactory factory) : IClass
         result.HasError.Should().BeFalse();
         result.Data.Id.Should().Be(invite.Id);
 
-        var events = await db.Db.InviteEvents
+        var events = await db.Context.InviteEvents
             .Where(e => e.InviteId == invite.Id)
             .ToListAsync(ct);
         events.Should().ContainSingle(e => e.EventType == InviteEventType.Opened);
@@ -41,7 +41,7 @@ public class OpenInviteUseCaseTests(DvizhWebApplicationFactory factory) : IClass
     public async Task Execute_CalledMultipleTimes_CreatesMultipleOpenedEvents()
     {
         var ct = TestContext.Current.CancellationToken;
-        await using var db = new DbScope(_factory);
+        await using var db = new DatabaseScope(_factory);
         var invite = await db.SeedInvite();
 
         using var scope = _factory.CreateScope();
@@ -51,7 +51,7 @@ public class OpenInviteUseCaseTests(DvizhWebApplicationFactory factory) : IClass
         await useCase.Execute(new OpenInviteInput(invite.Code), ct);
         await useCase.Execute(new OpenInviteInput(invite.Code), ct);
 
-        var events = await db.Db.InviteEvents
+        var events = await db.Context.InviteEvents
             .Where(e => e.InviteId == invite.Id && e.EventType == InviteEventType.Opened)
             .ToListAsync(ct);
         events.Should().HaveCount(3);

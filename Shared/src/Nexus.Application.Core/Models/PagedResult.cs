@@ -1,4 +1,4 @@
-namespace Dvizh.Application.Models;
+namespace Nexus.Application.Core.Models;
 
 public record PagedResult<T>(IReadOnlyList<T> Items, int TotalCount, int Page, int PageSize)
 {

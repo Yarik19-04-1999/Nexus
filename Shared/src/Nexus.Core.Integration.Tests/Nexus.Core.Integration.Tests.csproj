@@ -13,11 +13,14 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.12.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0" />
+    <PackageReference Include="Testcontainers.MsSql" Version="4.4.0" />
+    <PackageReference Include="Testcontainers.XunitV3" Version="4.4.0" />
     <PackageReference Include="xunit.v3.extensibility.core" Version="3.2.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Nexus.Api.Core\Nexus.Api.Core.csproj" />
+    <ProjectReference Include="..\Nexus.Infrastructure.Core\Nexus.Infrastructure.Core.csproj" />
     <ProjectReference Include="..\..\test\Nexus.Core.Tests\Nexus.Core.Tests.csproj" />
   </ItemGroup>
 

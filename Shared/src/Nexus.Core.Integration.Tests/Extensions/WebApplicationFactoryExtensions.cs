@@ -1,3 +1,4 @@
+using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -32,4 +33,13 @@ public static class WebApplicationFactoryExtensions
         this WebApplicationFactory<TProgram> factory)
         where TProgram : class =>
         factory.Services.CreateScope();
+
+    public static IReadOnlyList<string> GetOpenApiDocumentNames<TProgram>(
+        this WebApplicationFactory<TProgram> factory)
+        where TProgram : class =>
+        factory.Services
+            .GetRequiredService<IApiVersionDescriptionProvider>()
+            .ApiVersionDescriptions
+            .Select(d => d.GroupName)
+            .ToArray();
 }

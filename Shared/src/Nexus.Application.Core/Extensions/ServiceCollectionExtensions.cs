@@ -2,12 +2,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Nexus.Application.Core.Interfaces;
+using Nexus.Application.Core.Services;
 using System.Xml.Linq;
 
 namespace Nexus.Application.Core.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddUniqueCodeService(this IServiceCollection services)
+        => services.AddSingleton<IUniqueCodeService, UniqueCodeService>();
+
     public static OptionsBuilder<TOptions> ConfigureOptions<TOptions>(
         this IServiceCollection services,
         string name,

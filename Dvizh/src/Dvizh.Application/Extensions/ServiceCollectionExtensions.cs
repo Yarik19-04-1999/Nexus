@@ -6,8 +6,7 @@ using Dvizh.Application.Services.UseCases;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Nexus.Application.Core.Interfaces;
-using Nexus.Application.Core.Services;
+using Nexus.Application.Core.Extensions;
 using Nexus.Infrastructure.Core.Extensions;
 using Nexus.Infrastructure.EfCore.SqlServer.Extensions;
 using Nexus.Infrastructure.Sieve.Extensions;
@@ -47,7 +46,7 @@ public static class ServiceCollectionExtensions
                 .WithValidator<InviteCodeGenerationOptions, InviteCodeGenerationOptionsValidator>()
                 .Services
             .AddSingleton<IInviteCodeGenerator, InviteCodeGenerator>()
-            .AddSingleton<IUniqueCodeService, UniqueCodeService>();
+            .AddUniqueCodeService();
 
     private static IServiceCollection AddDvizhDbContext(
         this IServiceCollection services,

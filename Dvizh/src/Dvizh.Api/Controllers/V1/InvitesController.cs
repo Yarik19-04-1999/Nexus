@@ -1,4 +1,3 @@
-using Dvizh.Application.Enums;
 using Dvizh.Api.Controllers.V1.Invites.CreateInvite;
 using Nexus.Api.Core.ViewModels;
 using Dvizh.Api.Controllers.V1.Invites.GetInviteById;
@@ -26,11 +25,10 @@ public class InvitesController : ControllerBase
     [ProducesResponseType<PagedResponse<GetInviteDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(
         [FromQuery] SieveModel sieveModel,
-        [FromQuery] ExpiryFilter expiry,
         [FromServices] IGetInvitesUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.Execute(new GetInvitesInput(sieveModel, expiry), cancellationToken);
+        var result = await useCase.Execute(new GetInvitesInput(sieveModel), cancellationToken);
         if (result.HasError)
         {
             return this.DomainError(result);

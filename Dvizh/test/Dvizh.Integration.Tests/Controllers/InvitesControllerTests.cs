@@ -2,7 +2,6 @@ using AutoFixture;
 using Dvizh.Api.Controllers.V1.Invites.CreateInvite;
 using Dvizh.Api.Controllers.V1.Invites.GetInviteById;
 using Dvizh.Api.Controllers.V1.Invites.OpenInvite;
-using Dvizh.Application.Enums;
 using Dvizh.Application.Interfaces.UseCases;
 using Dvizh.Application.Models;
 using Dvizh.Application.Models.Input;
@@ -18,6 +17,7 @@ using Nexus.Core.Tests.Utils;
 using System.Linq.Expressions;
 using System.Net.Http.Json;
 using Dvizh.Api.Controllers.V1.Invites.GetInvites.Dtos;
+using Dvizh.Application.Enums;
 
 namespace Dvizh.Integration.Tests.Controllers;
 
@@ -128,13 +128,13 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
     }
 
     [Fact]
-    public async Task GetAll_ReturnsOk_AndPassesExpiryFilterToUseCase()
+    public async Task GetAll_ReturnsOk_AndPassesSieveModelToUseCase()
     {
         var ct = TestContext.Current.CancellationToken;
         var pagedResult = new PagedResult<Invite>([], 0, 1, 20);
 
         Expression<Func<IGetInvitesUseCase, Task<Result<PagedResult<Invite>>>>> execute = x => x.Execute(
-            It.Is<GetInvitesInput>(i => i.ExpiryFilter == ExpiryFilter.Active),
+            It.IsAny<GetInvitesInput>(),
             It.IsAny<CancellationToken>());
 
         var mock = new Mock<IGetInvitesUseCase>();
@@ -142,7 +142,7 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
-        var response = await client.GetAsync("/api/v1/invites?expiry=Active", ct);
+        var response = await client.GetAsync("/api/v1/invites", ct);
 
         response.ShouldBeOk();
         var body = await response.ReadResponse<PagedResponse<GetInviteDto>>(ct);

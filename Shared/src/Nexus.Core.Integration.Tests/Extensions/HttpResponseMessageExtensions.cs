@@ -29,37 +29,6 @@ public static class HttpResponseMessageExtensions
     public static void ShouldBeDomainError(this HttpResponseMessage response) =>
         response.ShouldBeStatusCode(StatusCodeConstants.DomainErrorStatusCode);
 
-    public static Task ShouldBeDomainError(
-        this HttpResponseMessage response,
-        string expectedErrorCode,
-        CancellationToken cancellationToken = default)
-        => response.ShouldBeDomainError(expectedErrorCode, canRetry: false, cancellationToken);
-
-    public static Task ShouldBeDomainError(
-        this HttpResponseMessage response,
-        string expectedErrorCode,
-        bool canRetry,
-        CancellationToken cancellationToken = default)
-        => response.ShouldBeDomainError(expectedErrorCode, canRetry, expectedMessage: null, cancellationToken);
-
-    public static async Task ShouldBeDomainError(
-        this HttpResponseMessage response,
-        string expectedErrorCode,
-        bool canRetry,
-        string? expectedMessage,
-        CancellationToken cancellationToken = default)
-    {
-        response.ShouldBeDomainError();
-        var body = await response.ReadDomainErrorResponse(cancellationToken);
-        body.Should().NotBeNull();
-        body!.ErrorCode.Should().Be(expectedErrorCode);
-        body.CanRetry.Should().Be(canRetry);
-        if (expectedMessage is not null)
-        {
-            body.ErrorMessage.Should().Be(expectedMessage);
-        }
-    }
-
     public static void ShouldBeInternalServerError(this HttpResponseMessage response) =>
         response.ShouldBeStatusCode(StatusCodeConstants.InternalErrorStatusCode);
 

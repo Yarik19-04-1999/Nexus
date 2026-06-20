@@ -1,5 +1,4 @@
 using Dvizh.Application.DbContexts;
-using Dvizh.Application.Enums;
 using Nexus.Infrastructure.Sieve.Extensions;
 using Dvizh.Application.Interfaces.UseCases;
 using Dvizh.Application.Models;
@@ -24,16 +23,6 @@ public class GetInvitesUseCase : IGetInvitesUseCase
     public async Task<Result<PagedResult<Invite>>> Execute(GetInvitesInput input, CancellationToken cancellationToken = default)
     {
         var query = _context.Invites.AsNoTracking();
-
-        if (input.ExpiryFilter == ExpiryFilter.Expired)
-        {
-            query = query.Where(x => x.ExpiresAt != null && x.ExpiresAt < DateTime.UtcNow);
-        }
-        else if (input.ExpiryFilter == ExpiryFilter.Active)
-        {
-            query = query.Where(x => x.ExpiresAt == null || x.ExpiresAt >= DateTime.UtcNow);
-        }
-
         var result = await _sieve.ToPagedResultAsync(input.SieveModel, query, cancellationToken);
 
         return Result<PagedResult<Invite>>.Success(result);

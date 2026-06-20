@@ -50,6 +50,11 @@ function buildQuery(params: InviteListParams): string {
   const filters: string[] = []
   if (params.q) filters.push(`Message@=*${params.q}`)
   if (params.answer !== undefined) filters.push(`Answer==${params.answer}`)
+  if (params.expiry) {
+    const now = new Date().toISOString()
+    if (params.expiry === 'active') filters.push(`expiresAt>=${now}`)
+    else if (params.expiry === 'expired') filters.push(`expiresAt<${now}`)
+  }
   if (filters.length) q.set('filters', filters.join(','))
 
   const SORT_FIELDS: Record<string, string> = {
@@ -60,8 +65,6 @@ function buildQuery(params: InviteListParams): string {
   const sieveField = params.sort ? (SORT_FIELDS[params.sort] ?? 'CreatedAt') : 'CreatedAt'
   const prefix = (params.sort ? params.dir === 'desc' : true) ? '-' : ''
   q.set('sorts', `${prefix}${sieveField}`)
-
-  if (params.expiry) q.set('expiry', params.expiry)
 
   return q.toString()
 }

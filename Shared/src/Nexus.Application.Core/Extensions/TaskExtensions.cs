@@ -15,7 +15,10 @@ public static class TaskExtensions
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            throw new TimeoutException($"Operation timed out after {timeout.TotalSeconds}s.");
+            throw new TimeoutException(TimeoutMessage(timeout));
         }
     }
+
+    private static string TimeoutMessage(TimeSpan timeout)
+        => $"Operation timed out after {timeout.TotalSeconds}s.";
 }

@@ -1,14 +1,13 @@
 using Dvizh.Application.Constants;
 using Dvizh.Application.DbContexts;
-using Dvizh.Application.Interfaces;
 using Dvizh.Application.Interfaces.UseCases;
 using Dvizh.Application.Options;
-using Dvizh.Application.Services;
 using Dvizh.Application.Services.UseCases;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Nexus.Application.Core.Extensions;
+using Nexus.Application.Core.Interfaces;
+using Nexus.Application.Core.Services;
 using Nexus.Infrastructure.Core.Extensions;
 using Nexus.Infrastructure.EfCore.SqlServer.Extensions;
 using Nexus.Infrastructure.Sieve.Extensions;
@@ -43,9 +42,9 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         => services
             .AddSieve<DvizhSieveProcessor>(configuration, ConfigSectionConstants.Sieve)
-            .AddOptions<UniqueCodeGeneratorOptions>()
-                .BindConfiguration(nameof(UniqueCodeGeneratorOptions))
-                .WithValidator<UniqueCodeGeneratorOptions, UniqueCodeGeneratorOptionsValidator>()
+            .AddOptions<InviteCodeGenerationOptions>()
+                .BindConfiguration(nameof(InviteCodeGenerationOptions))
+                .WithValidator<InviteCodeGenerationOptions, InviteCodeGenerationOptionsValidator>()
                 .Services
             .AddSingleton<IInviteCodeGenerator, InviteCodeGenerator>()
             .AddSingleton<IUniqueCodeService, UniqueCodeService>();

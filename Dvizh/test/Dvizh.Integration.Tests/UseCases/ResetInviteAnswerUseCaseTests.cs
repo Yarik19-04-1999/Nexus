@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Nexus.Application.Core.Constants;
 using Nexus.Core.Integration.Tests.Extensions;
+using Nexus.Core.Tests.Constants;
 using Xunit;
 
 namespace Dvizh.Integration.Tests.UseCases;
@@ -70,7 +71,7 @@ public class ResetInviteAnswerUseCaseTests(DvizhWebApplicationFactory factory) :
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IResetInviteAnswerUseCase>();
 
-        var result = await useCase.Execute(new ResetInviteAnswerInput(-999), ct);
+        var result = await useCase.Execute(new ResetInviteAnswerInput(TestData.NonExistentId), ct);
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be(CommonErrorCodes.NotFound);

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Nexus.Application.Core.Constants;
 using Nexus.Core.Integration.Tests.Extensions;
+using Nexus.Core.Tests.Constants;
 using Xunit;
 
 namespace Dvizh.Integration.Tests.UseCases;
@@ -64,7 +65,7 @@ public class DeleteInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IDeleteInviteUseCase>();
 
-        var result = await useCase.Execute(new DeleteInviteInput(-999), ct);
+        var result = await useCase.Execute(new DeleteInviteInput(TestData.NonExistentId), ct);
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be(CommonErrorCodes.NotFound);

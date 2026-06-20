@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Nexus.Application.Core.Constants;
 using Nexus.Core.Integration.Tests.Extensions;
+using Nexus.Core.Tests.Constants;
 using Xunit;
 
 namespace Dvizh.Integration.Tests.UseCases;
@@ -83,7 +84,7 @@ public class RespondToInviteUseCaseTests(DvizhWebApplicationFactory factory) : I
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IRespondToInviteUseCase>();
 
-        var result = await useCase.Execute(new RespondToInviteInput("doesntexist", InviteAnswer.Yes), ct);
+        var result = await useCase.Execute(new RespondToInviteInput(TestData.NonExistentCode, InviteAnswer.Yes), ct);
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be(CommonErrorCodes.NotFound);

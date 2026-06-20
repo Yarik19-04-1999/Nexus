@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Nexus.Application.Core.Constants;
 using Nexus.Application.Core.Models;
 using Sieve.Models;
 using Sieve.Services;
@@ -19,7 +18,7 @@ public static class SieveExtensions
         return new PagedResult<T>(
             items,
             total,
-            sieveModel.Page ?? PagingConstants.DefaultPage,
-            sieveModel.PageSize ?? PagingConstants.DefaultPageSize);
+            sieveModel.GetPageNumberOrDefault(),
+            sieveModel.GetPageSizeOrDefault());
     }
 }

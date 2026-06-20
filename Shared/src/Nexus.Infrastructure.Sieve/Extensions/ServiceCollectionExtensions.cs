@@ -10,7 +10,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddSieve<TProcessor>(
         this IServiceCollection services,
         IConfiguration configuration,
-        string configSection)
+        string configSection = "Sieve")
         where TProcessor : class, ISieveProcessor
         => services
             .Configure<SieveOptions>(configuration.GetSection(configSection))

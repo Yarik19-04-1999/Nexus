@@ -5,6 +5,9 @@ using Dvizh.Application.Interfaces.UseCases;
 using Dvizh.Application.Mappers;
 using Dvizh.Application.Models;
 using Dvizh.Application.Models.Input;
+using Dvizh.Application.Options;
+using Microsoft.Extensions.Options;
+using Nexus.Application.Core.Interfaces;
 using Nexus.Application.Core.Models;
 
 namespace Dvizh.Application.Services.UseCases;
@@ -14,15 +17,18 @@ public class CreateInviteUseCase : ICreateInviteUseCase
     private readonly DvizhDbContext _context;
     private readonly IUniqueCodeService _uniqueCodeService;
     private readonly IInviteCodeGenerator _codeGenerator;
+    private readonly InviteCodeGenerationOptions _options;
 
     public CreateInviteUseCase(
         DvizhDbContext context,
         IUniqueCodeService uniqueCodeService,
-        IInviteCodeGenerator codeGenerator)
+        IInviteCodeGenerator codeGenerator,
+        IOptions<InviteCodeGenerationOptions> options)
     {
         _context = context;
         _uniqueCodeService = uniqueCodeService;
         _codeGenerator = codeGenerator;
+        _options = options.Value;
     }
 
     public async Task<Result<Invite>> Execute(CreateInviteInput input, CancellationToken cancellationToken = default)
@@ -30,6 +36,7 @@ public class CreateInviteUseCase : ICreateInviteUseCase
         var code = await _uniqueCodeService.GenerateUniqueCode(
             _codeGenerator.Generate,
             _context.Invites.CodeExists,
+            _options.Timeout,
             cancellationToken);
 
         var invite = InviteMapper.MapCreate(input);

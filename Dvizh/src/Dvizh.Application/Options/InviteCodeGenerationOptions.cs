@@ -1,6 +1,6 @@
 namespace Dvizh.Application.Options;
 
-public class UniqueCodeGeneratorOptions
+public class InviteCodeGenerationOptions
 {
     public TimeSpan Timeout { get; set; } = TimeSpan.FromMinutes(1);
 }

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Nexus.Application.Core.Constants;
 using Nexus.Core.Integration.Tests.Extensions;
+using Nexus.Core.Tests.Constants;
 using Xunit;
 
 namespace Dvizh.Integration.Tests.UseCases;
@@ -73,7 +74,7 @@ public class UpdateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IUpdateInviteUseCase>();
 
-        var result = await useCase.Execute(new UpdateInviteInput(-999, "X", null, null, InviteLanguage.Russian, InviteMascot.MochiPeachCat), ct);
+        var result = await useCase.Execute(new UpdateInviteInput(TestData.NonExistentId, "X", null, null, InviteLanguage.Russian, InviteMascot.MochiPeachCat), ct);
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be(CommonErrorCodes.NotFound);

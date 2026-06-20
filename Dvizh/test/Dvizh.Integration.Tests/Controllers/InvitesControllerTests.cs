@@ -276,10 +276,11 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
     public async Task Respond_ReturnsNoContent_AndPassesCodeAndAnswerToUseCase()
     {
         var ct = TestContext.Current.CancellationToken;
+        var code = TestData.RandomString(InviteValidationConstants.Invite.CodeMaxLength);
 
         Expression<Func<IRespondToInviteUseCase, Task<Result>>> execute = x => x.Execute(
             It.Is<RespondToInviteInput>(i =>
-                i.Code == "abc123" &&
+                i.Code == code &&
                 i.Answer == InviteAnswer.Yes),
             It.IsAny<CancellationToken>());
 
@@ -288,7 +289,7 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
-        var request = new { Code = "abc123", Answer = InviteAnswer.Yes };
+        var request = new { Code = code, Answer = InviteAnswer.Yes };
         var response = await client.PostAsJsonAsync("/api/v1/invites/answer", request, ct);
 
         response.ShouldBeNoContent();
@@ -299,8 +300,9 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
     public async Task Respond_WithPendingAnswer_ReturnsBadRequest()
     {
         var ct = TestContext.Current.CancellationToken;
+        var code = TestData.RandomString(InviteValidationConstants.Invite.CodeMaxLength);
         var client = _factory.CreateClient();
-        var request = new { Code = "abc123", Answer = InviteAnswer.Pending };
+        var request = new { Code = code, Answer = InviteAnswer.Pending };
 
         var response = await client.PostAsJsonAsync("/api/v1/invites/answer", request, ct);
 
@@ -313,7 +315,7 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         var ct = TestContext.Current.CancellationToken;
 
         Expression<Func<IResetInviteAnswerUseCase, Task<Result>>> execute = x => x.Execute(
-            It.Is<ResetInviteAnswerInput>(i => i.Id == 3),
+            It.Is<ResetInviteAnswerInput>(i => i.Id == TestData.IntValue),
             It.IsAny<CancellationToken>());
 
         var mock = new Mock<IResetInviteAnswerUseCase>();
@@ -321,7 +323,7 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
-        var response = await client.PostAsync("/api/v1/invites/3/answer/reset", null, ct);
+        var response = await client.PostAsync($"/api/v1/invites/{TestData.IntValue}/answer/reset", null, ct);
 
         response.ShouldBeNoContent();
         mock.Verify(execute, Times.Once);

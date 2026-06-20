@@ -13,9 +13,11 @@ using Nexus.Application.Core.Constants;
 using Nexus.Api.Core.ViewModels;
 using Nexus.Application.Core.Models;
 using Nexus.Core.Integration.Tests.Extensions;
+using Nexus.Core.Tests.Constants;
 using Nexus.Core.Tests.Utils;
 using System.Linq.Expressions;
 using System.Net.Http.Json;
+using Dvizh.Application.Constants;
 using Dvizh.Api.Controllers.V1.Invites.GetInvites.Dtos;
 using Dvizh.Application.Enums;
 
@@ -36,7 +38,7 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
 
         Expression<Func<ICreateInviteUseCase, Task<Result<Invite>>>> execute = x => x.Execute(
             It.Is<CreateInviteInput>(i =>
-                i.Message == "Hello world" &&
+                i.Message == TestData.StringValue &&
                 i.Language == InviteLanguage.English &&
                 i.Mascot == InviteMascot.UtyaDuck),
             It.IsAny<CancellationToken>());
@@ -47,7 +49,7 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
         var request = new CreateInviteRequest(
-            "Hello world", null, null, InviteLanguage.English, InviteMascot.UtyaDuck);
+            TestData.StringValue, null, null, InviteLanguage.English, InviteMascot.UtyaDuck);
 
         var response = await client.PostAsJsonAsync("/api/v1/invites", request, ct);
 
@@ -79,7 +81,7 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         var ct = TestContext.Current.CancellationToken;
         var client = _factory.CreateClient();
         var request = new CreateInviteRequest(
-            "Test", null, DateTime.UtcNow.AddDays(-1), InviteLanguage.English, InviteMascot.MochiPeachCat);
+            TestData.StringValue, null, DateTime.UtcNow.AddDays(-1), InviteLanguage.English, InviteMascot.MochiPeachCat);
 
         var response = await client.PostAsJsonAsync("/api/v1/invites", request, ct);
 
@@ -93,7 +95,7 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         var invite = _fixture.Create<Invite>();
 
         Expression<Func<IGetInviteByIdUseCase, Task<Result<Invite>>>> execute = x => x.Execute(
-            It.Is<GetInviteByIdInput>(i => i.Id == 42),
+            It.Is<GetInviteByIdInput>(i => i.Id == TestData.IntValue),
             It.IsAny<CancellationToken>());
 
         var mock = new Mock<IGetInviteByIdUseCase>();
@@ -101,7 +103,7 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
-        var response = await client.GetAsync("/api/v1/invites/42", ct);
+        var response = await client.GetAsync($"/api/v1/invites/{TestData.IntValue}", ct);
 
         response.ShouldBeOk();
         var body = await response.ReadResponse<GetInviteByIdResponse>(ct);
@@ -118,11 +120,11 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         var ct = TestContext.Current.CancellationToken;
         var mock = new Mock<IGetInviteByIdUseCase>();
         mock.Setup(x => x.Execute(It.IsAny<GetInviteByIdInput>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ResultConstants.NotFound<Invite>(999));
+            .ReturnsAsync(ResultConstants.NotFound<Invite>(TestData.NonExistentIntValue));
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
-        var response = await client.GetAsync("/api/v1/invites/999", ct);
+        var response = await client.GetAsync($"/api/v1/invites/{TestData.NonExistentIntValue}", ct);
 
         response.ShouldBeDomainError();
     }
@@ -160,7 +162,7 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         Expression<Func<IUpdateInviteUseCase, Task<Result<Invite>>>> execute = x => x.Execute(
             It.Is<UpdateInviteInput>(i =>
                 i.Id == 7 &&
-                i.Message == "Updated" &&
+                i.Message == TestData.ChangedStringValue &&
                 i.Language == InviteLanguage.Ukrainian &&
                 i.Mascot == InviteMascot.MochiPeachCat),
             It.IsAny<CancellationToken>());
@@ -170,7 +172,7 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
-        var request = new { Id = 7, Message = "Updated", Description = (string?)null, ExpiresAt = (DateTime?)null, Language = InviteLanguage.Ukrainian, Mascot = InviteMascot.MochiPeachCat };
+        var request = new { Id = 7, Message = TestData.ChangedStringValue, Description = (string?)null, ExpiresAt = (DateTime?)null, Language = InviteLanguage.Ukrainian, Mascot = InviteMascot.MochiPeachCat };
         var response = await client.PutAsJsonAsync("/api/v1/invites", request, ct);
 
         response.ShouldBeOk();
@@ -183,11 +185,11 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         var ct = TestContext.Current.CancellationToken;
         var mock = new Mock<IUpdateInviteUseCase>();
         mock.Setup(x => x.Execute(It.IsAny<UpdateInviteInput>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ResultConstants.NotFound<Invite>(999));
+            .ReturnsAsync(ResultConstants.NotFound<Invite>(TestData.NonExistentIntValue));
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
-        var request = new { Id = 999, Message = "X", Description = (string?)null, ExpiresAt = (DateTime?)null, Language = InviteLanguage.Russian, Mascot = InviteMascot.MochiPeachCat };
+        var request = new { Id = TestData.NonExistentIntValue, Message = TestData.StringValue, Description = (string?)null, ExpiresAt = (DateTime?)null, Language = InviteLanguage.Russian, Mascot = InviteMascot.MochiPeachCat };
         var response = await client.PutAsJsonAsync("/api/v1/invites", request, ct);
 
         response.ShouldBeDomainError();
@@ -219,11 +221,11 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         var ct = TestContext.Current.CancellationToken;
         var mock = new Mock<IDeleteInviteUseCase>();
         mock.Setup(x => x.Execute(It.IsAny<DeleteInviteInput>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ResultConstants.NotFound<Invite>(999));
+            .ReturnsAsync(ResultConstants.NotFound<Invite>(TestData.NonExistentIntValue));
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
-        var response = await client.DeleteAsync("/api/v1/invites/999", ct);
+        var response = await client.DeleteAsync($"/api/v1/invites/{TestData.NonExistentIntValue}", ct);
 
         response.ShouldBeDomainError();
     }
@@ -232,10 +234,11 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
     public async Task Open_ReturnsOk_AndPassesCodeToUseCase()
     {
         var ct = TestContext.Current.CancellationToken;
-        var invite = _fixture.Build<Invite>().With(i => i.Code, "abc123").Create();
+        var code = TestData.RandomString(InviteValidationConstants.Invite.CodeMaxLength);
+        var invite = _fixture.Build<Invite>().With(i => i.Code, code).Create();
 
         Expression<Func<IOpenInviteUseCase, Task<Result<Invite>>>> execute = x => x.Execute(
-            It.Is<OpenInviteInput>(i => i.Code == "abc123"),
+            It.Is<OpenInviteInput>(i => i.Code == code),
             It.IsAny<CancellationToken>());
 
         var mock = new Mock<IOpenInviteUseCase>();
@@ -243,12 +246,12 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
-        var response = await client.GetAsync("/api/v1/invites/abc123", ct);
+        var response = await client.GetAsync($"/api/v1/invites/{code}", ct);
 
         response.ShouldBeOk();
         var body = await response.ReadResponse<OpenInviteResponse>(ct);
         body.Should().NotBeNull();
-        body!.Code.Should().Be("abc123");
+        body!.Code.Should().Be(code);
         body.Message.Should().Be(invite.Message);
         mock.Verify(execute, Times.Once);
     }
@@ -257,13 +260,14 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
     public async Task Open_WhenNotFound_ReturnsDomainError()
     {
         var ct = TestContext.Current.CancellationToken;
+        var code = TestData.RandomString(InviteValidationConstants.Invite.CodeMaxLength);
         var mock = new Mock<IOpenInviteUseCase>();
         mock.Setup(x => x.Execute(It.IsAny<OpenInviteInput>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ResultConstants.NotFound<Invite>("nocode"));
+            .ReturnsAsync(ResultConstants.NotFound<Invite>(code));
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
-        var response = await client.GetAsync("/api/v1/invites/nocode", ct);
+        var response = await client.GetAsync($"/api/v1/invites/{code}", ct);
 
         response.ShouldBeDomainError();
     }

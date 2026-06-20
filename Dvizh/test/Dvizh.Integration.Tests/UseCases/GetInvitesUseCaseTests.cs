@@ -3,6 +3,7 @@ using Dvizh.Application.Models.Input;
 using Dvizh.Integration.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Nexus.Application.Core.Extensions;
 using Nexus.Core.Integration.Tests.Extensions;
 using Sieve.Models;
 using Xunit;
@@ -32,7 +33,7 @@ public class GetInvitesUseCaseTests(DvizhWebApplicationFactory factory) : IClass
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IGetInvitesUseCase>();
 
-        var now = DateTime.UtcNow.ToString("o");
+        var now = DateTime.UtcNow.ToIsoString();
         var input = new GetInvitesInput(new SieveModel { Filters = $"expiresAt>={now}", PageSize = 100 });
         var result = await useCase.Execute(input, ct);
 
@@ -60,7 +61,7 @@ public class GetInvitesUseCaseTests(DvizhWebApplicationFactory factory) : IClass
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IGetInvitesUseCase>();
 
-        var now = DateTime.UtcNow.ToString("o");
+        var now = DateTime.UtcNow.ToIsoString();
         var input = new GetInvitesInput(new SieveModel { Filters = $"expiresAt<{now}", PageSize = 100 });
         var result = await useCase.Execute(input, ct);
 

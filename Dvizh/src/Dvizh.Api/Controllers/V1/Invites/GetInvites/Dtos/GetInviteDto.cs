@@ -1,8 +1,8 @@
 using Dvizh.Application.Enums;
 
-namespace Dvizh.Api.Controllers.V1.Invites.GetInvites;
+namespace Dvizh.Api.Controllers.V1.Invites.GetInvites.Dtos;
 
-public record GetInviteItemResponse(
+public record GetInviteDto(
     int Id,
     string Code,
     string Message,

@@ -1,5 +1,5 @@
 using Dvizh.Application.DbContexts;
-using Dvizh.Application.Extensions;
+using Nexus.Infrastructure.Sieve.Extensions;
 using Dvizh.Application.Interfaces.UseCases;
 using Dvizh.Application.Models;
 using Dvizh.Application.Models.Input;

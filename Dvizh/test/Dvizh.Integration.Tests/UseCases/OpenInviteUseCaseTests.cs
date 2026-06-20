@@ -5,6 +5,7 @@ using Dvizh.Integration.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Nexus.Application.Core.Constants;
 using Nexus.Core.Integration.Tests.Extensions;
 using Xunit;
 
@@ -67,6 +68,6 @@ public class OpenInviteUseCaseTests(DvizhWebApplicationFactory factory) : IClass
         var result = await useCase.Execute(new OpenInviteInput("doesntexist"), ct);
 
         result.HasError.Should().BeTrue();
-        result.ErrorCode.Should().Be("NotFound");
+        result.ErrorCode.Should().Be(CommonErrorCodes.NotFound);
     }
 }

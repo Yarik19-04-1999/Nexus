@@ -20,13 +20,13 @@ public static class DatabaseFacadeExtensions
         });
     }
 
-    public static Task ExecuteInTransaction(
+    public static async Task ExecuteInTransaction(
         this DatabaseFacade database,
         Func<Task> operation,
         CancellationToken cancellationToken = default)
     {
         var strategy = database.CreateExecutionStrategy();
-        return strategy.ExecuteAsync(async () =>
+        await strategy.ExecuteAsync(async () =>
         {
             await using var transaction = await database.BeginTransactionAsync(cancellationToken);
             await operation();

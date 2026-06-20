@@ -8,12 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="Nanoid" Version="3.0.0" />
-    <PackageReference Include="Sieve" Version="2.5.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Shared\src\Nexus.Application.Core\Nexus.Application.Core.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Nexus.Infrastructure.EfCore.SqlServer\Nexus.Infrastructure.EfCore.SqlServer.csproj" />
+    <ProjectReference Include="..\..\..\Shared\src\Nexus.Infrastructure.Sieve\Nexus.Infrastructure.Sieve.csproj" />
   </ItemGroup>
 
 </Project>

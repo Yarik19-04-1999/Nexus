@@ -6,6 +6,7 @@ using Dvizh.Integration.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Nexus.Application.Core.Constants;
 using Nexus.Core.Integration.Tests.Extensions;
 using Xunit;
 
@@ -72,7 +73,7 @@ public class RespondToInviteUseCaseTests(DvizhWebApplicationFactory factory) : I
         var result = await useCase.Execute(new RespondToInviteInput(invite.Code, InviteAnswer.Yes), ct);
 
         result.HasError.Should().BeTrue();
-        result.ErrorCode.Should().Be("AlreadyExpired");
+        result.ErrorCode.Should().Be(CommonErrorCodes.AlreadyExpired);
     }
 
     [Fact]
@@ -85,6 +86,6 @@ public class RespondToInviteUseCaseTests(DvizhWebApplicationFactory factory) : I
         var result = await useCase.Execute(new RespondToInviteInput("doesntexist", InviteAnswer.Yes), ct);
 
         result.HasError.Should().BeTrue();
-        result.ErrorCode.Should().Be("NotFound");
+        result.ErrorCode.Should().Be(CommonErrorCodes.NotFound);
     }
 }

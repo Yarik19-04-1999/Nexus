@@ -1,45 +1,37 @@
 using Dvizh.Application.Interfaces;
 using Dvizh.Application.Options;
 using Microsoft.Extensions.Options;
+using Nexus.Application.Core.Extensions;
 
 namespace Dvizh.Application.Services;
 
 public class UniqueCodeService : IUniqueCodeService
 {
-    private readonly IInviteCodeGenerator _generator;
-    private readonly UniqueCodeServiceOptions _options;
+    private readonly UniqueCodeGeneratorOptions _options;
 
-    public UniqueCodeService(IInviteCodeGenerator generator, IOptions<UniqueCodeServiceOptions> options)
+    public UniqueCodeService(IOptions<UniqueCodeGeneratorOptions> options)
     {
-        _generator = generator;
         _options = options.Value;
     }
 
-    public async Task<string> GenerateUniqueCode(
+    public Task<string> GenerateUniqueCode(
+        Func<string> generate,
         Func<string, CancellationToken, Task<bool>> existsAsync,
         CancellationToken cancellationToken = default)
     {
-        using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        cts.CancelAfter(_options.Timeout);
-
-        try
+        Func<CancellationToken, Task<string>> operation = async ct =>
         {
-            while (!cts.Token.IsCancellationRequested)
+            while (!ct.IsCancellationRequested)
             {
-                var code = _generator.Generate();
-                if (!await existsAsync(code, cts.Token))
+                var code = generate();
+                if (!await existsAsync(code, ct))
                 {
                     return code;
                 }
             }
-        }
-        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
-        {
-            throw new InvalidOperationException(
-                $"Failed to generate a unique code within {_options.Timeout.TotalSeconds}s.");
-        }
+            throw new InvalidOperationException("Operation was cancelled before a unique code could be generated.");
+        };
 
-        throw new InvalidOperationException(
-            $"Failed to generate a unique code within {_options.Timeout.TotalSeconds}s.");
+        return operation.ExecuteWithTimeout(_options.Timeout, cancellationToken);
     }
 }

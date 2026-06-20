@@ -13,16 +13,22 @@ public class CreateInviteUseCase : ICreateInviteUseCase
 {
     private readonly DvizhDbContext _context;
     private readonly IUniqueCodeService _uniqueCodeService;
+    private readonly IInviteCodeGenerator _codeGenerator;
 
-    public CreateInviteUseCase(DvizhDbContext context, IUniqueCodeService uniqueCodeService)
+    public CreateInviteUseCase(
+        DvizhDbContext context,
+        IUniqueCodeService uniqueCodeService,
+        IInviteCodeGenerator codeGenerator)
     {
         _context = context;
         _uniqueCodeService = uniqueCodeService;
+        _codeGenerator = codeGenerator;
     }
 
     public async Task<Result<Invite>> Execute(CreateInviteInput input, CancellationToken cancellationToken = default)
     {
         var code = await _uniqueCodeService.GenerateUniqueCode(
+            _codeGenerator.Generate,
             _context.Invites.CodeExists,
             cancellationToken);
 

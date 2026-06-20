@@ -1,7 +1,6 @@
 using AutoFixture;
 using Dvizh.Api.Controllers.V1.Invites.CreateInvite;
 using Dvizh.Api.Controllers.V1.Invites.GetInviteById;
-using Dvizh.Api.Controllers.V1.Invites.GetInvites;
 using Dvizh.Api.Controllers.V1.Invites.OpenInvite;
 using Dvizh.Application.Enums;
 using Dvizh.Application.Interfaces.UseCases;
@@ -12,11 +11,13 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Nexus.Application.Core.Constants;
+using Nexus.Api.Core.ViewModels;
 using Nexus.Application.Core.Models;
 using Nexus.Core.Integration.Tests.Extensions;
 using Nexus.Core.Tests.Utils;
 using System.Linq.Expressions;
 using System.Net.Http.Json;
+using Dvizh.Api.Controllers.V1.Invites.GetInvites.Dtos;
 
 namespace Dvizh.Integration.Tests.Controllers;
 
@@ -144,7 +145,7 @@ public class InvitesControllerTests(DvizhWebApplicationFactory factory) : IClass
         var response = await client.GetAsync("/api/v1/invites?expiry=Active", ct);
 
         response.ShouldBeOk();
-        var body = await response.ReadResponse<GetInvitesResponse>(ct);
+        var body = await response.ReadResponse<PagedResponse<GetInviteDto>>(ct);
         body.Should().NotBeNull();
         body!.TotalCount.Should().Be(0);
         mock.Verify(execute, Times.Once);

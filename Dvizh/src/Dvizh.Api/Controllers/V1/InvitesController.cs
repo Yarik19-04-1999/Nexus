@@ -1,5 +1,6 @@
 using Dvizh.Application.Enums;
 using Dvizh.Api.Controllers.V1.Invites.CreateInvite;
+using Nexus.Api.Core.ViewModels;
 using Dvizh.Api.Controllers.V1.Invites.GetInviteById;
 using Dvizh.Api.Controllers.V1.Invites.GetInviteEvents;
 using Dvizh.Api.Controllers.V1.Invites.GetInvites;
@@ -8,11 +9,12 @@ using Dvizh.Api.Controllers.V1.Invites.RespondToInvite;
 using Dvizh.Api.Controllers.V1.Invites.UpdateInvite;
 using Dvizh.Application.Interfaces.UseCases;
 using Dvizh.Application.Models.Input;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nexus.Api.Core.Attributes;
 using Nexus.Api.Core.Extensions;
 using Sieve.Models;
+using Dvizh.Api.Controllers.V1.Invites.GetInviteEvents.Dtos;
+using Dvizh.Api.Controllers.V1.Invites.GetInvites.Dtos;
 
 namespace Dvizh.Api.Controllers.V1;
 
@@ -21,7 +23,7 @@ namespace Dvizh.Api.Controllers.V1;
 public class InvitesController : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType<GetInvitesResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedResponse<GetInviteDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(
         [FromQuery] SieveModel sieveModel,
         [FromQuery] ExpiryFilter expiry,
@@ -52,7 +54,7 @@ public class InvitesController : ControllerBase
     }
 
     [HttpGet("{id:int}/events")]
-    [ProducesResponseType<GetInviteEventsResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedResponse<GetInviteEventDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetEvents(
         int id,
         [FromQuery] SieveModel sieveModel,

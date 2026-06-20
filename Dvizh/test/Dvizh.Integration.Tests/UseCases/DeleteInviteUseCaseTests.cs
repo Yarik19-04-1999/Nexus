@@ -65,7 +65,7 @@ public class DeleteInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IDeleteInviteUseCase>();
 
-        var result = await useCase.Execute(new DeleteInviteInput(TestData.NonExistentId), ct);
+        var result = await useCase.Execute(new DeleteInviteInput(TestData.NonExistentIntValue), ct);
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be(CommonErrorCodes.NotFound);

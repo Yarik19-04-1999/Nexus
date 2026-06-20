@@ -1,3 +1,4 @@
+using Dvizh.Application.Constants;
 using Dvizh.Application.Enums;
 using Dvizh.Application.Interfaces.UseCases;
 using Dvizh.Application.Models.Input;
@@ -66,7 +67,7 @@ public class OpenInviteUseCaseTests(DvizhWebApplicationFactory factory) : IClass
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IOpenInviteUseCase>();
 
-        var result = await useCase.Execute(new OpenInviteInput(TestData.NonExistentCode), ct);
+        var result = await useCase.Execute(new OpenInviteInput(TestData.RandomString(InviteValidationConstants.Invite.CodeMaxLength)), ct);
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be(CommonErrorCodes.NotFound);

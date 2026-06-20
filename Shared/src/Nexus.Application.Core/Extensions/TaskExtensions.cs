@@ -1,3 +1,5 @@
+using Nexus.Application.Core.Constants;
+
 namespace Nexus.Application.Core.Extensions;
 
 public static class TaskExtensions
@@ -15,10 +17,7 @@ public static class TaskExtensions
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            throw new TimeoutException(TimeoutMessage(timeout));
+            throw new TimeoutException(TaskErrorMessages.TimedOut(timeout));
         }
     }
-
-    private static string TimeoutMessage(TimeSpan timeout)
-        => $"Operation timed out after {timeout.TotalSeconds}s.";
 }

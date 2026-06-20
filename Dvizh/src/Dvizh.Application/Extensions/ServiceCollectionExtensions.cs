@@ -41,9 +41,9 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         => services
-            .AddSieve<DvizhSieveProcessor>(configuration, ConfigSectionConstants.Sieve)
+            .AddSieve<DvizhSieveProcessor>(configuration)
             .AddOptions<InviteCodeGenerationOptions>()
-                .BindConfiguration(nameof(InviteCodeGenerationOptions))
+                .BindConfiguration(ConfigSectionConstants.InviteCodeGeneration)
                 .WithValidator<InviteCodeGenerationOptions, InviteCodeGenerationOptionsValidator>()
                 .Services
             .AddSingleton<IInviteCodeGenerator, InviteCodeGenerator>()

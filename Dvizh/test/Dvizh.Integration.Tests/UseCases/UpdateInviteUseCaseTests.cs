@@ -23,7 +23,7 @@ public class UpdateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
         await using var db = new DatabaseScope(_factory);
         var invite = await db.SeedInvite(i =>
         {
-            i.Message = "Old message";
+            i.Message = TestData.StringValue;
             i.Language = InviteLanguage.Russian;
             i.Mascot = InviteMascot.MochiPeachCat;
         });
@@ -31,18 +31,18 @@ public class UpdateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IUpdateInviteUseCase>();
 
-        var input = new UpdateInviteInput(invite.Id, "New message", "Description", null, InviteLanguage.Ukrainian, InviteMascot.UtyaDuck);
+        var input = new UpdateInviteInput(invite.Id, TestData.ChangedStringValue, TestData.StringValue, null, InviteLanguage.Ukrainian, InviteMascot.UtyaDuck);
         var result = await useCase.Execute(input, ct);
 
         result.HasError.Should().BeFalse();
-        result.Data.Message.Should().Be("New message");
+        result.Data.Message.Should().Be(TestData.ChangedStringValue);
         result.Data.Language.Should().Be(InviteLanguage.Ukrainian);
         result.Data.Mascot.Should().Be(InviteMascot.UtyaDuck);
 
         db.Context.Entry(invite).State = EntityState.Detached;
         var fromDb = await db.Context.Invites.FindAsync(invite.Id);
-        fromDb!.Message.Should().Be("New message");
-        fromDb.Description.Should().Be("Description");
+        fromDb!.Message.Should().Be(TestData.ChangedStringValue);
+        fromDb.Description.Should().Be(TestData.StringValue);
         fromDb.Language.Should().Be(InviteLanguage.Ukrainian);
         fromDb.Mascot.Should().Be(InviteMascot.UtyaDuck);
     }
@@ -60,7 +60,7 @@ public class UpdateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IUpdateInviteUseCase>();
 
-        await useCase.Execute(new UpdateInviteInput(invite.Id, "Changed", null, null, InviteLanguage.Russian, InviteMascot.MochiPeachCat), ct);
+        await useCase.Execute(new UpdateInviteInput(invite.Id, TestData.ChangedStringValue, null, null, InviteLanguage.Russian, InviteMascot.MochiPeachCat), ct);
 
         db.Context.Entry(invite).State = EntityState.Detached;
         var fromDb = await db.Context.Invites.FindAsync(invite.Id);
@@ -74,7 +74,7 @@ public class UpdateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IUpdateInviteUseCase>();
 
-        var result = await useCase.Execute(new UpdateInviteInput(TestData.NonExistentId, "X", null, null, InviteLanguage.Russian, InviteMascot.MochiPeachCat), ct);
+        var result = await useCase.Execute(new UpdateInviteInput(TestData.NonExistentIntValue, TestData.StringValue, null, null, InviteLanguage.Russian, InviteMascot.MochiPeachCat), ct);
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be(CommonErrorCodes.NotFound);

@@ -6,6 +6,7 @@ using Dvizh.Integration.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Nexus.Core.Integration.Tests.Extensions;
+using Nexus.Core.Tests.Constants;
 using Xunit;
 
 namespace Dvizh.Integration.Tests.UseCases;
@@ -22,7 +23,7 @@ public class CreateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<ICreateInviteUseCase>();
 
-        var input = new CreateInviteInput("Come tomorrow", null, null, InviteLanguage.Ukrainian, InviteMascot.UtyaDuck);
+        var input = new CreateInviteInput(TestData.StringValue, null, null, InviteLanguage.Ukrainian, InviteMascot.UtyaDuck);
 
         var result = await useCase.Execute(input, ct);
 
@@ -35,7 +36,7 @@ public class CreateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
         var fromDb = await db.Context.Invites.FindAsync(result.Data.Id);
         fromDb.Should().NotBeNull();
         fromDb!.Code.Should().Be(result.Data.Code);
-        fromDb.Message.Should().Be("Come tomorrow");
+        fromDb.Message.Should().Be(TestData.StringValue);
         fromDb.Language.Should().Be(InviteLanguage.Ukrainian);
         fromDb.Mascot.Should().Be(InviteMascot.UtyaDuck);
         fromDb.Answer.Should().Be(InviteAnswer.Pending);
@@ -50,7 +51,7 @@ public class CreateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<ICreateInviteUseCase>();
 
-        var input = new CreateInviteInput("Test", null, null, InviteLanguage.English, InviteMascot.MochiPeachCat);
+        var input = new CreateInviteInput(TestData.StringValue, null, null, InviteLanguage.English, InviteMascot.MochiPeachCat);
 
         var r1 = await useCase.Execute(input, ct);
         var r2 = await useCase.Execute(input, ct);
@@ -66,12 +67,12 @@ public class CreateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<ICreateInviteUseCase>();
 
-        var input = new CreateInviteInput("Test", "Meeting description", null, InviteLanguage.Russian, InviteMascot.MochiPeachCat);
+        var input = new CreateInviteInput(TestData.StringValue, TestData.ChangedStringValue, null, InviteLanguage.Russian, InviteMascot.MochiPeachCat);
 
         var result = await useCase.Execute(input, ct);
 
         var fromDb = await db.Context.Invites.FindAsync(result.Data.Id);
-        fromDb!.Description.Should().Be("Meeting description");
+        fromDb!.Description.Should().Be(TestData.ChangedStringValue);
     }
 
     [Fact]
@@ -83,7 +84,7 @@ public class CreateInviteUseCaseTests(DvizhWebApplicationFactory factory) : ICla
         var useCase = scope.ServiceProvider.GetRequiredService<ICreateInviteUseCase>();
 
         var expiresAt = DateTime.UtcNow.AddDays(7);
-        var input = new CreateInviteInput("Test", null, expiresAt, InviteLanguage.Russian, InviteMascot.MochiPeachCat);
+        var input = new CreateInviteInput(TestData.StringValue, null, expiresAt, InviteLanguage.Russian, InviteMascot.MochiPeachCat);
 
         var result = await useCase.Execute(input, ct);
 

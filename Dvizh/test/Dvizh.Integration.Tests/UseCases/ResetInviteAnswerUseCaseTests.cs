@@ -71,7 +71,7 @@ public class ResetInviteAnswerUseCaseTests(DvizhWebApplicationFactory factory) :
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<IResetInviteAnswerUseCase>();
 
-        var result = await useCase.Execute(new ResetInviteAnswerInput(TestData.NonExistentId), ct);
+        var result = await useCase.Execute(new ResetInviteAnswerInput(TestData.NonExistentIntValue), ct);
 
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be(CommonErrorCodes.NotFound);

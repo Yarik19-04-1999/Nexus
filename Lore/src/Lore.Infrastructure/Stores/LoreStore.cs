@@ -33,14 +33,13 @@ public class LoreStore : ILoreStore
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public async Task<bool> UniverseExistsById(int id, CancellationToken cancellationToken)
-        => await this.context.Universes
-            .AsNoTracking()
-            .AnyAsync(x => x.Id == id, cancellationToken);
+        => await this.context.Universes.AsNoTracking().AnyAsync(x => x.Id == id, cancellationToken);
+
+    public async Task<bool> UniverseExistsByName(string name, CancellationToken cancellationToken)
+        => await this.context.Universes.AsNoTracking().AnyAsync(x => x.Name == name, cancellationToken);
 
     public async Task<bool> OtherUniverseExistsByName(string name, int excludeId, CancellationToken cancellationToken)
-        => await this.context.Universes
-            .AsNoTracking()
-            .AnyAsync(x => x.Name == name && x.Id != excludeId, cancellationToken);
+        => await this.context.Universes.AsNoTracking().AnyAsync(x => x.Name == name && x.Id != excludeId, cancellationToken);
 
     public async Task CreateUniverse(Universe universe, CancellationToken cancellationToken)
     {
@@ -61,8 +60,7 @@ public class LoreStore : ILoreStore
     }
 
     public async Task<IReadOnlyList<Universe>> SearchUniverses(string query, CancellationToken cancellationToken)
-        => await this.context.Universes
-            .AsNoTracking()
+        => await this.context.Universes.AsNoTracking()
             .Where(x => x.Name.StartsWith(query))
             .OrderBy(x => x.Name)
             .ToListAsync(cancellationToken);
@@ -79,13 +77,11 @@ public class LoreStore : ILoreStore
         => await this.context.Movies.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public async Task<bool> MovieExistsByTitleAndYear(string title, int releaseYear, CancellationToken cancellationToken)
-        => await this.context.Movies
-            .AsNoTracking()
+        => await this.context.Movies.AsNoTracking()
             .AnyAsync(x => x.Title == title && x.ReleaseYear == releaseYear, cancellationToken);
 
     public async Task<bool> OtherMovieExistsByTitleAndYear(string title, int releaseYear, int excludeId, CancellationToken cancellationToken)
-        => await this.context.Movies
-            .AsNoTracking()
+        => await this.context.Movies.AsNoTracking()
             .AnyAsync(x => x.Title == title && x.ReleaseYear == releaseYear && x.Id != excludeId, cancellationToken);
 
     public async Task CreateMovie(Movie movie, CancellationToken cancellationToken)
@@ -107,8 +103,7 @@ public class LoreStore : ILoreStore
     }
 
     public async Task<IReadOnlyList<Movie>> SearchMovies(string query, CancellationToken cancellationToken)
-        => await this.context.Movies
-            .AsNoTracking()
+        => await this.context.Movies.AsNoTracking()
             .Where(x => x.Title.StartsWith(query))
             .OrderBy(x => x.Title)
             .ToListAsync(cancellationToken);

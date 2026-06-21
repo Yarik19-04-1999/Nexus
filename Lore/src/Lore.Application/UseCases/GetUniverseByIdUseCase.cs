@@ -1,29 +1,36 @@
 using Lore.Application.Interfaces.Stores;
 using Lore.Application.Interfaces.UseCases;
+using Lore.Application.Interfaces.Validators;
 using Lore.Application.Models;
 using Lore.Application.Models.Inputs;
-using Nexus.Application.Core.Constants;
+using Lore.Application.Models.ValidationContexts;
 using Nexus.Application.Core.Models;
+using Nexus.Application.Core.Validation;
 
 namespace Lore.Application.UseCases;
 
 public class GetUniverseByIdUseCase : IGetUniverseByIdUseCase
 {
     private readonly ILoreStore _store;
+    private readonly ILoreValidatorFactory _validators;
 
-    public GetUniverseByIdUseCase(ILoreStore store)
+    public GetUniverseByIdUseCase(ILoreStore store, ILoreValidatorFactory validators)
     {
-        this._store = store;
+        _store = store;
+        _validators = validators;
     }
 
     public async Task<Result<Universe>> Execute(GetUniverseByIdInput input, CancellationToken cancellationToken = default)
     {
-        var universe = await this._store.GetUniverseById(input.Id, cancellationToken);
-        if (universe is null)
+        var universe = await _store.GetUniverseById(input.Id, cancellationToken);
+        var validationResult = await _validators.GetUniverseByIdValidator(new UniverseValidationContext(universe))
+            .ValidateAsync(input, cancellationToken);
+
+        if (!validationResult.IsValid)
         {
-            return ResultConstants.NotFound<Universe>(input.Id);
+            return validationResult.ToResult<Universe>();
         }
 
-        return Result<Universe>.Success(universe);
+        return Result<Universe>.Success(universe!);
     }
 }

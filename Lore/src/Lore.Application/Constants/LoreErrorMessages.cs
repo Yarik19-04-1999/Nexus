@@ -7,4 +7,7 @@ public static class LoreErrorMessages
 
     public static string UniverseAlreadyExists(string name)
         => $"A universe with name '{name}' already exists.";
+
+    public static string ViewCountAlreadyZero(int movieId)
+        => $"Movie {movieId} view count is already zero.";
 }

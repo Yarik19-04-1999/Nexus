@@ -2,8 +2,6 @@ namespace Lore.Application.Constants;
 
 public static class LoreErrorCodes
 {
-    public const string MovieNotFound = "MovieNotFound";
-    public const string UniverseNotFound = "UniverseNotFound";
-    public const string ViewCountAlreadyZero = "ViewCountAlreadyZero";
     public const string AlreadyExists = "AlreadyExists";
+    public const string ViewCountAlreadyZero = "ViewCountAlreadyZero";
 }

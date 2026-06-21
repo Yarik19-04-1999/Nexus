@@ -28,7 +28,7 @@ public class GetUniversesUseCaseTests(LoreWebApplicationFactory factory) : IClas
         var result = await useCase.Execute(input, ct);
 
         result.HasError.Should().BeFalse();
-        result.Data.Items.Should().Contain(u => u.Id == match.Id);
+        result.Data!.Items.Should().Contain(u => u.Id == match.Id);
         result.Data.Items.Should().NotContain(u => u.Id == other.Id);
     }
 
@@ -47,7 +47,7 @@ public class GetUniversesUseCaseTests(LoreWebApplicationFactory factory) : IClas
         var result = await useCase.Execute(input, ct);
 
         result.HasError.Should().BeFalse();
-        result.Data.Items.Should().Contain(u => u.Id == u1.Id);
+        result.Data!.Items.Should().Contain(u => u.Id == u1.Id);
         result.Data.Items.Should().Contain(u => u.Id == u2.Id);
     }
 
@@ -67,7 +67,7 @@ public class GetUniversesUseCaseTests(LoreWebApplicationFactory factory) : IClas
         var result = await useCase.Execute(input, ct);
 
         result.HasError.Should().BeFalse();
-        result.Data.Items.Should().HaveCount(1);
+        result.Data!.Items.Should().HaveCount(1);
         result.Data.TotalCount.Should().BeGreaterThanOrEqualTo(3);
         result.Data.Page.Should().Be(1);
         result.Data.PageSize.Should().Be(1);

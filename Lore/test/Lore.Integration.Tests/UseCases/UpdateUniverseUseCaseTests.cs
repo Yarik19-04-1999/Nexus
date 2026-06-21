@@ -33,13 +33,13 @@ public class UpdateUniverseUseCaseTests(LoreWebApplicationFactory factory) : ICl
         var result = await useCase.Execute(input, ct);
 
         result.HasError.Should().BeFalse();
-        result.Data.Name.Should().Be(TestData.ChangedStringValue);
+        result.Data!.Name.Should().Be(TestData.ChangedStringValue);
         result.Data.Description.Should().Be(TestData.StringValue);
         result.Data.IsHidden.Should().BeTrue();
         result.Data.ListNo.Should().Be(TestData.IntValue);
 
         db.Context.Entry(universe).State = EntityState.Detached;
-        var fromDb = await db.Context.Universes.FindAsync(universe.Id);
+        var fromDb = await db.Context.Universes.FindAsync([universe.Id], TestContext.Current.CancellationToken);
         fromDb!.Name.Should().Be(TestData.ChangedStringValue);
         fromDb.Description.Should().Be(TestData.StringValue);
         fromDb.IsHidden.Should().BeTrue();
@@ -62,7 +62,7 @@ public class UpdateUniverseUseCaseTests(LoreWebApplicationFactory factory) : ICl
         await useCase.Execute(new UpdateUniverseInput(universe.Id, TestData.ChangedStringValue, null, false, 0), ct);
 
         db.Context.Entry(universe).State = EntityState.Detached;
-        var fromDb = await db.Context.Universes.FindAsync(universe.Id);
+        var fromDb = await db.Context.Universes.FindAsync([universe.Id], TestContext.Current.CancellationToken);
         fromDb!.UpdatedAt.Should().BeAfter(originalUpdatedAt);
     }
 

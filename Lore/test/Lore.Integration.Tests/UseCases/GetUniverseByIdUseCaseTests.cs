@@ -32,7 +32,7 @@ public class GetUniverseByIdUseCaseTests(LoreWebApplicationFactory factory) : IC
         var result = await useCase.Execute(new GetUniverseByIdInput(universe.Id), ct);
 
         result.HasError.Should().BeFalse();
-        result.Data.Id.Should().Be(universe.Id);
+        result.Data!.Id.Should().Be(universe.Id);
         result.Data.Name.Should().Be(TestData.StringValue);
         result.Data.Description.Should().Be(TestData.ChangedStringValue);
         result.Data.IsHidden.Should().BeTrue();

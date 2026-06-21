@@ -25,13 +25,13 @@ public class CreateUniverseUseCaseTests(LoreWebApplicationFactory factory) : ICl
         var result = await useCase.Execute(input, ct);
 
         result.HasError.Should().BeFalse();
-        result.Data.Id.Should().BeGreaterThan(0);
+        result.Data!.Id.Should().BeGreaterThan(0);
         result.Data.Name.Should().Be(TestData.StringValue);
         result.Data.Description.Should().Be(TestData.ChangedStringValue);
         result.Data.IsHidden.Should().BeFalse();
         result.Data.ListNo.Should().Be(TestData.IntValue);
 
-        var fromDb = await db.Context.Universes.FindAsync(result.Data.Id);
+        var fromDb = await db.Context.Universes.FindAsync([result.Data.Id], TestContext.Current.CancellationToken);
         fromDb.Should().NotBeNull();
         fromDb!.Name.Should().Be(TestData.StringValue);
         fromDb.Description.Should().Be(TestData.ChangedStringValue);
@@ -53,7 +53,8 @@ public class CreateUniverseUseCaseTests(LoreWebApplicationFactory factory) : ICl
 
         var result = await useCase.Execute(input, ct);
 
-        var fromDb = await db.Context.Universes.FindAsync(result.Data.Id);
+        result.HasError.Should().BeFalse();
+        var fromDb = await db.Context.Universes.FindAsync([result.Data!.Id], TestContext.Current.CancellationToken);
         fromDb!.Description.Should().BeNull();
     }
 
@@ -69,7 +70,7 @@ public class CreateUniverseUseCaseTests(LoreWebApplicationFactory factory) : ICl
 
         var result = await useCase.Execute(input, ct);
 
-        var fromDb = await db.Context.Universes.FindAsync(result.Data.Id);
+        var fromDb = await db.Context.Universes.FindAsync([result.Data!.Id], TestContext.Current.CancellationToken);
         fromDb!.IsHidden.Should().BeTrue();
     }
 }

@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Eye, Pencil, Trash2 } from 'lucide-react'
+import Link from 'next/link'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { useDeleteUniverse } from '@/hooks/useUniverses'
 import type { Universe } from '@/types/universe'
@@ -23,6 +24,13 @@ export function UniverseActions({ universe, onEdit }: UniverseActionsProps) {
   return (
     <>
       <div className="flex items-center gap-1 justify-end">
+        <Link
+          href={`/universes/${universe.id}`}
+          title="View"
+          className="p-2 rounded-lg text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 transition-colors"
+        >
+          <Eye className="w-4 h-4" />
+        </Link>
         <ActionButton onClick={() => onEdit(universe)} title="Edit">
           <Pencil className="w-4 h-4" />
         </ActionButton>

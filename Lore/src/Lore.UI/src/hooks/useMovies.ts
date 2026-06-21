@@ -29,7 +29,10 @@ export function useCreateMovie() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (payload: CreateMoviePayload) => moviesApi.create(payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: movieKeys.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: movieKeys.all })
+      qc.invalidateQueries({ queryKey: ['universes'] })
+    },
   })
 }
 
@@ -38,7 +41,10 @@ export function useUpdateMovie() {
   return useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: UpdateMoviePayload }) =>
       moviesApi.update(id, payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: movieKeys.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: movieKeys.all })
+      qc.invalidateQueries({ queryKey: ['universes'] })
+    },
   })
 }
 
@@ -71,7 +77,10 @@ export function useLinkMovie() {
   return useMutation({
     mutationFn: ({ movieId, universeId }: { movieId: number; universeId: number }) =>
       moviesApi.link(movieId, universeId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: movieKeys.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: movieKeys.all })
+      qc.invalidateQueries({ queryKey: ['universes'] })
+    },
   })
 }
 
@@ -79,6 +88,9 @@ export function useUnlinkMovie() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (movieId: number) => moviesApi.unlink(movieId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: movieKeys.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: movieKeys.all })
+      qc.invalidateQueries({ queryKey: ['universes'] })
+    },
   })
 }

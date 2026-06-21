@@ -8,10 +8,11 @@ import { useSearchMovies, useLinkMovie } from '@/hooks/useMovies'
 interface LinkMovieModalProps {
   open: boolean
   universeId: number
+  existingMovieIds: number[]
   onClose: () => void
 }
 
-export function LinkMovieModal({ open, universeId, onClose }: LinkMovieModalProps) {
+export function LinkMovieModal({ open, universeId, existingMovieIds, onClose }: LinkMovieModalProps) {
   const [q, setQ] = useState('')
   const [debouncedQ, setDebouncedQ] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
@@ -30,7 +31,10 @@ export function LinkMovieModal({ open, universeId, onClose }: LinkMovieModalProp
     return () => clearTimeout(timer)
   }, [q])
 
-  const { data: results, isFetching } = useSearchMovies(debouncedQ)
+  const { data: rawResults, isFetching } = useSearchMovies(debouncedQ)
+
+  // exclude movies already in this universe
+  const results = rawResults?.filter(m => !existingMovieIds.includes(m.id))
 
   const handleLink = async (movieId: number) => {
     await link.mutateAsync({ movieId, universeId })
@@ -67,7 +71,9 @@ export function LinkMovieModal({ open, universeId, onClose }: LinkMovieModalProp
           {debouncedQ.length >= 3 && (
             <div className="mt-2 max-h-64 overflow-y-auto rounded-xl border border-gray-100 divide-y divide-gray-50">
               {!results?.length ? (
-                <p className="text-sm text-gray-400 text-center py-6">No movies found</p>
+                <p className="text-sm text-gray-400 text-center py-6">
+                  {rawResults?.length ? 'All matching movies are already in this universe' : 'No movies found'}
+                </p>
               ) : (
                 results.map(m => (
                   <button

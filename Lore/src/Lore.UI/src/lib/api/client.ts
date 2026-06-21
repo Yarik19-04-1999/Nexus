@@ -24,7 +24,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     return undefined as T
   }
 
-  return res.json() as Promise<T>
+  // Some endpoints return 200 OK with empty body (e.g. link/unlink)
+  const text = await res.text()
+  if (!text) return undefined as T
+  return JSON.parse(text) as T
 }
 
 export const apiClient = {

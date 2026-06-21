@@ -235,6 +235,7 @@ export function UniverseDetailPage({ universeId }: Props) {
       <LinkMovieModal
         open={linkMovieOpen}
         universeId={universeId}
+        existingMovieIds={universe.movies.map(m => m.id)}
         onClose={() => {
           setLinkMovieOpen(false)
           qc.invalidateQueries({ queryKey: universeKeys.detail(universeId) })

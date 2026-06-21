@@ -54,3 +54,66 @@ builder.ToTable("Users"); // no schema argument
 All enum columns use `int` type.
 
 SQL migration scripts belong in the service's Infrastructure project under a `scripts/` folder (e.g. `Information.Infrastructure/scripts/script.sql`).
+
+Primary key constraint naming: `[TableName$PK]`.
+
+```sql
+constraint [Invites$PK] primary key clustered (Id)
+```
+
+Foreign key constraint naming: `[ChildTable(FKCol)->ParentTable(PKCol)]`.
+
+```sql
+constraint [InviteEvents(InviteId)->Invites(Id)] foreign key (InviteId) references Dvizh.Invites(Id)
+```
+
+# Controllers
+
+Use `[FromServices]` to inject use case dependencies directly on action method parameters, not via constructor injection.
+
+```csharp
+public async Task<IActionResult> GetById(
+    int id,
+    [FromServices] IGetInviteByIdUseCase useCase,
+    CancellationToken cancellationToken)
+```
+
+Decorate controllers with `[ApiController]` and `[NexusRoute]`. `[NexusRoute]` produces `api/v{version}/[controller]`.
+
+# Mapperly
+
+Request→input mappers (Api layer) and input→entity mappers (Application layer) use `RequiredMappingStrategy.Source`.
+
+Response mappers (model→response, Api layer) use `RequiredMappingStrategy.Target`.
+
+```csharp
+// Request → Input or Input → Entity
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
+public static partial class CreateUniverseRequestMapper { ... }
+
+// Model → Response
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+public static partial class GetUniverseByIdResponseMapper { ... }
+```
+
+Always add `ExcludeAssets="runtime"` to the Riok.Mapperly package reference — it is a source generator and must not be included in the output.
+
+```xml
+<PackageReference Include="Riok.Mapperly" ExcludeAssets="runtime" />
+```
+
+# Error codes
+
+Error code string values use PascalCase: `"NotFound"`, `"AlreadyAnswered"`. Never SCREAMING_SNAKE_CASE.
+
+# Packages
+
+To add a new NuGet package:
+1. Add `<PackageVersion Include="PackageName" Version="x.y.z" />` to the root `Directory.Packages.props`.
+2. Add `<PackageReference Include="PackageName" />` (no `Version` attribute) to the relevant `.csproj`.
+
+Never add `Version` attributes to `<PackageReference>` elements in `.csproj` files.
+
+# Naming
+
+Input DTOs live in a folder named `Inputs` (plural): `Models/Inputs/XxxInput.cs`.

@@ -1,3 +1,4 @@
+using Nexus.Application.Core.Constants;
 using FluentAssertions;
 using Lore.Application.Constants;
 using Lore.Application.Interfaces.UseCases;
@@ -44,6 +45,6 @@ public class UnlinkMovieFromUniverseUseCaseTests(LoreWebApplicationFactory facto
         var result = await useCase.Execute(new UnlinkMovieFromUniverseInput(TestData.NonExistentIntValue), ct);
 
         result.HasError.Should().BeTrue();
-        result.ErrorCode.Should().Be(LoreErrorCodes.MovieNotFound);
+        result.ErrorCode.Should().Be(CommonErrorCodes.NotFound);
     }
 }

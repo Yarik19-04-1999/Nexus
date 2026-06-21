@@ -33,6 +33,50 @@ Never call `Result.Failure()` directly in use cases or services. The failure pat
 
 Use cases call only the factory methods, never `Failure` directly.
 
+# FluentValidation
+
+All Application-layer validation uses FluentValidation. Never validate in use cases with manual `if` checks — use validators instead.
+
+`ValidatorBase<T>` (in `Nexus.Application.Core`) sets `ClassLevelCascadeMode = CascadeMode.Stop` and `RuleLevelCascadeMode = CascadeMode.Stop` — validation always stops at the first error.
+
+**Validator factory pattern.** Each service has an `ILoreValidatorFactory` (one per service) with methods named `Create{UseCaseName}Validator(...)`. The factory uses `ActivatorUtilities.CreateFactory` — DI-registered dependencies (e.g. `ILoreStore`) are resolved from the container automatically; only context data is passed explicitly.
+
+```csharp
+private static readonly ObjectFactory _factory =
+    ActivatorUtilities.CreateFactory(typeof(CreateMovieValidator), []);
+
+public ICreateMovieValidator CreateCreateMovieValidator()
+    => (ICreateMovieValidator)_factory(_sp, null);
+```
+
+**Validation contexts** live in `Models/ValidationContexts/`. Each validator has its own context type, even if the shape is identical to another. Pre-fetch only what cannot be checked async inside the validator (typically the entity being mutated). Name properties concisely: `Movie?`, `Universe?` — not `ExistingMovie`.
+
+```csharp
+public record UpdateMovieValidationContext(Movie? Movie);
+```
+
+**Async checks** (existence in DB, uniqueness) are done with `MustAsync` inside the validator — the store is injected via DI, not pre-fetched in the use case. Use `RuleFor(x => x.FieldName)` for field-level checks:
+
+```csharp
+RuleFor(x => x.UniverseId)
+    .MustAsync((id, ct) => store.UniverseExistsById(id, ct))
+    .When(x => x.UniverseId.HasValue)
+    .WithErrorCode(CommonErrorCodes.NotFound)
+    .WithMessage(x => CommonErrorMessages.NotFound<Universe>(x.UniverseId!.Value));
+```
+
+**Validator interfaces** live in `Interfaces/Validators/`. Always add `using FluentValidation;` to validator files.
+
+**Converting validation results** — use the `ToResult()` / `ToResult<T>()` extension from `Nexus.Application.Core.Validation`:
+
+```csharp
+var validationResult = await validator.ValidateAsync(input, cancellationToken);
+if (!validationResult.IsValid)
+    return validationResult.ToResult<Movie>();
+```
+
+Only validate on the Application layer what cannot be validated at the controller level (model binding, data annotations). NotFound checks, uniqueness constraints, and business rules belong in validators.
+
 # Configuration
 
 Secrets and sensitive values in `appsettings.json` or environment variables use `SPECIFY_VALUE` as placeholder — never commit real values.
@@ -153,6 +197,10 @@ To add a new NuGet package:
 2. Add `<PackageReference Include="PackageName" />` (no `Version` attribute) to the relevant `.csproj`.
 
 Never add `Version` attributes to `<PackageReference>` elements in `.csproj` files.
+
+# Reference service
+
+`Lore` is the reference implementation for all Nexus services. When implementing a new service or feature, follow the patterns established there: use case structure, validator factory, validation contexts, store interface conventions, Mapperly mappers, and Sieve integration.
 
 # Naming
 

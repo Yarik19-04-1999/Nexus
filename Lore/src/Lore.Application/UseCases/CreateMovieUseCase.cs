@@ -1,9 +1,9 @@
 using Lore.Application.Interfaces.Stores;
 using Lore.Application.Interfaces.UseCases;
+using Lore.Application.Interfaces.Validators;
 using Lore.Application.Models;
 using Lore.Application.Models.Inputs;
 using Lore.Application.Models.Mappers;
-using Lore.Application.Validation;
 using Nexus.Application.Core.Models;
 using Nexus.Application.Core.Validation;
 
@@ -22,9 +22,7 @@ public class CreateMovieUseCase : ICreateMovieUseCase
 
     public async Task<Result<Movie>> Execute(CreateMovieInput input, CancellationToken cancellationToken = default)
     {
-        var movieExists = await _store.MovieExistsByTitleAndYear(input.Title, input.ReleaseYear, cancellationToken);
-        var context = new CreateMovieValidationContext(movieExists);
-        var validator = _validators.CreateMovieValidator(context);
+        var validator = _validators.CreateMovieValidator();
         var validationResult = await validator.ValidateAsync(input, cancellationToken);
 
         if (!validationResult.IsValid)

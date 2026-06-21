@@ -1,4 +1,5 @@
 using Lore.Application.Interfaces.UseCases;
+using Lore.Application.Interfaces.Validators;
 using Lore.Application.UseCases;
 using Lore.Application.Validation;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,3 +1,4 @@
+using Lore.Application.Interfaces.Validators;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lore.Application.Validation;
@@ -5,7 +6,7 @@ namespace Lore.Application.Validation;
 public class LoreValidatorFactory : ILoreValidatorFactory
 {
     private readonly ObjectFactory _createMovieValidatorFactory =
-        ActivatorUtilities.CreateFactory(typeof(CreateMovieValidator), [typeof(CreateMovieValidationContext)]);
+        ActivatorUtilities.CreateFactory(typeof(CreateMovieValidator), []);
 
     private readonly IServiceProvider _serviceProvider;
 
@@ -14,6 +15,6 @@ public class LoreValidatorFactory : ILoreValidatorFactory
         _serviceProvider = serviceProvider;
     }
 
-    public ICreateMovieValidator CreateMovieValidator(CreateMovieValidationContext context)
-        => (ICreateMovieValidator)_createMovieValidatorFactory(_serviceProvider, [context]);
+    public ICreateMovieValidator CreateMovieValidator()
+        => (ICreateMovieValidator)_createMovieValidatorFactory(_serviceProvider, null);
 }

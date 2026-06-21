@@ -124,4 +124,58 @@ public class UpdateMovieUseCaseTests(LoreWebApplicationFactory factory) : IClass
         result.HasError.Should().BeTrue();
         result.ErrorCode.Should().Be(CommonErrorCodes.NotFound);
     }
+
+    [Fact]
+    public async Task Execute_WhenAnotherMovieWithSameTitleAndReleaseYearExists_ReturnsAlreadyExistsError()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await using var db = new DatabaseScope(_factory);
+        var title = $"Duplicate movie {Guid.NewGuid()}";
+        await db.SeedMovie(m => { m.Title = title; m.ReleaseYear = 2024; });
+        var movie = await db.SeedMovie();
+
+        using var scope = _factory.CreateScope();
+        var useCase = scope.ServiceProvider.GetRequiredService<IUpdateMovieUseCase>();
+
+        var result = await useCase.Execute(new UpdateMovieInput(
+            Id: movie.Id,
+            Title: title,
+            ReleaseYear: 2024,
+            DurationMinutes: 90,
+            ReviewText: null,
+            Score: null,
+            ViewCount: 1,
+            RewatchStatus: RewatchStatus.MustRewatch,
+            UniverseId: null,
+            ListNo: 0), ct);
+
+        result.HasError.Should().BeTrue();
+        result.ErrorCode.Should().Be(LoreErrorCodes.AlreadyExists);
+    }
+
+    [Fact]
+    public async Task Execute_WhenUniverseNotFound_ReturnsNotFoundError()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await using var db = new DatabaseScope(_factory);
+        var movie = await db.SeedMovie();
+
+        using var scope = _factory.CreateScope();
+        var useCase = scope.ServiceProvider.GetRequiredService<IUpdateMovieUseCase>();
+
+        var result = await useCase.Execute(new UpdateMovieInput(
+            Id: movie.Id,
+            Title: movie.Title,
+            ReleaseYear: movie.ReleaseYear,
+            DurationMinutes: movie.DurationMinutes,
+            ReviewText: null,
+            Score: null,
+            ViewCount: 1,
+            RewatchStatus: RewatchStatus.MustRewatch,
+            UniverseId: TestData.NonExistentIntValue,
+            ListNo: 0), ct);
+
+        result.HasError.Should().BeTrue();
+        result.ErrorCode.Should().Be(CommonErrorCodes.NotFound);
+    }
 }

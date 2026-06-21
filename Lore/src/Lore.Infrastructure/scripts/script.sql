@@ -22,9 +22,11 @@ create table Lore.Universes
 )
 go
 
-create unique index [UQ_Movies(Title, ReleaseYear)] on Lore.Movies (Title, ReleaseYear)
-go
-pdatedAt datetime2 not null default sysutcdatetime(),
+
+create table Lore.Movies
+(
+    CreatedAt datetime2 not null default sysutcdatetime(),
+    UpdatedAt datetime2 not null default sysutcdatetime(),
     Id int identity(1,1) not null,
     UniverseId int null,
 
@@ -42,4 +44,7 @@ pdatedAt datetime2 not null default sysutcdatetime(),
         references Lore.Universes (Id) on delete set null,
     constraint [CK_Movies_ViewCount] check (ViewCount >= 0)
 )
+go
+
+create unique index [UQ_Movies(Title, ReleaseYear)] on Lore.Movies (Title, ReleaseYear)
 go

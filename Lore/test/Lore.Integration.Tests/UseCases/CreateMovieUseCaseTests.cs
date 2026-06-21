@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Lore.Application.Constants;
 using Lore.Application.Interfaces.UseCases;
 using Lore.Application.Models;
 using Lore.Application.Models.Enums;
@@ -21,11 +22,12 @@ public class CreateMovieUseCaseTests(LoreWebApplicationFactory factory) : IClass
         var ct = TestContext.Current.CancellationToken;
         await using var db = new DatabaseScope(_factory);
         var universe = await db.SeedUniverse();
+        var title = $"{TestData.StringValue} {Guid.NewGuid()}";
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<ICreateMovieUseCase>();
 
         var input = new CreateMovieInput(
-            Title: TestData.StringValue,
+            Title: title,
             ReleaseYear: 2023,
             DurationMinutes: 150,
             ReviewText: TestData.ChangedStringValue,
@@ -39,7 +41,7 @@ public class CreateMovieUseCaseTests(LoreWebApplicationFactory factory) : IClass
 
         result.HasError.Should().BeFalse();
         result.Data!.Id.Should().BeGreaterThan(0);
-        result.Data.Title.Should().Be(TestData.StringValue);
+        result.Data.Title.Should().Be(title);
         result.Data.ReleaseYear.Should().Be(2023);
         result.Data.DurationMinutes.Should().Be(150);
         result.Data.ReviewText.Should().Be(TestData.ChangedStringValue);
@@ -51,7 +53,7 @@ public class CreateMovieUseCaseTests(LoreWebApplicationFactory factory) : IClass
 
         var fromDb = await db.Context.Movies.AsNoTracking().FirstOrDefaultAsync(x => x.Id == result.Data.Id, ct);
         fromDb.Should().NotBeNull();
-        fromDb!.Title.Should().Be(TestData.StringValue);
+        fromDb!.Title.Should().Be(title);
         fromDb.ReleaseYear.Should().Be(2023);
         fromDb.DurationMinutes.Should().Be(150);
         fromDb.ReviewText.Should().Be(TestData.ChangedStringValue);
@@ -72,8 +74,8 @@ public class CreateMovieUseCaseTests(LoreWebApplicationFactory factory) : IClass
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<ICreateMovieUseCase>();
 
-        var input = new CreateMovieInput(
-            Title: TestData.StringValue,
+        var result = await useCase.Execute(new CreateMovieInput(
+            Title: $"{TestData.StringValue} {Guid.NewGuid()}",
             ReleaseYear: 2023,
             DurationMinutes: 90,
             ReviewText: null,
@@ -81,9 +83,7 @@ public class CreateMovieUseCaseTests(LoreWebApplicationFactory factory) : IClass
             ViewCount: 1,
             RewatchStatus: RewatchStatus.MustRewatch,
             UniverseId: null,
-            ListNo: 0);
-
-        var result = await useCase.Execute(input, ct);
+            ListNo: 0), ct);
 
         result.HasError.Should().BeFalse();
         var fromDb = await db.Context.Movies.AsNoTracking().FirstOrDefaultAsync(x => x.Id == result.Data!.Id, ct);
@@ -98,8 +98,8 @@ public class CreateMovieUseCaseTests(LoreWebApplicationFactory factory) : IClass
         using var scope = _factory.CreateScope();
         var useCase = scope.ServiceProvider.GetRequiredService<ICreateMovieUseCase>();
 
-        var input = new CreateMovieInput(
-            Title: TestData.StringValue,
+        var result = await useCase.Execute(new CreateMovieInput(
+            Title: $"{TestData.StringValue} {Guid.NewGuid()}",
             ReleaseYear: 2023,
             DurationMinutes: 90,
             ReviewText: null,
@@ -107,12 +107,36 @@ public class CreateMovieUseCaseTests(LoreWebApplicationFactory factory) : IClass
             ViewCount: 1,
             RewatchStatus: RewatchStatus.MustRewatch,
             UniverseId: null,
-            ListNo: 0);
-
-        var result = await useCase.Execute(input, ct);
+            ListNo: 0), ct);
 
         result.HasError.Should().BeFalse();
         var fromDb = await db.Context.Movies.AsNoTracking().FirstOrDefaultAsync(x => x.Id == result.Data!.Id, ct);
         fromDb!.UniverseId.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Execute_WhenMovieWithSameTitleAndReleaseYearExists_ReturnsAlreadyExistsError()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await using var db = new DatabaseScope(_factory);
+        var title = $"Duplicate movie {Guid.NewGuid()}";
+        await db.SeedMovie(m => { m.Title = title; m.ReleaseYear = 2024; });
+
+        using var scope = _factory.CreateScope();
+        var useCase = scope.ServiceProvider.GetRequiredService<ICreateMovieUseCase>();
+
+        var result = await useCase.Execute(new CreateMovieInput(
+            Title: title,
+            ReleaseYear: 2024,
+            DurationMinutes: 90,
+            ReviewText: null,
+            Score: null,
+            ViewCount: 1,
+            RewatchStatus: RewatchStatus.MustRewatch,
+            UniverseId: null,
+            ListNo: 0), ct);
+
+        result.HasError.Should().BeTrue();
+        result.ErrorCode.Should().Be(LoreErrorCodes.AlreadyExists);
     }
 }

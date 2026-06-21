@@ -1,9 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
 
@@ -12,13 +9,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.v3" Version="3.2.0" />
-    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="AutoFixture" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="xunit.v3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Lore.Api\Lore.Api.csproj" />
+    <ProjectReference Include="..\..\src\Lore.Infrastructure\Lore.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Nexus.Core.Integration.Tests\Nexus.Core.Integration.Tests.csproj" />
+    <ProjectReference Include="..\..\..\Shared\test\Nexus.Core.Tests\Nexus.Core.Tests.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { universesApi, type CreateUniversePayload, type UpdateUniversePayload, type UniverseListParams } from '@/lib/api/universes'
+import type { UniverseDetail } from '@/types/universe'
 
 export const universeKeys = {
   all: ['universes'] as const,
@@ -17,9 +18,17 @@ export function useUniversesList(params: UniverseListParams) {
 }
 
 export function useUniverseById(id: number) {
-  return useQuery({
+  return useQuery<UniverseDetail>({
     queryKey: universeKeys.detail(id),
     queryFn: () => universesApi.getById(id),
+  })
+}
+
+export function useSearchUniverses(q: string) {
+  return useQuery({
+    queryKey: [...universeKeys.all, 'search', q] as const,
+    queryFn: () => universesApi.search(q),
+    enabled: q.trim().length >= 3,
   })
 }
 

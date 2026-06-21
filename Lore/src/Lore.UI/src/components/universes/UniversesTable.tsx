@@ -4,12 +4,14 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { Plus, Search, ChevronUp, ChevronDown, ChevronsUpDown, EyeOff } from 'lucide-react'
-import { useUniversesList } from '@/hooks/useUniverses'
+import { useUniversesList, useCreateUniverse, useUpdateUniverse } from '@/hooks/useUniverses'
 import { UniverseActions } from './UniverseActions'
+import { UniverseModal } from './UniverseModal'
 import { Pagination } from './Pagination'
 import { Spinner } from '@/components/ui/Spinner'
 import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
-import type { UniverseListParams } from '@/lib/api/universes'
+import type { UniverseListParams, CreateUniversePayload, UpdateUniversePayload } from '@/lib/api/universes'
+import type { Universe } from '@/types/universe'
 
 type SortDir = 'asc' | 'desc'
 
@@ -24,6 +26,10 @@ export function UniversesTable() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const [createOpen, setCreateOpen] = useState(false)
+  const [editTarget, setEditTarget] = useState<Universe | null>(null)
+  const createUniverse = useCreateUniverse()
+  const updateUniverse = useUpdateUniverse()
 
   const urlQ = searchParams.get('q') ?? ''
   const sort = searchParams.get('sort')
@@ -62,6 +68,16 @@ export function UniversesTable() {
   const listParams: UniverseListParams = { page, pageSize, q: urlQ || undefined, sort: sort ?? undefined, dir }
   const { data, isPending } = useUniversesList(listParams)
 
+  const handleCreate = async (payload: CreateUniversePayload | UpdateUniversePayload) => {
+    await createUniverse.mutateAsync(payload as CreateUniversePayload)
+    setCreateOpen(false)
+  }
+
+  const handleUpdate = async (payload: CreateUniversePayload | UpdateUniversePayload) => {
+    await updateUniverse.mutateAsync(payload as UpdateUniversePayload)
+    setEditTarget(null)
+  }
+
   const thSort = 'px-4 py-3 font-medium cursor-pointer select-none'
   const th = 'px-4 py-3 font-medium'
 
@@ -69,13 +85,13 @@ export function UniversesTable() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-xl font-bold text-gray-800">Universes</h1>
-        <Link
-          href="/universes/new"
+        <button
+          onClick={() => setCreateOpen(true)}
           className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white bg-indigo-500 hover:bg-indigo-600 transition-colors"
         >
           <Plus className="w-4 h-4" />
           New universe
-        </Link>
+        </button>
       </div>
 
       <div className="relative">
@@ -120,9 +136,11 @@ export function UniversesTable() {
                   <tr key={universe.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-gray-800">{universe.name}</span>
+                        <Link href={`/universes/${universe.id}`} className="font-medium text-gray-800 hover:text-indigo-600 transition-colors">
+                          {universe.name}
+                        </Link>
                         {universe.isHidden && (
-                          <EyeOff className="w-3.5 h-3.5 text-gray-400" title="Hidden" />
+                          <span title="Hidden"><EyeOff className="w-3.5 h-3.5 text-gray-400" /></span>
                         )}
                       </div>
                     </td>
@@ -131,7 +149,7 @@ export function UniversesTable() {
                     </td>
                     <td className="px-4 py-3 text-gray-500 hidden sm:table-cell">{universe.listNo}</td>
                     <td className="px-4 py-3">
-                      <UniverseActions universe={universe} />
+                      <UniverseActions universe={universe} onEdit={setEditTarget} />
                     </td>
                   </tr>
                 ))}
@@ -149,6 +167,20 @@ export function UniversesTable() {
           />
         </>
       )}
+
+      <UniverseModal
+        open={createOpen}
+        isPending={createUniverse.isPending}
+        onClose={() => setCreateOpen(false)}
+        onSubmit={handleCreate}
+      />
+      <UniverseModal
+        open={!!editTarget}
+        universe={editTarget ?? undefined}
+        isPending={updateUniverse.isPending}
+        onClose={() => setEditTarget(null)}
+        onSubmit={handleUpdate}
+      />
     </div>
   )
 }

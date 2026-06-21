@@ -28,7 +28,18 @@ public class LoreStore : ILoreStore
     }
 
     public async Task<Universe?> GetUniverseById(int id, CancellationToken cancellationToken)
-        => await this.context.Universes.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        => await this.context.Universes
+            .Include(u => u.Movies)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+    public async Task<bool> UniverseExistsById(int id, CancellationToken cancellationToken)
+        => await this.context.Universes.AsNoTracking().AnyAsync(x => x.Id == id, cancellationToken);
+
+    public async Task<bool> UniverseExistsByName(string name, CancellationToken cancellationToken)
+        => await this.context.Universes.AsNoTracking().AnyAsync(x => x.Name == name, cancellationToken);
+
+    public async Task<bool> OtherUniverseExistsByName(string name, int excludeId, CancellationToken cancellationToken)
+        => await this.context.Universes.AsNoTracking().AnyAsync(x => x.Name == name && x.Id != excludeId, cancellationToken);
 
     public async Task CreateUniverse(Universe universe, CancellationToken cancellationToken)
     {
@@ -47,4 +58,53 @@ public class LoreStore : ILoreStore
         this.context.Universes.Remove(universe);
         await this.context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<Universe>> SearchUniverses(string query, CancellationToken cancellationToken)
+        => await this.context.Universes.AsNoTracking()
+            .Where(x => x.Name.StartsWith(query))
+            .OrderBy(x => x.Name)
+            .ToListAsync(cancellationToken);
+
+    public async Task<PagedResult<Movie>> GetMoviesPaged(SieveModel model, CancellationToken cancellationToken)
+    {
+        var query = this.context.Movies.AsNoTracking().Include(m => m.Universe);
+        var total = await this.sieve.Apply(model, query, applyPagination: false).CountAsync(cancellationToken);
+        var items = await this.sieve.Apply(model, query).ToListAsync(cancellationToken);
+        return new PagedResult<Movie>(items, total, model.Page ?? 1, model.PageSize ?? 20);
+    }
+
+    public async Task<Movie?> GetMovieById(int id, CancellationToken cancellationToken)
+        => await this.context.Movies.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+    public async Task<bool> MovieExistsByTitleAndYear(string title, int releaseYear, CancellationToken cancellationToken)
+        => await this.context.Movies.AsNoTracking()
+            .AnyAsync(x => x.Title == title && x.ReleaseYear == releaseYear, cancellationToken);
+
+    public async Task<bool> OtherMovieExistsByTitleAndYear(string title, int releaseYear, int excludeId, CancellationToken cancellationToken)
+        => await this.context.Movies.AsNoTracking()
+            .AnyAsync(x => x.Title == title && x.ReleaseYear == releaseYear && x.Id != excludeId, cancellationToken);
+
+    public async Task CreateMovie(Movie movie, CancellationToken cancellationToken)
+    {
+        this.context.Movies.Add(movie);
+        await this.context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task UpdateMovie(Movie movie, CancellationToken cancellationToken)
+    {
+        this.context.Movies.Update(movie);
+        await this.context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteMovie(Movie movie, CancellationToken cancellationToken)
+    {
+        this.context.Movies.Remove(movie);
+        await this.context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Movie>> SearchMovies(string query, CancellationToken cancellationToken)
+        => await this.context.Movies.AsNoTracking()
+            .Where(x => x.Title.StartsWith(query))
+            .OrderBy(x => x.Title)
+            .ToListAsync(cancellationToken);
 }

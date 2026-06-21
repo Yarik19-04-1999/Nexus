@@ -8,4 +8,5 @@ public class Universe : BaseEntity, IHasIsHidden
     public string? Description { get; set; }
     public bool IsHidden { get; set; }
     public int ListNo { get; set; }
+    public ICollection<Movie> Movies { get; set; } = [];
 }

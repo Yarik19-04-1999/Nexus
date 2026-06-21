@@ -1,9 +1,10 @@
 using Lore.Application.Models.Inputs;
+using Riok.Mapperly.Abstractions;
 
 namespace Lore.Api.Controllers.V1.Universes.UpdateUniverse;
 
-public static class UpdateUniverseRequestMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
+public static partial class UpdateUniverseRequestMapper
 {
-    public static UpdateUniverseInput Map(UpdateUniverseRequest request)
-        => new(request.Id, request.Name, request.Description, request.IsHidden, request.ListNo);
+    public static partial UpdateUniverseInput Map(UpdateUniverseRequest request);
 }

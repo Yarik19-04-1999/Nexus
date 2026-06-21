@@ -1,17 +1,12 @@
 using Lore.Application.Models;
+using Lore.Application.Models.Enums;
+using Riok.Mapperly.Abstractions;
 
 namespace Lore.Api.Controllers.V1.Universes.GetUniverseById;
 
-public static class GetUniverseByIdResponseMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+public static partial class GetUniverseByIdResponseMapper
 {
-    public static GetUniverseByIdResponse Map(Universe universe)
-        => new(
-            universe.Id,
-            universe.Name,
-            universe.Description,
-            universe.IsHidden,
-            universe.ListNo,
-            universe.CreatedAt,
-            universe.UpdatedAt
-        );
+    public static partial GetUniverseByIdResponse Map(Universe universe);
+    private static partial MovieInUniverseItem Map(Movie movie);
 }

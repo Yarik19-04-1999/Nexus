@@ -21,3 +21,30 @@ create table Lore.Universes
     constraint [Universes$PK] primary key clustered (Id)
 )
 go
+
+
+create table Lore.Movies
+(
+    CreatedAt datetime2 not null default sysutcdatetime(),
+    UpdatedAt datetime2 not null default sysutcdatetime(),
+    Id int identity(1,1) not null,
+    UniverseId int null,
+
+    Title nvarchar(128) not null,
+    ReleaseYear int not null,
+    DurationMinutes int not null,
+    ReviewText nvarchar(max) null,
+    Score decimal(3,1) null,
+    ViewCount int not null default 1,
+    RewatchStatus int not null default 0,
+    ListNo int not null default 0,
+
+    constraint [Movies$PK] primary key clustered (Id),
+    constraint [Movies(UniverseId)->Universes(Id)] foreign key (UniverseId)
+        references Lore.Universes (Id) on delete set null,
+    constraint [CK_Movies_ViewCount] check (ViewCount >= 0)
+)
+go
+
+create unique index [UQ_Movies(Title, ReleaseYear)] on Lore.Movies (Title, ReleaseYear)
+go

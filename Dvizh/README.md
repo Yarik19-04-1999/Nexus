@@ -103,7 +103,9 @@ npm start
 Dvizh/
 ├── src/
 │   ├── Dvizh.Api/              # ASP.NET Core API
-│   ├── Dvizh.Application/      # Use cases, EF Core, DB scripts
-│   └── Dvizh.UI/               # Next.js frontend
+│   ├── Dvizh.Application/      # Use cases, EF Core, DB scripts (no separate Infrastructure)
+│   └── Dvizh.UI/               # Next.js 16 frontend
+├── test/
+│   └── Dvizh.Integration.Tests/
 └── Dvizh.slnx                  # Visual Studio solution
 ```

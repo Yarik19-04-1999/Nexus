@@ -6,5 +6,5 @@ namespace Lore.Application.Models.Mappers;
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
 public static partial class CreateUniverseMapper
 {
-    public static partial Universe MapCreate(CreateUniverseInput input);
+    public static partial Universe Map(CreateUniverseInput input);
 }

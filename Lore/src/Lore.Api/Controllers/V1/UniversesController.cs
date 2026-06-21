@@ -1,6 +1,7 @@
 using Lore.Api.Controllers.V1.Universes.CreateUniverse;
 using Lore.Api.Controllers.V1.Universes.GetUniverseById;
 using Lore.Api.Controllers.V1.Universes.GetUniverses;
+using Lore.Api.Controllers.V1.Universes.SearchUniverses;
 using Lore.Api.Controllers.V1.Universes.UpdateUniverse;
 using Lore.Application.Interfaces.UseCases;
 using Lore.Application.Models.Inputs;
@@ -29,6 +30,21 @@ public class UniversesController : ControllerBase
             return this.DomainError(result);
         }
         return Ok(GetUniversesResponseMapper.Map(result.Data));
+    }
+
+    [HttpGet("search")]
+    [ProducesResponseType<IReadOnlyList<SearchUniverseItem>>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> Search(
+        [FromQuery] string q,
+        [FromServices] ISearchUniversesUseCase useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.Execute(new SearchUniversesInput(q), cancellationToken);
+        if (result.HasError)
+        {
+            return this.DomainError(result);
+        }
+        return Ok(SearchUniversesResponseMapper.Map(result.Data));
     }
 
     [HttpGet("{id:int}")]

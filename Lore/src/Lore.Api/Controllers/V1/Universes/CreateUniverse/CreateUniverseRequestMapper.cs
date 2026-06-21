@@ -1,9 +1,10 @@
 using Lore.Application.Models.Inputs;
+using Riok.Mapperly.Abstractions;
 
 namespace Lore.Api.Controllers.V1.Universes.CreateUniverse;
 
-public static class CreateUniverseRequestMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
+public static partial class CreateUniverseRequestMapper
 {
-    public static CreateUniverseInput Map(CreateUniverseRequest request)
-        => new(request.Name, request.Description, request.IsHidden, request.ListNo);
+    public static partial CreateUniverseInput Map(CreateUniverseRequest request);
 }

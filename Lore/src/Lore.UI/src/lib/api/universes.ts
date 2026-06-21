@@ -1,5 +1,5 @@
 import { apiClient } from './client'
-import type { Universe, PagedResult } from '@/types/universe'
+import type { Universe, UniverseDetail, PagedResult } from '@/types/universe'
 
 export interface UniverseListParams {
   page: number
@@ -50,7 +50,7 @@ export const universesApi = {
     apiClient.get<PagedResult<Universe>>(`/api/v1/universes?${buildQuery(params)}`),
 
   getById: (id: number) =>
-    apiClient.get<Universe>(`/api/v1/universes/${id}`),
+    apiClient.get<UniverseDetail>(`/api/v1/universes/${id}`),
 
   create: (payload: CreateUniversePayload) =>
     apiClient.post<Universe>('/api/v1/universes', payload),
@@ -60,4 +60,7 @@ export const universesApi = {
 
   delete: (id: number) =>
     apiClient.delete(`/api/v1/universes/${id}`),
+
+  search: (q: string) =>
+    apiClient.get<Array<{ id: number; name: string }>>(`/api/v1/universes/search?q=${encodeURIComponent(q)}`),
 }

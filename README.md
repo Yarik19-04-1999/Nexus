@@ -1,6 +1,18 @@
 # Nexus
 
-Monorepo. Each service lives in its own folder (`Dvizh`, `Lore`, …).
+Monorepo containing three backend services and two frontend apps.
+
+| Service | API port | UI port | Description |
+|---|---|---|---|
+| [Dvizh](Dvizh/README.md) | 5055 | 3000 | Invite management |
+| [Lore](Lore/README.md) | 5045 | 3001 | Lore / universe catalog |
+| [Information](Information/README.md) | 5065 | — | Exchange rates, Epic giveaways, weather |
+
+## Prerequisites
+
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
+- [Node.js](https://nodejs.org/) (LTS)
+- SQL Server (local instance or Docker)
 
 ## Database
 
@@ -22,13 +34,8 @@ After the database is created, run the schema script for each service you want t
 
 | Service | Script |
 |---------|--------|
-| Dvizh   | `Dvizh/src/Dvizh.Application/scripts/script.sql` |
+| Dvizh | `Dvizh/src/Dvizh.Application/scripts/script.sql` |
+| Lore | `Lore/src/Lore.Infrastructure/scripts/script.sql` |
+| Information | `Information/src/Information.Infrastructure/scripts/script.sql` |
 
 Each script creates a login, user, schema, and tables. Re-running is idempotent — `DropSchema` tears everything down first.
-
-## Services
-
-| Service | Description |
-|---------|-------------|
-| [Dvizh](Dvizh/README.md) | Invite link system |
-| [Information](Information/README.md) | Exchange rates, Epic Games giveaways, weather |

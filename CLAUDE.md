@@ -33,6 +33,50 @@ Never call `Result.Failure()` directly in use cases or services. The failure pat
 
 Use cases call only the factory methods, never `Failure` directly.
 
+# FluentValidation
+
+All Application-layer validation uses FluentValidation. Never validate in use cases with manual `if` checks — use validators instead.
+
+`ValidatorBase<T>` (in `Nexus.Application.Core`) sets `ClassLevelCascadeMode = CascadeMode.Stop` and `RuleLevelCascadeMode = CascadeMode.Stop` — validation always stops at the first error.
+
+**Validator factory pattern.** Each service has an `ILoreValidatorFactory` (one per service) with methods named `Create{UseCaseName}Validator(...)`. The factory uses `ActivatorUtilities.CreateFactory` — DI-registered dependencies (e.g. `ILoreStore`) are resolved from the container automatically; only context data is passed explicitly.
+
+```csharp
+private static readonly ObjectFactory _factory =
+    ActivatorUtilities.CreateFactory(typeof(CreateMovieValidator), []);
+
+public ICreateMovieValidator CreateCreateMovieValidator()
+    => (ICreateMovieValidator)_factory(_sp, null);
+```
+
+**Validation contexts** live in `Models/ValidationContexts/`. Each validator has its own context type, even if the shape is identical to another. Pre-fetch only what cannot be checked async inside the validator (typically the entity being mutated). Name properties concisely: `Movie?`, `Universe?` — not `ExistingMovie`.
+
+```csharp
+public record UpdateMovieValidationContext(Movie? Movie);
+```
+
+**Async checks** (existence in DB, uniqueness) are done with `MustAsync` inside the validator — the store is injected via DI, not pre-fetched in the use case. Use `RuleFor(x => x.FieldName)` for field-level checks:
+
+```csharp
+RuleFor(x => x.UniverseId)
+    .MustAsync((id, ct) => store.UniverseExistsById(id, ct))
+    .When(x => x.UniverseId.HasValue)
+    .WithErrorCode(CommonErrorCodes.NotFound)
+    .WithMessage(x => CommonErrorMessages.NotFound<Universe>(x.UniverseId!.Value));
+```
+
+**Validator interfaces** live in `Interfaces/Validators/`. Always add `using FluentValidation;` to validator files.
+
+**Converting validation results** — use the `ToResult()` / `ToResult<T>()` extension from `Nexus.Application.Core.Validation`:
+
+```csharp
+var validationResult = await validator.ValidateAsync(input, cancellationToken);
+if (!validationResult.IsValid)
+    return validationResult.ToResult<Movie>();
+```
+
+Only validate on the Application layer what cannot be validated at the controller level (model binding, data annotations). NotFound checks, uniqueness constraints, and business rules belong in validators.
+
 # Configuration
 
 Secrets and sensitive values in `appsettings.json` or environment variables use `SPECIFY_VALUE` as placeholder — never commit real values.
@@ -54,3 +98,114 @@ builder.ToTable("Users"); // no schema argument
 All enum columns use `int` type.
 
 SQL migration scripts belong in the service's Infrastructure project under a `scripts/` folder (e.g. `Information.Infrastructure/scripts/script.sql`).
+
+Primary key constraint naming: `[TableName$PK]`.
+
+```sql
+constraint [Invites$PK] primary key clustered (Id)
+```
+
+Foreign key constraint naming: `[ChildTable(FKCol)->ParentTable(PKCol)]`.
+
+```sql
+constraint [InviteEvents(InviteId)->Invites(Id)] foreign key (InviteId) references Dvizh.Invites(Id)
+```
+
+# Controllers
+
+Use `[FromServices]` to inject use case dependencies directly on action method parameters, not via constructor injection.
+
+```csharp
+public async Task<IActionResult> GetById(
+    int id,
+    [FromServices] IGetInviteByIdUseCase useCase,
+    CancellationToken cancellationToken)
+```
+
+Decorate controllers with `[ApiController]` and `[NexusRoute]`. `[NexusRoute]` produces `api/v{version}/[controller]`.
+
+# Mapperly
+
+All mappers use Riok.Mapperly. No manual static mapping code.
+
+All mapper methods are named `Map` regardless of direction or purpose.
+
+Request→input mappers (Api layer) and input→entity mappers (Application layer) use `RequiredMappingStrategy.Source`.
+
+Response mappers (model→response, Api layer) use `RequiredMappingStrategy.Target`.
+
+```csharp
+// Request → Input or Input → Entity
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
+public static partial class CreateUniverseRequestMapper
+{
+    public static partial CreateUniverseInput Map(CreateUniverseRequest request);
+}
+
+// Model → Response
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+public static partial class GetUniverseByIdResponseMapper
+{
+    public static partial GetUniverseByIdResponse Map(Universe universe);
+}
+```
+
+When the route contributes a field not present in the request body (e.g. `id` on a PUT), use a non-partial wrapper that calls a private partial method and fills in the missing field:
+
+```csharp
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
+public static partial class UpdateMovieRequestMapper
+{
+    public static UpdateMovieInput Map(int id, UpdateMovieRequest request)
+    {
+        var input = MapFromRequest(request);
+        return input with { Id = id };
+    }
+
+    [MapperIgnoreTarget(nameof(UpdateMovieInput.Id))]
+    private static partial UpdateMovieInput MapFromRequest(UpdateMovieRequest request);
+}
+```
+
+For paged-result response mappers, use a non-partial wrapper for the `PagedResult<T>` overload and a `partial` method for the item:
+
+```csharp
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+public static partial class GetMoviesResponseMapper
+{
+    public static GetMoviesResponse Map(PagedResult<Movie> result)
+        => new(result.Items.Select(Map).ToList(), result.TotalCount, result.Page, result.PageSize, result.TotalPages);
+
+    public static partial GetMovieItemResponse Map(Movie movie);
+}
+```
+
+Always add `ExcludeAssets="runtime"` to the Riok.Mapperly package reference — it is a source generator and must not be included in the output.
+
+```xml
+<PackageReference Include="Riok.Mapperly" ExcludeAssets="runtime" />
+```
+
+# Error codes
+
+Error code string values use PascalCase: `"NotFound"`, `"AlreadyAnswered"`. Never SCREAMING_SNAKE_CASE.
+
+# Packages
+
+To add a new NuGet package:
+1. Add `<PackageVersion Include="PackageName" Version="x.y.z" />` to the root `Directory.Packages.props`.
+2. Add `<PackageReference Include="PackageName" />` (no `Version` attribute) to the relevant `.csproj`.
+
+Never add `Version` attributes to `<PackageReference>` elements in `.csproj` files.
+
+# Reference service
+
+`Lore` is the reference implementation for all Nexus services. When implementing a new service or feature, follow the patterns established there: use case structure, validator factory, validation contexts, store interface conventions, Mapperly mappers, and Sieve integration.
+
+# Naming
+
+Input DTOs live in a folder named `Inputs` (plural): `Models/Inputs/XxxInput.cs`.
+
+Enum types live in `Models/Enums/`: `Models/Enums/RewatchStatus.cs` (namespace `*.Models.Enums`).
+
+Non-entity result types (e.g. search results) live in `Models/Results/`: `Models/Results/SearchMovieResult.cs` (namespace `*.Models.Results`).

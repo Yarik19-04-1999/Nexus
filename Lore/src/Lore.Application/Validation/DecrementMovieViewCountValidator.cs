@@ -11,7 +11,7 @@ namespace Lore.Application.Validation;
 
 public class DecrementMovieViewCountValidator : ValidatorBase<DecrementMovieViewCountInput>, IDecrementMovieViewCountValidator
 {
-    public DecrementMovieViewCountValidator(MovieValidationContext context)
+    public DecrementMovieViewCountValidator(DecrementMovieViewCountValidationContext context)
     {
         RuleFor(x => x)
             .Must(_ => context.Movie != null)

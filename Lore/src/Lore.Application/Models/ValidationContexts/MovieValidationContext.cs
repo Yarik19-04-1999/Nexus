@@ -1,5 +1,1 @@
-using Lore.Application.Models;
-
-namespace Lore.Application.Models.ValidationContexts;
-
-public record MovieValidationContext(Movie? Movie);
+// Removed — each validator has its own context

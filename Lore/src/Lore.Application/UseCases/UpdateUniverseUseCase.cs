@@ -24,9 +24,8 @@ public class UpdateUniverseUseCase : IUpdateUniverseUseCase
     public async Task<Result<Universe>> Execute(UpdateUniverseInput input, CancellationToken cancellationToken = default)
     {
         var universe = await _store.GetUniverseById(input.Id, cancellationToken);
-        var context = new UpdateUniverseValidationContext(universe);
-        var validator = _validators.UpdateUniverseValidator(context);
-        var validationResult = await validator.ValidateAsync(input, cancellationToken);
+        var validationResult = await _validators.CreateUpdateUniverseValidator(new UpdateUniverseValidationContext(universe))
+            .ValidateAsync(input, cancellationToken);
 
         if (!validationResult.IsValid)
         {
@@ -35,7 +34,6 @@ public class UpdateUniverseUseCase : IUpdateUniverseUseCase
 
         UpdateUniverseMapper.Map(input, universe!);
         universe!.UpdatedAt = DateTime.UtcNow;
-
         await _store.UpdateUniverse(universe, cancellationToken);
         return Result<Universe>.Success(universe);
     }

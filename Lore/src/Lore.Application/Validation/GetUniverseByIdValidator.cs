@@ -10,7 +10,7 @@ namespace Lore.Application.Validation;
 
 public class GetUniverseByIdValidator : ValidatorBase<GetUniverseByIdInput>, IGetUniverseByIdValidator
 {
-    public GetUniverseByIdValidator(UniverseValidationContext context)
+    public GetUniverseByIdValidator(GetUniverseByIdValidationContext context)
     {
         RuleFor(x => x)
             .Must(_ => context.Universe != null)

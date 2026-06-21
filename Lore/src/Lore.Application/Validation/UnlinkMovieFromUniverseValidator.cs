@@ -10,7 +10,7 @@ namespace Lore.Application.Validation;
 
 public class UnlinkMovieFromUniverseValidator : ValidatorBase<UnlinkMovieFromUniverseInput>, IUnlinkMovieFromUniverseValidator
 {
-    public UnlinkMovieFromUniverseValidator(MovieValidationContext context)
+    public UnlinkMovieFromUniverseValidator(UnlinkMovieFromUniverseValidationContext context)
     {
         RuleFor(x => x)
             .Must(_ => context.Movie != null)

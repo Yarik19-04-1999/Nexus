@@ -22,8 +22,8 @@ public class CreateMovieUseCase : ICreateMovieUseCase
 
     public async Task<Result<Movie>> Execute(CreateMovieInput input, CancellationToken cancellationToken = default)
     {
-        var validator = _validators.CreateMovieValidator();
-        var validationResult = await validator.ValidateAsync(input, cancellationToken);
+        var validationResult = await _validators.CreateCreateMovieValidator()
+            .ValidateAsync(input, cancellationToken);
 
         if (!validationResult.IsValid)
         {

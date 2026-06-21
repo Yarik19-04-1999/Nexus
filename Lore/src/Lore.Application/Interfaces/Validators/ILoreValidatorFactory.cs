@@ -4,21 +4,21 @@ namespace Lore.Application.Interfaces.Validators;
 
 public interface ILoreValidatorFactory
 {
-    ICreateMovieValidator CreateMovieValidator();
-    ICreateUniverseValidator CreateUniverseValidator();
+    ICreateMovieValidator CreateCreateMovieValidator();
+    ICreateUniverseValidator CreateCreateUniverseValidator();
 
-    IUpdateMovieValidator UpdateMovieValidator(UpdateMovieValidationContext context);
-    IUpdateUniverseValidator UpdateUniverseValidator(UpdateUniverseValidationContext context);
+    IUpdateMovieValidator CreateUpdateMovieValidator(UpdateMovieValidationContext context);
+    IUpdateUniverseValidator CreateUpdateUniverseValidator(UpdateUniverseValidationContext context);
 
-    IDeleteMovieValidator DeleteMovieValidator(MovieValidationContext context);
-    IDeleteUniverseValidator DeleteUniverseValidator(UniverseValidationContext context);
+    IDeleteMovieValidator CreateDeleteMovieValidator(DeleteMovieValidationContext context);
+    IDeleteUniverseValidator CreateDeleteUniverseValidator(DeleteUniverseValidationContext context);
 
-    IGetMovieByIdValidator GetMovieByIdValidator(MovieValidationContext context);
-    IGetUniverseByIdValidator GetUniverseByIdValidator(UniverseValidationContext context);
+    IGetMovieByIdValidator CreateGetMovieByIdValidator(GetMovieByIdValidationContext context);
+    IGetUniverseByIdValidator CreateGetUniverseByIdValidator(GetUniverseByIdValidationContext context);
 
-    IIncrementMovieViewCountValidator IncrementMovieViewCountValidator(MovieValidationContext context);
-    IDecrementMovieViewCountValidator DecrementMovieViewCountValidator(MovieValidationContext context);
+    IIncrementMovieViewCountValidator CreateIncrementMovieViewCountValidator(IncrementMovieViewCountValidationContext context);
+    IDecrementMovieViewCountValidator CreateDecrementMovieViewCountValidator(DecrementMovieViewCountValidationContext context);
 
-    ILinkMovieToUniverseValidator LinkMovieToUniverseValidator(LinkMovieToUniverseValidationContext context);
-    IUnlinkMovieFromUniverseValidator UnlinkMovieFromUniverseValidator(MovieValidationContext context);
+    ILinkMovieToUniverseValidator CreateLinkMovieToUniverseValidator(LinkMovieToUniverseValidationContext context);
+    IUnlinkMovieFromUniverseValidator CreateUnlinkMovieFromUniverseValidator(UnlinkMovieFromUniverseValidationContext context);
 }

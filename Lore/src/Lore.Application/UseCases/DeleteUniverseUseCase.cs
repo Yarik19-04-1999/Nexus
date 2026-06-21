@@ -23,7 +23,7 @@ public class DeleteUniverseUseCase : IDeleteUniverseUseCase
     public async Task<Result> Execute(DeleteUniverseInput input, CancellationToken cancellationToken = default)
     {
         var universe = await _store.GetUniverseById(input.Id, cancellationToken);
-        var validationResult = await _validators.DeleteUniverseValidator(new UniverseValidationContext(universe))
+        var validationResult = await _validators.CreateDeleteUniverseValidator(new DeleteUniverseValidationContext(universe))
             .ValidateAsync(input, cancellationToken);
 
         if (!validationResult.IsValid)

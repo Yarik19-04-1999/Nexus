@@ -24,9 +24,8 @@ public class UpdateMovieUseCase : IUpdateMovieUseCase
     public async Task<Result<Movie>> Execute(UpdateMovieInput input, CancellationToken cancellationToken = default)
     {
         var movie = await _store.GetMovieById(input.Id, cancellationToken);
-        var context = new UpdateMovieValidationContext(movie);
-        var validator = _validators.UpdateMovieValidator(context);
-        var validationResult = await validator.ValidateAsync(input, cancellationToken);
+        var validationResult = await _validators.CreateUpdateMovieValidator(new UpdateMovieValidationContext(movie))
+            .ValidateAsync(input, cancellationToken);
 
         if (!validationResult.IsValid)
         {
@@ -35,7 +34,6 @@ public class UpdateMovieUseCase : IUpdateMovieUseCase
 
         UpdateMovieMapper.Map(input, movie!);
         movie!.UpdatedAt = DateTime.UtcNow;
-
         await _store.UpdateMovie(movie, cancellationToken);
         return Result<Movie>.Success(movie);
     }

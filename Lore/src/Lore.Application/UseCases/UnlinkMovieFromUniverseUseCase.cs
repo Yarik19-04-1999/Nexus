@@ -22,7 +22,7 @@ public class UnlinkMovieFromUniverseUseCase : IUnlinkMovieFromUniverseUseCase
     public async Task<Result> Execute(UnlinkMovieFromUniverseInput input, CancellationToken cancellationToken = default)
     {
         var movie = await _store.GetMovieById(input.MovieId, cancellationToken);
-        var validationResult = await _validators.UnlinkMovieFromUniverseValidator(new MovieValidationContext(movie))
+        var validationResult = await _validators.CreateUnlinkMovieFromUniverseValidator(new UnlinkMovieFromUniverseValidationContext(movie))
             .ValidateAsync(input, cancellationToken);
 
         if (!validationResult.IsValid)

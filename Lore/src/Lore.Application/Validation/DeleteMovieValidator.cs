@@ -10,7 +10,7 @@ namespace Lore.Application.Validation;
 
 public class DeleteMovieValidator : ValidatorBase<DeleteMovieInput>, IDeleteMovieValidator
 {
-    public DeleteMovieValidator(MovieValidationContext context)
+    public DeleteMovieValidator(DeleteMovieValidationContext context)
     {
         RuleFor(x => x)
             .Must(_ => context.Movie != null)

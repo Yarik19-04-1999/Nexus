@@ -12,7 +12,7 @@ public static class LoreResultConstants
         Result.Failure(LoreErrorCodes.UniverseNotFound, string.Format(LoreErrorMessages.UniverseNotFound, id));
 
     public static Result<Movie> ViewCountAlreadyZero(int id) =>
-        Result<Movie>.Failure(LoreErrorCodes.ViewCountAlreadyZero, string.Format(LoreErrorMessages.ViewCountAlreadyZero, id));
+        Result<Movie>.Failure(LoreErrorCodes.ViewCountAlreadyZero, LoreErrorMessages.ViewCountAlreadyZero(id));
     public static Result MovieAlreadyExists(string title, int releaseYear)
         => Result.Failure(LoreErrorCodes.AlreadyExists, LoreErrorMessages.MovieAlreadyExists(title, releaseYear));
 }

@@ -22,7 +22,7 @@ public class DeleteMovieUseCase : IDeleteMovieUseCase
     public async Task<Result> Execute(DeleteMovieInput input, CancellationToken cancellationToken = default)
     {
         var movie = await _store.GetMovieById(input.Id, cancellationToken);
-        var validationResult = await _validators.DeleteMovieValidator(new MovieValidationContext(movie))
+        var validationResult = await _validators.CreateDeleteMovieValidator(new DeleteMovieValidationContext(movie))
             .ValidateAsync(input, cancellationToken);
 
         if (!validationResult.IsValid)

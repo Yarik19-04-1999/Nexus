@@ -23,7 +23,7 @@ public class GetMovieByIdUseCase : IGetMovieByIdUseCase
     public async Task<Result<Movie>> Execute(GetMovieByIdInput input, CancellationToken cancellationToken = default)
     {
         var movie = await _store.GetMovieById(input.Id, cancellationToken);
-        var validationResult = await _validators.GetMovieByIdValidator(new MovieValidationContext(movie))
+        var validationResult = await _validators.CreateGetMovieByIdValidator(new GetMovieByIdValidationContext(movie))
             .ValidateAsync(input, cancellationToken);
 
         if (!validationResult.IsValid)

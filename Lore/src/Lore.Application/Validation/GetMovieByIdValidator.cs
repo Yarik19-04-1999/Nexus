@@ -10,7 +10,7 @@ namespace Lore.Application.Validation;
 
 public class GetMovieByIdValidator : ValidatorBase<GetMovieByIdInput>, IGetMovieByIdValidator
 {
-    public GetMovieByIdValidator(MovieValidationContext context)
+    public GetMovieByIdValidator(GetMovieByIdValidationContext context)
     {
         RuleFor(x => x)
             .Must(_ => context.Movie != null)

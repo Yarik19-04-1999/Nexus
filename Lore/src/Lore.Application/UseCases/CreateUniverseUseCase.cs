@@ -22,8 +22,8 @@ public class CreateUniverseUseCase : ICreateUniverseUseCase
 
     public async Task<Result<Universe>> Execute(CreateUniverseInput input, CancellationToken cancellationToken = default)
     {
-        var validator = _validators.CreateUniverseValidator();
-        var validationResult = await validator.ValidateAsync(input, cancellationToken);
+        var validationResult = await _validators.CreateCreateUniverseValidator()
+            .ValidateAsync(input, cancellationToken);
 
         if (!validationResult.IsValid)
         {

@@ -23,7 +23,7 @@ public class GetUniverseByIdUseCase : IGetUniverseByIdUseCase
     public async Task<Result<Universe>> Execute(GetUniverseByIdInput input, CancellationToken cancellationToken = default)
     {
         var universe = await _store.GetUniverseById(input.Id, cancellationToken);
-        var validationResult = await _validators.GetUniverseByIdValidator(new UniverseValidationContext(universe))
+        var validationResult = await _validators.CreateGetUniverseByIdValidator(new GetUniverseByIdValidationContext(universe))
             .ValidateAsync(input, cancellationToken);
 
         if (!validationResult.IsValid)

@@ -1,4 +1,5 @@
 using FluentValidation;
+using Lore.Application.Interfaces.Stores;
 using Lore.Application.Interfaces.Validators;
 using Lore.Application.Models;
 using Lore.Application.Models.Inputs;
@@ -10,15 +11,15 @@ namespace Lore.Application.Validation;
 
 public class LinkMovieToUniverseValidator : ValidatorBase<LinkMovieToUniverseInput>, ILinkMovieToUniverseValidator
 {
-    public LinkMovieToUniverseValidator(LinkMovieToUniverseValidationContext context)
+    public LinkMovieToUniverseValidator(ILoreStore store, LinkMovieToUniverseValidationContext context)
     {
         RuleFor(x => x)
             .Must(_ => context.Movie != null)
             .WithErrorCode(CommonErrorCodes.NotFound)
             .WithMessage(x => CommonErrorMessages.NotFound<Movie>(x.MovieId));
 
-        RuleFor(x => x)
-            .Must(_ => context.Universe != null)
+        RuleFor(x => x.UniverseId)
+            .MustAsync((id, ct) => store.UniverseExistsById(id, ct))
             .WithErrorCode(CommonErrorCodes.NotFound)
             .WithMessage(x => CommonErrorMessages.NotFound<Universe>(x.UniverseId));
     }

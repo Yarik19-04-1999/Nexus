@@ -23,7 +23,7 @@ public class IncrementMovieViewCountUseCase : IIncrementMovieViewCountUseCase
     public async Task<Result<Movie>> Execute(IncrementMovieViewCountInput input, CancellationToken cancellationToken = default)
     {
         var movie = await _store.GetMovieById(input.Id, cancellationToken);
-        var validationResult = await _validators.IncrementMovieViewCountValidator(new MovieValidationContext(movie))
+        var validationResult = await _validators.CreateIncrementMovieViewCountValidator(new IncrementMovieViewCountValidationContext(movie))
             .ValidateAsync(input, cancellationToken);
 
         if (!validationResult.IsValid)

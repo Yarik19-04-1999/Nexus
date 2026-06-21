@@ -2,6 +2,7 @@ using Lore.Application.Interfaces.Stores;
 using Lore.Application.Interfaces.UseCases;
 using Lore.Application.Interfaces.Validators;
 using Lore.Application.Models.Inputs;
+using Lore.Application.Models.Mappers;
 using Lore.Application.Models.ValidationContexts;
 using Nexus.Application.Core.Models;
 using Nexus.Application.Core.Validation;
@@ -22,8 +23,7 @@ public class LinkMovieToUniverseUseCase : ILinkMovieToUniverseUseCase
     public async Task<Result> Execute(LinkMovieToUniverseInput input, CancellationToken cancellationToken = default)
     {
         var movie = await _store.GetMovieById(input.MovieId, cancellationToken);
-        var universe = await _store.GetUniverseById(input.UniverseId, cancellationToken);
-        var validationResult = await _validators.LinkMovieToUniverseValidator(new LinkMovieToUniverseValidationContext(movie, universe))
+        var validationResult = await _validators.CreateLinkMovieToUniverseValidator(new LinkMovieToUniverseValidationContext(movie))
             .ValidateAsync(input, cancellationToken);
 
         if (!validationResult.IsValid)
@@ -31,8 +31,8 @@ public class LinkMovieToUniverseUseCase : ILinkMovieToUniverseUseCase
             return validationResult.ToResult();
         }
 
-        movie!.UniverseId = input.UniverseId;
-        movie.UpdatedAt = DateTime.UtcNow;
+        LinkMovieToUniverseMapper.Map(input, movie!);
+        movie!.UpdatedAt = DateTime.UtcNow;
         await _store.UpdateMovie(movie, cancellationToken);
         return Result.Success();
     }

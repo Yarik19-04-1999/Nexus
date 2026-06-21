@@ -10,7 +10,7 @@ namespace Lore.Application.Validation;
 
 public class DeleteUniverseValidator : ValidatorBase<DeleteUniverseInput>, IDeleteUniverseValidator
 {
-    public DeleteUniverseValidator(UniverseValidationContext context)
+    public DeleteUniverseValidator(DeleteUniverseValidationContext context)
     {
         RuleFor(x => x)
             .Must(_ => context.Universe != null)

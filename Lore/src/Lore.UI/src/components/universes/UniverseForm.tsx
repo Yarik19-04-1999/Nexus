@@ -21,9 +21,10 @@ interface UniverseFormProps {
   universe?: Universe
   onSubmit: (payload: CreateUniversePayload | UpdateUniversePayload) => Promise<void>
   isPending: boolean
+  onCancel?: () => void
 }
 
-export function UniverseForm({ universe, onSubmit, isPending }: UniverseFormProps) {
+export function UniverseForm({ universe, onSubmit, isPending, onCancel }: UniverseFormProps) {
   const router = useRouter()
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
@@ -41,7 +42,6 @@ export function UniverseForm({ universe, onSubmit, isPending }: UniverseFormProp
       ? { id: universe.id, ...values, description: values.description || undefined }
       : { ...values, description: values.description || undefined }
     await onSubmit(payload)
-    router.push('/universes')
   })
 
   return (
@@ -83,7 +83,7 @@ export function UniverseForm({ universe, onSubmit, isPending }: UniverseFormProp
       <div className="flex gap-3 justify-end pt-2">
         <button
           type="button"
-          onClick={() => router.push('/universes')}
+          onClick={() => onCancel ? onCancel() : router.push('/universes')}
           className="px-5 py-2 rounded-xl text-sm text-gray-500 hover:bg-gray-100 transition-colors"
         >
           Cancel

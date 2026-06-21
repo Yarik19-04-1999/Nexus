@@ -21,7 +21,7 @@ public class MovieConfiguration : IEntityTypeConfiguration<Movie>
         builder.Property(x => x.RewatchStatus).HasConversion<int>();
 
         builder.HasOne(x => x.Universe)
-            .WithMany()
+            .WithMany(x => x.Movies)
             .HasForeignKey(x => x.UniverseId)
             .OnDelete(DeleteBehavior.SetNull);
     }

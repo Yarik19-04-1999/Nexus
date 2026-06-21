@@ -54,7 +54,7 @@ public class UniversesControllerTests(LoreWebApplicationFactory factory) : IClas
     public async Task GetById_ReturnsOk_AndPassesIdToUseCase()
     {
         var ct = TestContext.Current.CancellationToken;
-        var universe = _fixture.Create<Universe>();
+        var universe = _fixture.Build<Universe>().Without(x => x.Movies).Create();
 
         Expression<Func<IGetUniverseByIdUseCase, Task<Result<Universe>>>> execute = x => x.Execute(
             It.Is<GetUniverseByIdInput>(i => i.Id == TestData.IntValue),

@@ -28,7 +28,9 @@ public class LoreStore : ILoreStore
     }
 
     public async Task<Universe?> GetUniverseById(int id, CancellationToken cancellationToken)
-        => await this.context.Universes.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        => await this.context.Universes
+            .Include(u => u.Movies)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public async Task CreateUniverse(Universe universe, CancellationToken cancellationToken)
     {
@@ -57,7 +59,7 @@ public class LoreStore : ILoreStore
 
     public async Task<PagedResult<Movie>> GetMoviesPaged(SieveModel model, CancellationToken cancellationToken)
     {
-        var query = this.context.Movies.AsNoTracking();
+        var query = this.context.Movies.AsNoTracking().Include(m => m.Universe);
         var total = await this.sieve.Apply(model, query, applyPagination: false).CountAsync(cancellationToken);
         var items = await this.sieve.Apply(model, query).ToListAsync(cancellationToken);
         return new PagedResult<Movie>(items, total, model.Page ?? 1, model.PageSize ?? 20);

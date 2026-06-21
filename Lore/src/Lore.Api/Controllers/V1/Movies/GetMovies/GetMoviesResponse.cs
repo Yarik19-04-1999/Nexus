@@ -20,6 +20,7 @@ public record GetMovieItemResponse(
     int ViewCount,
     RewatchStatus RewatchStatus,
     int? UniverseId,
+    string? UniverseName,
     int ListNo,
     DateTime CreatedAt,
     DateTime UpdatedAt

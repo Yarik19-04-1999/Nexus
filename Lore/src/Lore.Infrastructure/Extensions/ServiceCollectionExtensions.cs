@@ -1,13 +1,13 @@
 using Lore.Application.Interfaces.Stores;
 using Lore.Infrastructure.Data;
+using Lore.Infrastructure.Services;
 using Lore.Infrastructure.Stores;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nexus.Infrastructure.Core.Extensions;
 using Nexus.Infrastructure.EfCore.SqlServer.Extensions;
-using Sieve.Models;
-using Sieve.Services;
+using Nexus.Infrastructure.Sieve.Extensions;
 
 namespace Lore.Infrastructure.Extensions;
 
@@ -20,7 +20,7 @@ public static class ServiceCollectionExtensions
         => services
             .AddLoreDbContext(configuration, environment)
             .AddStores()
-            .AddSieve(configuration);
+            .AddSieve<LoreSieveProcessor>(configuration);
 
     private static IServiceCollection AddLoreDbContext(
         this IServiceCollection services,
@@ -33,9 +33,4 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddStores(this IServiceCollection services)
         => services.AddScoped<ILoreStore, LoreStore>();
-
-    private static IServiceCollection AddSieve(this IServiceCollection services, IConfiguration configuration)
-        => services
-            .Configure<SieveOptions>(opts => configuration.GetSection("Sieve").Bind(opts))
-            .AddScoped<ISieveProcessor, SieveProcessor>();
 }

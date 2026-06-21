@@ -7,13 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Sieve" Version="2.5.2" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Lore.Application\Lore.Application.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Nexus.Infrastructure.Core\Nexus.Infrastructure.Core.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Nexus.Infrastructure.EfCore.SqlServer\Nexus.Infrastructure.EfCore.SqlServer.csproj" />
+    <ProjectReference Include="..\..\..\Shared\src\Nexus.Infrastructure.Sieve\Nexus.Infrastructure.Sieve.csproj" />
   </ItemGroup>
 
 </Project>

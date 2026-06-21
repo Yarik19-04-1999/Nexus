@@ -1,9 +1,9 @@
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Lore.Application.Extensions;
 using Lore.Infrastructure.Extensions;
 using Nexus.Api.Core.Extensions;
-using Nexus.Api.Core.Options;
-using Nexus.Infrastructure.Core.Constants;
+using Nexus.Infrastructure.Core.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,25 +11,23 @@ var services = builder.Services;
 var configuration = builder.Configuration;
 var environment = builder.Environment;
 
+var sqlServerOptions = configuration.GetSqlServerOptions();
+var nexusOptions = configuration.GetNexusOptions()
+    .WithHealthCheckCustomAction(hc => hc.AddNexusSqlServerHealthCheck(sqlServerOptions.ConnectionString));
+
 services.AddControllers();
 services.AddFluentValidationAutoValidation();
 services.AddValidatorsFromAssemblyContaining<Program>();
 services
-    .AddNexusServices(NexusOptions.Default)
+    .AddNexusServices(nexusOptions)
     .AddNexusCors(configuration)
     .AddApplication()
     .AddInfrastructure(configuration, environment);
 
-services
-    .AddNexusHealthChecks()
-    .AddNexusSqlServerHealthCheck(configuration[$"{ConfigSectionConstants.SqlServer}:ConnectionString"]!);
-
 var app = builder.Build();
 
-app.UseNexus(NexusOptions.Default)
-   .UseCors();
-
+app.UseNexus(nexusOptions).UseCors();
 app.MapControllers();
-app.MapNexus(NexusOptions.Default);
+app.MapNexus(nexusOptions);
 
 app.Run();

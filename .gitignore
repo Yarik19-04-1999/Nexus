@@ -366,3 +366,4 @@ MigrationBackup/
 # JetBrains Rider
 .idea/
 *.sln.iml
+/Dvizh/src/Dvizh.UI/.vscode

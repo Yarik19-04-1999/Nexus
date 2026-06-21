@@ -36,7 +36,7 @@ export default function EditInvitePage({ params }: Props) {
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <InviteForm
             invite={invite}
-            onSubmit={(payload) => update.mutateAsync(payload as UpdateInvitePayload)}
+            onSubmit={async (payload) => { await update.mutateAsync(payload as UpdateInvitePayload) }}
             isPending={update.isPending}
           />
         </div>

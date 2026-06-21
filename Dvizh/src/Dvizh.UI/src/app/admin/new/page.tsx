@@ -14,7 +14,7 @@ export default function NewInvitePage() {
         <h1 className="text-xl font-bold text-gray-800 mb-6">{strings.admin.form.createTitle}</h1>
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <InviteForm
-            onSubmit={(payload) => create.mutateAsync(payload as Parameters<typeof create.mutateAsync>[0])}
+            onSubmit={async (payload) => { await create.mutateAsync(payload as Parameters<typeof create.mutateAsync>[0]) }}
             isPending={create.isPending}
           />
         </div>

@@ -330,7 +330,7 @@ export const translations = {
       },
     },
   },
-} satisfies Record<AdminLang, typeof translations.ru>
+}
 
 export type Strings = typeof translations.ru
 export type InviteStrings = typeof translations.ru.invite

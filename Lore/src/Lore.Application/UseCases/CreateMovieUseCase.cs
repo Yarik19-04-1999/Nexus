@@ -3,21 +3,35 @@ using Lore.Application.Interfaces.UseCases;
 using Lore.Application.Models;
 using Lore.Application.Models.Inputs;
 using Lore.Application.Models.Mappers;
+using Lore.Application.Validation;
 using Nexus.Application.Core.Models;
+using Nexus.Application.Core.Validation;
 
 namespace Lore.Application.UseCases;
 
 public class CreateMovieUseCase : ICreateMovieUseCase
 {
     private readonly ILoreStore _store;
+    private readonly ILoreValidatorFactory _validators;
 
-    public CreateMovieUseCase(ILoreStore store)
+    public CreateMovieUseCase(ILoreStore store, ILoreValidatorFactory validators)
     {
         _store = store;
+        _validators = validators;
     }
 
     public async Task<Result<Movie>> Execute(CreateMovieInput input, CancellationToken cancellationToken = default)
     {
+        var movieExists = await _store.MovieExistsByTitleAndYear(input.Title, input.ReleaseYear, cancellationToken);
+        var context = new CreateMovieValidationContext(movieExists);
+        var validator = _validators.CreateMovieValidator(context);
+        var validationResult = await validator.ValidateAsync(input, cancellationToken);
+
+        if (!validationResult.IsValid)
+        {
+            return validationResult.ToResult<Movie>();
+        }
+
         var movie = CreateMovieMapper.Map(input);
         await _store.CreateMovie(movie, cancellationToken);
         return Result<Movie>.Success(movie);

@@ -68,6 +68,11 @@ public class LoreStore : ILoreStore
     public async Task<Movie?> GetMovieById(int id, CancellationToken cancellationToken)
         => await this.context.Movies.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
+    public async Task<bool> MovieExistsByTitleAndYear(string title, int releaseYear, CancellationToken cancellationToken)
+        => await this.context.Movies
+            .AsNoTracking()
+            .AnyAsync(x => x.Title == title && x.ReleaseYear == releaseYear, cancellationToken);
+
     public async Task CreateMovie(Movie movie, CancellationToken cancellationToken)
     {
         this.context.Movies.Add(movie);

@@ -1,5 +1,6 @@
 using Lore.Application.Interfaces.UseCases;
 using Lore.Application.UseCases;
+using Lore.Application.Validation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lore.Application.Extensions;
@@ -19,9 +20,10 @@ public static class ServiceCollectionExtensions
             .AddScoped<ICreateMovieUseCase, CreateMovieUseCase>()
             .AddScoped<IUpdateMovieUseCase, UpdateMovieUseCase>()
             .AddScoped<IDeleteMovieUseCase, DeleteMovieUseCase>()
-            .AddScoped<ILinkMovieToUniverseUseCase, LinkMovieToUniverseUseCase>()
-            .AddScoped<IUnlinkMovieFromUniverseUseCase, UnlinkMovieFromUniverseUseCase>()
             .AddScoped<ISearchMoviesUseCase, SearchMoviesUseCase>()
             .AddScoped<IIncrementMovieViewCountUseCase, IncrementMovieViewCountUseCase>()
-            .AddScoped<IDecrementMovieViewCountUseCase, DecrementMovieViewCountUseCase>();
+            .AddScoped<IDecrementMovieViewCountUseCase, DecrementMovieViewCountUseCase>()
+            .AddScoped<ILinkMovieToUniverseUseCase, LinkMovieToUniverseUseCase>()
+            .AddScoped<IUnlinkMovieFromUniverseUseCase, UnlinkMovieFromUniverseUseCase>()
+            .AddScoped<ILoreValidatorFactory, LoreValidatorFactory>();
 }

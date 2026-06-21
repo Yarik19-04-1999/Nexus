@@ -22,10 +22,9 @@ create table Lore.Universes
 )
 go
 
-create table Lore.Movies
-(
-    CreatedAt datetime2 not null default sysutcdatetime(),
-    UpdatedAt datetime2 not null default sysutcdatetime(),
+create unique index [UQ_Movies(Title, ReleaseYear)] on Lore.Movies (Title, ReleaseYear)
+go
+pdatedAt datetime2 not null default sysutcdatetime(),
     Id int identity(1,1) not null,
     UniverseId int null,
 

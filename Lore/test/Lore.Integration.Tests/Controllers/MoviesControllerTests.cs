@@ -1,8 +1,10 @@
 using AutoFixture;
 using FluentAssertions;
 using Lore.Api.Controllers.V1.Movies.CreateMovie;
+using Lore.Api.Controllers.V1.Movies.DecrementMovieViewCount;
 using Lore.Api.Controllers.V1.Movies.GetMovieById;
 using Lore.Api.Controllers.V1.Movies.GetMovies;
+using Lore.Api.Controllers.V1.Movies.IncrementMovieViewCount;
 using Lore.Api.Controllers.V1.Movies.UpdateMovie;
 using Lore.Application.Constants;
 using Lore.Application.Interfaces.UseCases;
@@ -298,11 +300,11 @@ public class MoviesControllerTests(LoreWebApplicationFactory factory) : IClassFi
         var ct = TestContext.Current.CancellationToken;
         var mock = new Mock<ILinkMovieToUniverseUseCase>();
         mock.Setup(x => x.Execute(It.IsAny<LinkMovieToUniverseInput>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(LoreResultConstants.MovieNotFound(TestData.NonExistentIntValue));
+            .ReturnsAsync(LoreResultConstants.MovieNotFound(int.MaxValue));
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
-        var request = new { MovieId = TestData.NonExistentIntValue, UniverseId = TestData.IntValue };
+        var request = new { MovieId = int.MaxValue, UniverseId = TestData.IntValue };
         var response = await client.PostAsJsonAsync("/api/v1/movies/link", request, ct);
 
         response.ShouldBeDomainError();
@@ -351,5 +353,98 @@ public class MoviesControllerTests(LoreWebApplicationFactory factory) : IClassFi
 
         response.ShouldBeOk();
         mock.Verify(execute, Times.Once);
+    }
+
+    [Fact]
+    public async Task IncrementViewCount_ReturnsOk_AndPassesIdToUseCase()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var movie = _fixture.Create<Movie>();
+
+        Expression<Func<IIncrementMovieViewCountUseCase, Task<Result<Movie>>>> execute = x => x.Execute(
+            It.Is<IncrementMovieViewCountInput>(i => i.Id == TestData.IntValue),
+            It.IsAny<CancellationToken>());
+
+        var mock = new Mock<IIncrementMovieViewCountUseCase>();
+        mock.Setup(execute).ReturnsAsync(Result<Movie>.Success(movie));
+
+        var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
+
+        var response = await client.PostAsync($"/api/v1/movies/{TestData.IntValue}/view", null, ct);
+
+        response.ShouldBeOk();
+        var body = await response.ReadResponse<IncrementMovieViewCountResponse>(ct);
+        body.Should().NotBeNull();
+        body!.ViewCount.Should().Be(movie.ViewCount);
+        mock.Verify(execute, Times.Once);
+    }
+
+    [Fact]
+    public async Task IncrementViewCount_WhenNotFound_ReturnsDomainError()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var mock = new Mock<IIncrementMovieViewCountUseCase>();
+        mock.Setup(x => x.Execute(It.IsAny<IncrementMovieViewCountInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(LoreResultConstants.MovieNotFound(TestData.NonExistentIntValue));
+
+        var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
+
+        var response = await client.PostAsync($"/api/v1/movies/{TestData.NonExistentIntValue}/view", null, ct);
+
+        response.ShouldBeDomainError();
+    }
+
+    [Fact]
+    public async Task DecrementViewCount_ReturnsOk_AndPassesIdToUseCase()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var movie = _fixture.Create<Movie>();
+
+        Expression<Func<IDecrementMovieViewCountUseCase, Task<Result<Movie>>>> execute = x => x.Execute(
+            It.Is<DecrementMovieViewCountInput>(i => i.Id == TestData.IntValue),
+            It.IsAny<CancellationToken>());
+
+        var mock = new Mock<IDecrementMovieViewCountUseCase>();
+        mock.Setup(execute).ReturnsAsync(Result<Movie>.Success(movie));
+
+        var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
+
+        var response = await client.DeleteAsync($"/api/v1/movies/{TestData.IntValue}/view", ct);
+
+        response.ShouldBeOk();
+        var body = await response.ReadResponse<DecrementMovieViewCountResponse>(ct);
+        body.Should().NotBeNull();
+        body!.ViewCount.Should().Be(movie.ViewCount);
+        mock.Verify(execute, Times.Once);
+    }
+
+    [Fact]
+    public async Task DecrementViewCount_WhenNotFound_ReturnsDomainError()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var mock = new Mock<IDecrementMovieViewCountUseCase>();
+        mock.Setup(x => x.Execute(It.IsAny<DecrementMovieViewCountInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(LoreResultConstants.MovieNotFound(TestData.NonExistentIntValue));
+
+        var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
+
+        var response = await client.DeleteAsync($"/api/v1/movies/{TestData.NonExistentIntValue}/view", ct);
+
+        response.ShouldBeDomainError();
+    }
+
+    [Fact]
+    public async Task DecrementViewCount_WhenViewCountAlreadyZero_ReturnsDomainError()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var mock = new Mock<IDecrementMovieViewCountUseCase>();
+        mock.Setup(x => x.Execute(It.IsAny<DecrementMovieViewCountInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(LoreResultConstants.ViewCountAlreadyZero(TestData.IntValue));
+
+        var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
+
+        var response = await client.DeleteAsync($"/api/v1/movies/{TestData.IntValue}/view", ct);
+
+        response.ShouldBeDomainError();
     }
 }

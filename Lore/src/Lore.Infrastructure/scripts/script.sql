@@ -40,6 +40,7 @@ create table Lore.Movies
 
     constraint [Movies$PK] primary key clustered (Id),
     constraint [Movies(UniverseId)->Universes(Id)] foreign key (UniverseId)
-        references Lore.Universes (Id) on delete set null
+        references Lore.Universes (Id) on delete set null,
+    constraint [CK_Movies_ViewCount] check (ViewCount >= 0)
 )
 go

@@ -181,11 +181,11 @@ public class UniversesControllerTests(LoreWebApplicationFactory factory) : IClas
         var ct = TestContext.Current.CancellationToken;
         var mock = new Mock<IUpdateUniverseUseCase>();
         mock.Setup(x => x.Execute(It.IsAny<UpdateUniverseInput>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ResultConstants.NotFound<Universe>(TestData.NonExistentIntValue));
+            .ReturnsAsync(ResultConstants.NotFound<Universe>(int.MaxValue));
 
         var client = _factory.CreateClient(s => s.AddScoped(_ => mock.Object));
 
-        var request = new { Id = TestData.NonExistentIntValue, Name = TestData.StringValue, Description = (string?)null, IsHidden = false, ListNo = 0 };
+        var request = new { Id = int.MaxValue, Name = TestData.StringValue, Description = (string?)null, IsHidden = false, ListNo = 0 };
         var response = await client.PutAsJsonAsync("/api/v1/universes", request, ct);
 
         response.ShouldBeDomainError();

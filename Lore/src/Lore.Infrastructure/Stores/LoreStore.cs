@@ -1,6 +1,6 @@
 using Lore.Application.Interfaces.Stores;
 using Lore.Application.Models;
-using Lore.Infrastructure.Data;
+using Lore.Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Nexus.Application.Core.Models;
 using Sieve.Models;

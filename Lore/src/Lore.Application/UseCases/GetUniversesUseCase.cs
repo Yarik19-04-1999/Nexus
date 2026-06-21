@@ -8,16 +8,16 @@ namespace Lore.Application.UseCases;
 
 public class GetUniversesUseCase : IGetUniversesUseCase
 {
-    private readonly ILoreStore store;
+    private readonly ILoreStore _store;
 
     public GetUniversesUseCase(ILoreStore store)
     {
-        this.store = store;
+        this._store = store;
     }
 
     public async Task<Result<PagedResult<Universe>>> Execute(GetUniversesInput input, CancellationToken cancellationToken = default)
     {
-        var result = await this.store.GetUniversesPaged(input.Sieve, cancellationToken);
+        var result = await this._store.GetUniversesPaged(input.Sieve, cancellationToken);
         return Result<PagedResult<Universe>>.Success(result);
     }
 }

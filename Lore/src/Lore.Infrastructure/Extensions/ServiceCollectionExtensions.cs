@@ -1,5 +1,5 @@
 using Lore.Application.Interfaces.Stores;
-using Lore.Infrastructure.Data;
+using Lore.Infrastructure.DbContexts;
 using Lore.Infrastructure.Services;
 using Lore.Infrastructure.Stores;
 using Microsoft.Extensions.Configuration;

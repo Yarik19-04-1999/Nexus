@@ -2,7 +2,7 @@ using Lore.Application.Constants;
 using Lore.Application.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Lore.Infrastructure.Data;
+namespace Lore.Infrastructure.DbContexts;
 
 public class LoreDbContext : DbContext
 {

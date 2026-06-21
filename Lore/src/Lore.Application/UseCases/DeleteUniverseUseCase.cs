@@ -9,22 +9,22 @@ namespace Lore.Application.UseCases;
 
 public class DeleteUniverseUseCase : IDeleteUniverseUseCase
 {
-    private readonly ILoreStore store;
+    private readonly ILoreStore _store;
 
     public DeleteUniverseUseCase(ILoreStore store)
     {
-        this.store = store;
+        this._store = store;
     }
 
     public async Task<Result> Execute(DeleteUniverseInput input, CancellationToken cancellationToken = default)
     {
-        var universe = await this.store.GetUniverseById(input.Id, cancellationToken);
+        var universe = await this._store.GetUniverseById(input.Id, cancellationToken);
         if (universe is null)
         {
             return ResultConstants.NotFound<Universe>(input.Id);
         }
 
-        await this.store.DeleteUniverse(universe, cancellationToken);
+        await this._store.DeleteUniverse(universe, cancellationToken);
 
         return Result.Success();
     }

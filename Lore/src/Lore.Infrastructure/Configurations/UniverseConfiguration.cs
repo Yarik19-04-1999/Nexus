@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Nexus.Infrastructure.Core.Constants;
 
-namespace Lore.Infrastructure.Data.Configurations;
+namespace Lore.Infrastructure.Configurations;
 
 public class UniverseConfiguration : IEntityTypeConfiguration<Universe>
 {

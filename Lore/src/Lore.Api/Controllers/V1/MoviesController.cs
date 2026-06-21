@@ -1,6 +1,8 @@
 using Lore.Api.Controllers.V1.Movies.CreateMovie;
+using Lore.Api.Controllers.V1.Movies.DecrementMovieViewCount;
 using Lore.Api.Controllers.V1.Movies.GetMovieById;
 using Lore.Api.Controllers.V1.Movies.GetMovies;
+using Lore.Api.Controllers.V1.Movies.IncrementMovieViewCount;
 using Lore.Api.Controllers.V1.Movies.LinkMovie;
 using Lore.Api.Controllers.V1.Movies.SearchMovies;
 using Lore.Api.Controllers.V1.Movies.UnlinkMovie;
@@ -138,5 +140,35 @@ public class MoviesController : ControllerBase
             return this.DomainError(result);
         }
         return Ok();
+    }
+
+    [HttpPost("{id:int}/view")]
+    [ProducesResponseType<IncrementMovieViewCountResponse>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> IncrementViewCount(
+        int id,
+        [FromServices] IIncrementMovieViewCountUseCase useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.Execute(new IncrementMovieViewCountInput(id), cancellationToken);
+        if (result.HasError)
+        {
+            return this.DomainError(result);
+        }
+        return Ok(IncrementMovieViewCountResponseMapper.Map(result.Data));
+    }
+
+    [HttpDelete("{id:int}/view")]
+    [ProducesResponseType<DecrementMovieViewCountResponse>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> DecrementViewCount(
+        int id,
+        [FromServices] IDecrementMovieViewCountUseCase useCase,
+        CancellationToken cancellationToken)
+    {
+        var result = await useCase.Execute(new DecrementMovieViewCountInput(id), cancellationToken);
+        if (result.HasError)
+        {
+            return this.DomainError(result);
+        }
+        return Ok(DecrementMovieViewCountResponseMapper.Map(result.Data));
     }
 }

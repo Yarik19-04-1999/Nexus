@@ -21,5 +21,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<IDeleteMovieUseCase, DeleteMovieUseCase>()
             .AddScoped<ILinkMovieToUniverseUseCase, LinkMovieToUniverseUseCase>()
             .AddScoped<IUnlinkMovieFromUniverseUseCase, UnlinkMovieFromUniverseUseCase>()
-            .AddScoped<ISearchMoviesUseCase, SearchMoviesUseCase>();
+            .AddScoped<ISearchMoviesUseCase, SearchMoviesUseCase>()
+            .AddScoped<IIncrementMovieViewCountUseCase, IncrementMovieViewCountUseCase>()
+            .AddScoped<IDecrementMovieViewCountUseCase, DecrementMovieViewCountUseCase>();
 }

@@ -4,4 +4,5 @@ public static class LoreErrorCodes
 {
     public const string MovieNotFound = "MovieNotFound";
     public const string UniverseNotFound = "UniverseNotFound";
+    public const string ViewCountAlreadyZero = "ViewCountAlreadyZero";
 }

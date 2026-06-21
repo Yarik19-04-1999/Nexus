@@ -10,4 +10,7 @@ public static class LoreResultConstants
 
     public static Result UniverseNotFoundForMovie(int id) =>
         Result.Failure(LoreErrorCodes.UniverseNotFound, string.Format(LoreErrorMessages.UniverseNotFound, id));
+
+    public static Result<Movie> ViewCountAlreadyZero(int id) =>
+        Result<Movie>.Failure(LoreErrorCodes.ViewCountAlreadyZero, string.Format(LoreErrorMessages.ViewCountAlreadyZero, id));
 }

@@ -1,4 +1,4 @@
-namespace Lore.Application.Models;
+namespace Lore.Application.Models.Enums;
 
 public enum RewatchStatus
 {

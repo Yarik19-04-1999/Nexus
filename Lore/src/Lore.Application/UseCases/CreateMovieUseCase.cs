@@ -18,7 +18,7 @@ public class CreateMovieUseCase : ICreateMovieUseCase
 
     public async Task<Result<Movie>> Execute(CreateMovieInput input, CancellationToken cancellationToken = default)
     {
-        var movie = CreateMovieMapper.MapCreate(input);
+        var movie = CreateMovieMapper.Map(input);
         await _store.CreateMovie(movie, cancellationToken);
         return Result<Movie>.Success(movie);
     }

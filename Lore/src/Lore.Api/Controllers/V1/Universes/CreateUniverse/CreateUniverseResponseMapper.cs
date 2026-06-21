@@ -1,17 +1,10 @@
 using Lore.Application.Models;
+using Riok.Mapperly.Abstractions;
 
 namespace Lore.Api.Controllers.V1.Universes.CreateUniverse;
 
-public static class CreateUniverseResponseMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+public static partial class CreateUniverseResponseMapper
 {
-    public static CreateUniverseResponse Map(Universe universe)
-        => new(
-            universe.Id,
-            universe.Name,
-            universe.Description,
-            universe.IsHidden,
-            universe.ListNo,
-            universe.CreatedAt,
-            universe.UpdatedAt
-        );
+    public static partial CreateUniverseResponse Map(Universe universe);
 }

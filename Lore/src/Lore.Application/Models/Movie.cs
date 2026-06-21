@@ -1,3 +1,4 @@
+using Lore.Application.Models.Enums;
 using Nexus.Application.Core.Interfaces;
 
 namespace Lore.Application.Models;

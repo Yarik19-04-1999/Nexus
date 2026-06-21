@@ -2,6 +2,7 @@ using FluentAssertions;
 using Lore.Application.Constants;
 using Lore.Application.Interfaces.UseCases;
 using Lore.Application.Models;
+using Lore.Application.Models.Enums;
 using Lore.Application.Models.Inputs;
 using Lore.Integration.Tests.Infrastructure;
 using Microsoft.EntityFrameworkCore;

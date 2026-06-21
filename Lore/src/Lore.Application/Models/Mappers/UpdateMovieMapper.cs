@@ -8,5 +8,5 @@ namespace Lore.Application.Models.Mappers;
 public static partial class UpdateMovieMapper
 {
     [MapperIgnoreSource(nameof(UpdateMovieInput.Id))]
-    public static partial void ApplyUpdate(UpdateMovieInput input, Movie movie);
+    public static partial void Map(UpdateMovieInput input, Movie movie);
 }

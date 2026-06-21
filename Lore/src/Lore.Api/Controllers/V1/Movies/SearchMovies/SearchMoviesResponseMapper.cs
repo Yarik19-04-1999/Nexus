@@ -1,11 +1,15 @@
-using Lore.Application.Models;
+using Lore.Application.Models.Results;
+using Riok.Mapperly.Abstractions;
 
 namespace Lore.Api.Controllers.V1.Movies.SearchMovies;
 
 public record SearchMovieItem(int Id, string Title, int ReleaseYear);
 
-public static class SearchMoviesResponseMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
+public static partial class SearchMoviesResponseMapper
 {
+    public static partial SearchMovieItem Map(SearchMovieResult result);
+
     public static IReadOnlyList<SearchMovieItem> Map(IReadOnlyList<SearchMovieResult> results)
-        => results.Select(x => new SearchMovieItem(x.Id, x.Title, x.ReleaseYear)).ToList();
+        => results.Select(Map).ToList();
 }

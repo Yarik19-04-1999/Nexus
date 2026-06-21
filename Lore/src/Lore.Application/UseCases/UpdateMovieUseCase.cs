@@ -25,7 +25,7 @@ public class UpdateMovieUseCase : IUpdateMovieUseCase
             return LoreResultConstants.MovieNotFound(input.Id);
         }
 
-        UpdateMovieMapper.ApplyUpdate(input, movie);
+        UpdateMovieMapper.Map(input, movie);
         movie.UpdatedAt = DateTime.UtcNow;
 
         await _store.UpdateMovie(movie, cancellationToken);

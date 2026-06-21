@@ -1,9 +1,10 @@
 using Lore.Application.Models.Inputs;
+using Riok.Mapperly.Abstractions;
 
 namespace Lore.Api.Controllers.V1.Movies.LinkMovie;
 
-public static class LinkMovieRequestMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
+public static partial class LinkMovieRequestMapper
 {
-    public static LinkMovieToUniverseInput Map(LinkMovieRequest request)
-        => new(request.MovieId, request.UniverseId);
+    public static partial LinkMovieToUniverseInput Map(LinkMovieRequest request);
 }

@@ -1,9 +1,10 @@
 using Lore.Application.Models.Inputs;
+using Riok.Mapperly.Abstractions;
 
 namespace Lore.Api.Controllers.V1.Movies.UnlinkMovie;
 
-public static class UnlinkMovieRequestMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
+public static partial class UnlinkMovieRequestMapper
 {
-    public static UnlinkMovieFromUniverseInput Map(UnlinkMovieRequest request)
-        => new(request.MovieId);
+    public static partial UnlinkMovieFromUniverseInput Map(UnlinkMovieRequest request);
 }

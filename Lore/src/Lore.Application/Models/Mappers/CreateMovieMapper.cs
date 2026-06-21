@@ -7,5 +7,5 @@ namespace Lore.Application.Models.Mappers;
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
 public static partial class CreateMovieMapper
 {
-    public static partial Movie MapCreate(CreateMovieInput input);
+    public static partial Movie Map(CreateMovieInput input);
 }

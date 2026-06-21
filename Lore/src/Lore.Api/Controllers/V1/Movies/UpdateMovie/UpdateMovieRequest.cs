@@ -1,8 +1,9 @@
-using Lore.Application.Models;
+using Lore.Application.Models.Enums;
 
 namespace Lore.Api.Controllers.V1.Movies.UpdateMovie;
 
 public record UpdateMovieRequest(
+    int Id,
     string Title,
     int ReleaseYear,
     int DurationMinutes,

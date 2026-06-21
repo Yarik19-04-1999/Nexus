@@ -1,32 +1,15 @@
 using Lore.Application.Models;
+using Lore.Application.Models.Enums;
 using Nexus.Application.Core.Models;
+using Riok.Mapperly.Abstractions;
 
 namespace Lore.Api.Controllers.V1.Movies.GetMovies;
 
-public static class GetMoviesResponseMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+public static partial class GetMoviesResponseMapper
 {
     public static GetMoviesResponse Map(PagedResult<Movie> result)
-        => new(
-            result.Items.Select(Map).ToList(),
-            result.TotalCount,
-            result.Page,
-            result.PageSize,
-            result.TotalPages
-        );
+        => new(result.Items.Select(Map).ToList(), result.TotalCount, result.Page, result.PageSize, result.TotalPages);
 
-    private static GetMovieItemResponse Map(Movie movie)
-        => new(
-            movie.Id,
-            movie.Title,
-            movie.ReleaseYear,
-            movie.DurationMinutes,
-            movie.ReviewText,
-            movie.Score,
-            movie.ViewCount,
-            movie.RewatchStatus,
-            movie.UniverseId,
-            movie.ListNo,
-            movie.CreatedAt,
-            movie.UpdatedAt
-        );
+    public static partial GetMovieItemResponse Map(Movie movie);
 }

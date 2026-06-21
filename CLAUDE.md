@@ -82,6 +82,10 @@ Decorate controllers with `[ApiController]` and `[NexusRoute]`. `[NexusRoute]` p
 
 # Mapperly
 
+All mappers use Riok.Mapperly. No manual static mapping code.
+
+All mapper methods are named `Map` regardless of direction or purpose.
+
 Request→input mappers (Api layer) and input→entity mappers (Application layer) use `RequiredMappingStrategy.Source`.
 
 Response mappers (model→response, Api layer) use `RequiredMappingStrategy.Target`.
@@ -89,11 +93,47 @@ Response mappers (model→response, Api layer) use `RequiredMappingStrategy.Targ
 ```csharp
 // Request → Input or Input → Entity
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
-public static partial class CreateUniverseRequestMapper { ... }
+public static partial class CreateUniverseRequestMapper
+{
+    public static partial CreateUniverseInput Map(CreateUniverseRequest request);
+}
 
 // Model → Response
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
-public static partial class GetUniverseByIdResponseMapper { ... }
+public static partial class GetUniverseByIdResponseMapper
+{
+    public static partial GetUniverseByIdResponse Map(Universe universe);
+}
+```
+
+When the route contributes a field not present in the request body (e.g. `id` on a PUT), use a non-partial wrapper that calls a private partial method and fills in the missing field:
+
+```csharp
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
+public static partial class UpdateMovieRequestMapper
+{
+    public static UpdateMovieInput Map(int id, UpdateMovieRequest request)
+    {
+        var input = MapFromRequest(request);
+        return input with { Id = id };
+    }
+
+    [MapperIgnoreTarget(nameof(UpdateMovieInput.Id))]
+    private static partial UpdateMovieInput MapFromRequest(UpdateMovieRequest request);
+}
+```
+
+For paged-result response mappers, use a non-partial wrapper for the `PagedResult<T>` overload and a `partial` method for the item:
+
+```csharp
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+public static partial class GetMoviesResponseMapper
+{
+    public static GetMoviesResponse Map(PagedResult<Movie> result)
+        => new(result.Items.Select(Map).ToList(), result.TotalCount, result.Page, result.PageSize, result.TotalPages);
+
+    public static partial GetMovieItemResponse Map(Movie movie);
+}
 ```
 
 Always add `ExcludeAssets="runtime"` to the Riok.Mapperly package reference — it is a source generator and must not be included in the output.
@@ -117,3 +157,7 @@ Never add `Version` attributes to `<PackageReference>` elements in `.csproj` fil
 # Naming
 
 Input DTOs live in a folder named `Inputs` (plural): `Models/Inputs/XxxInput.cs`.
+
+Enum types live in `Models/Enums/`: `Models/Enums/RewatchStatus.cs` (namespace `*.Models.Enums`).
+
+Non-entity result types (e.g. search results) live in `Models/Results/`: `Models/Results/SearchMovieResult.cs` (namespace `*.Models.Results`).

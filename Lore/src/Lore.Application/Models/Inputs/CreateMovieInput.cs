@@ -1,4 +1,4 @@
-using Lore.Application.Models;
+using Lore.Application.Models.Enums;
 
 namespace Lore.Application.Models.Inputs;
 

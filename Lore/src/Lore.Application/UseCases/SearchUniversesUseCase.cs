@@ -1,6 +1,6 @@
 using Lore.Application.Interfaces.Stores;
 using Lore.Application.Interfaces.UseCases;
-using Lore.Application.Models;
+using Lore.Application.Models.Results;
 using Lore.Application.Models.Inputs;
 using Nexus.Application.Core.Models;
 

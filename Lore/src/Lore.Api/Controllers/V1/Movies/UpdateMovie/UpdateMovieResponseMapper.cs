@@ -1,10 +1,12 @@
-using Lore.Api.Controllers.V1.Movies.GetMovieById;
 using Lore.Application.Models;
+using Lore.Application.Models.Enums;
+using Lore.Api.Controllers.V1.Movies.GetMovieById;
+using Riok.Mapperly.Abstractions;
 
 namespace Lore.Api.Controllers.V1.Movies.UpdateMovie;
 
-public static class UpdateMovieResponseMapper
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+public static partial class UpdateMovieResponseMapper
 {
-    public static GetMovieByIdResponse Map(Movie movie)
-        => GetMovieByIdResponseMapper.Map(movie);
+    public static partial GetMovieByIdResponse Map(Movie movie);
 }

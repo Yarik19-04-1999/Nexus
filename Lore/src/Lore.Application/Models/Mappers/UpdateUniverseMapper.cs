@@ -7,5 +7,5 @@ namespace Lore.Application.Models.Mappers;
 public static partial class UpdateUniverseMapper
 {
     [MapperIgnoreSource(nameof(UpdateUniverseInput.Id))]
-    public static partial void ApplyUpdate(UpdateUniverseInput input, Universe universe);
+    public static partial void Map(UpdateUniverseInput input, Universe universe);
 }

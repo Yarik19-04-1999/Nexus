@@ -9,6 +9,7 @@ public interface ILoreStore
     Task<PagedResult<Universe>> GetUniversesPaged(SieveModel sieve, CancellationToken cancellationToken);
     Task<Universe?> GetUniverseById(int id, CancellationToken cancellationToken);
     Task<bool> UniverseExistsById(int id, CancellationToken cancellationToken);
+    Task<bool> OtherUniverseExistsByName(string name, int excludeId, CancellationToken cancellationToken);
     Task CreateUniverse(Universe universe, CancellationToken cancellationToken);
     Task UpdateUniverse(Universe universe, CancellationToken cancellationToken);
     Task DeleteUniverse(Universe universe, CancellationToken cancellationToken);

@@ -12,6 +12,9 @@ public class LoreValidatorFactory : ILoreValidatorFactory
     private readonly ObjectFactory _updateMovieValidatorFactory =
         ActivatorUtilities.CreateFactory(typeof(UpdateMovieValidator), [typeof(UpdateMovieValidationContext)]);
 
+    private readonly ObjectFactory _updateUniverseValidatorFactory =
+        ActivatorUtilities.CreateFactory(typeof(UpdateUniverseValidator), [typeof(UpdateUniverseValidationContext)]);
+
     private readonly IServiceProvider _serviceProvider;
 
     public LoreValidatorFactory(IServiceProvider serviceProvider)
@@ -24,4 +27,7 @@ public class LoreValidatorFactory : ILoreValidatorFactory
 
     public IUpdateMovieValidator UpdateMovieValidator(UpdateMovieValidationContext context)
         => (IUpdateMovieValidator)_updateMovieValidatorFactory(_serviceProvider, [context]);
+
+    public IUpdateUniverseValidator UpdateUniverseValidator(UpdateUniverseValidationContext context)
+        => (IUpdateUniverseValidator)_updateUniverseValidatorFactory(_serviceProvider, [context]);
 }

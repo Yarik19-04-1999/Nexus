@@ -37,6 +37,11 @@ public class LoreStore : ILoreStore
             .AsNoTracking()
             .AnyAsync(x => x.Id == id, cancellationToken);
 
+    public async Task<bool> OtherUniverseExistsByName(string name, int excludeId, CancellationToken cancellationToken)
+        => await this.context.Universes
+            .AsNoTracking()
+            .AnyAsync(x => x.Name == name && x.Id != excludeId, cancellationToken);
+
     public async Task CreateUniverse(Universe universe, CancellationToken cancellationToken)
     {
         this.context.Universes.Add(universe);

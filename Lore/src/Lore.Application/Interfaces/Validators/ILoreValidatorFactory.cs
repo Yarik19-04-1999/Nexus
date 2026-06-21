@@ -6,4 +6,5 @@ public interface ILoreValidatorFactory
 {
     ICreateMovieValidator CreateMovieValidator();
     IUpdateMovieValidator UpdateMovieValidator(UpdateMovieValidationContext context);
+    IUpdateUniverseValidator UpdateUniverseValidator(UpdateUniverseValidationContext context);
 }

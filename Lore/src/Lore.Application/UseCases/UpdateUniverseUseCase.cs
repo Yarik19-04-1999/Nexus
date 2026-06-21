@@ -1,35 +1,42 @@
 using Lore.Application.Interfaces.Stores;
 using Lore.Application.Interfaces.UseCases;
+using Lore.Application.Interfaces.Validators;
 using Lore.Application.Models;
 using Lore.Application.Models.Inputs;
 using Lore.Application.Models.Mappers;
-using Nexus.Application.Core.Constants;
+using Lore.Application.Models.ValidationContexts;
 using Nexus.Application.Core.Models;
+using Nexus.Application.Core.Validation;
 
 namespace Lore.Application.UseCases;
 
 public class UpdateUniverseUseCase : IUpdateUniverseUseCase
 {
     private readonly ILoreStore _store;
+    private readonly ILoreValidatorFactory _validators;
 
-    public UpdateUniverseUseCase(ILoreStore store)
+    public UpdateUniverseUseCase(ILoreStore store, ILoreValidatorFactory validators)
     {
         _store = store;
+        _validators = validators;
     }
 
     public async Task<Result<Universe>> Execute(UpdateUniverseInput input, CancellationToken cancellationToken = default)
     {
         var universe = await _store.GetUniverseById(input.Id, cancellationToken);
-        if (universe is null)
+        var context = new UpdateUniverseValidationContext(universe);
+        var validator = _validators.UpdateUniverseValidator(context);
+        var validationResult = await validator.ValidateAsync(input, cancellationToken);
+
+        if (!validationResult.IsValid)
         {
-            return ResultConstants.NotFound<Universe>(input.Id);
+            return validationResult.ToResult<Universe>();
         }
 
-        UpdateUniverseMapper.Map(input, universe);
-        universe.UpdatedAt = DateTime.UtcNow;
+        UpdateUniverseMapper.Map(input, universe!);
+        universe!.UpdatedAt = DateTime.UtcNow;
 
         await _store.UpdateUniverse(universe, cancellationToken);
-
         return Result<Universe>.Success(universe);
     }
 }

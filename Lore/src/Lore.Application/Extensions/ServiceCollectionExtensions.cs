@@ -12,5 +12,14 @@ public static class ServiceCollectionExtensions
             .AddScoped<IGetUniverseByIdUseCase, GetUniverseByIdUseCase>()
             .AddScoped<ICreateUniverseUseCase, CreateUniverseUseCase>()
             .AddScoped<IUpdateUniverseUseCase, UpdateUniverseUseCase>()
-            .AddScoped<IDeleteUniverseUseCase, DeleteUniverseUseCase>();
+            .AddScoped<IDeleteUniverseUseCase, DeleteUniverseUseCase>()
+            .AddScoped<ISearchUniversesUseCase, SearchUniversesUseCase>()
+            .AddScoped<IGetMoviesUseCase, GetMoviesUseCase>()
+            .AddScoped<IGetMovieByIdUseCase, GetMovieByIdUseCase>()
+            .AddScoped<ICreateMovieUseCase, CreateMovieUseCase>()
+            .AddScoped<IUpdateMovieUseCase, UpdateMovieUseCase>()
+            .AddScoped<IDeleteMovieUseCase, DeleteMovieUseCase>()
+            .AddScoped<ILinkMovieToUniverseUseCase, LinkMovieToUniverseUseCase>()
+            .AddScoped<IUnlinkMovieFromUniverseUseCase, UnlinkMovieFromUniverseUseCase>()
+            .AddScoped<ISearchMoviesUseCase, SearchMoviesUseCase>();
 }

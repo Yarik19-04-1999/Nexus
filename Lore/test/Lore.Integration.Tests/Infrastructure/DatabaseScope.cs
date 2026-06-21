@@ -20,12 +20,26 @@ public sealed class DatabaseScope : IAsyncDisposable
     {
         var universe = new Universe
         {
-            Name = $"Test-{Guid.NewGuid()}",
+            Name = $"Test universe {Guid.NewGuid()}",
         };
         configure?.Invoke(universe);
         Context.Universes.Add(universe);
         await Context.SaveChangesAsync();
         return universe;
+    }
+
+    public async Task<Movie> SeedMovie(Action<Movie>? configure = null)
+    {
+        var movie = new Movie
+        {
+            Title = $"Test movie {Guid.NewGuid()}",
+            ReleaseYear = 2024,
+            DurationMinutes = 120,
+        };
+        configure?.Invoke(movie);
+        Context.Movies.Add(movie);
+        await Context.SaveChangesAsync();
+        return movie;
     }
 
     public async ValueTask DisposeAsync()

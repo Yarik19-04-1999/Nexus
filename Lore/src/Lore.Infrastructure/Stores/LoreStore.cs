@@ -47,4 +47,47 @@ public class LoreStore : ILoreStore
         this.context.Universes.Remove(universe);
         await this.context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<Universe>> SearchUniverses(string query, CancellationToken cancellationToken)
+        => await this.context.Universes
+            .AsNoTracking()
+            .Where(x => x.Name.StartsWith(query))
+            .OrderBy(x => x.Name)
+            .ToListAsync(cancellationToken);
+
+    public async Task<PagedResult<Movie>> GetMoviesPaged(SieveModel model, CancellationToken cancellationToken)
+    {
+        var query = this.context.Movies.AsNoTracking();
+        var total = await this.sieve.Apply(model, query, applyPagination: false).CountAsync(cancellationToken);
+        var items = await this.sieve.Apply(model, query).ToListAsync(cancellationToken);
+        return new PagedResult<Movie>(items, total, model.Page ?? 1, model.PageSize ?? 20);
+    }
+
+    public async Task<Movie?> GetMovieById(int id, CancellationToken cancellationToken)
+        => await this.context.Movies.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+    public async Task CreateMovie(Movie movie, CancellationToken cancellationToken)
+    {
+        this.context.Movies.Add(movie);
+        await this.context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task UpdateMovie(Movie movie, CancellationToken cancellationToken)
+    {
+        this.context.Movies.Update(movie);
+        await this.context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteMovie(Movie movie, CancellationToken cancellationToken)
+    {
+        this.context.Movies.Remove(movie);
+        await this.context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Movie>> SearchMovies(string query, CancellationToken cancellationToken)
+        => await this.context.Movies
+            .AsNoTracking()
+            .Where(x => x.Title.StartsWith(query))
+            .OrderBy(x => x.Title)
+            .ToListAsync(cancellationToken);
 }

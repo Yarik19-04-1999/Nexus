@@ -9,6 +9,7 @@ public class LoreDbContext : DbContext
     public LoreDbContext(DbContextOptions<LoreDbContext> options) : base(options) { }
 
     public DbSet<Universe> Universes => Set<Universe>();
+    public DbSet<Movie> Movies => Set<Movie>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

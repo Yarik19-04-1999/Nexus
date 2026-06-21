@@ -16,6 +16,13 @@ public class LoreSieveProcessor : SieveProcessor
         mapper.Property<Universe>(x => x.Name).CanFilter().CanSort();
         mapper.Property<Universe>(x => x.ListNo).CanSort();
 
+        mapper.Property<Movie>(x => x.Title).CanFilter().CanSort();
+        mapper.Property<Movie>(x => x.ReleaseYear).CanFilter().CanSort();
+        mapper.Property<Movie>(x => x.Score).CanFilter().CanSort();
+        mapper.Property<Movie>(x => x.RewatchStatus).CanFilter().CanSort();
+        mapper.Property<Movie>(x => x.UniverseId).CanFilter().CanSort();
+        mapper.Property<Movie>(x => x.ListNo).CanSort();
+
         return mapper;
     }
 }

@@ -1,0 +1,15 @@
+using Lore.Application.Models;
+
+namespace Lore.Application.Models.Inputs;
+
+public record UpdateMovieInput(
+    int Id,
+    string Title,
+    int ReleaseYear,
+    int DurationMinutes,
+    string? ReviewText,
+    decimal? Score,
+    int ViewCount,
+    RewatchStatus RewatchStatus,
+    int? UniverseId,
+    int ListNo);

@@ -1,3 +1,4 @@
+using FluentValidation;
 using Lore.Application.Constants;
 using Lore.Application.Interfaces.Stores;
 using Lore.Application.Interfaces.Validators;

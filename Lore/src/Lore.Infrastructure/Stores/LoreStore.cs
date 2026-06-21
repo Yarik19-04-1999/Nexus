@@ -32,6 +32,11 @@ public class LoreStore : ILoreStore
             .Include(u => u.Movies)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
+    public async Task<bool> UniverseExistsById(int id, CancellationToken cancellationToken)
+        => await this.context.Universes
+            .AsNoTracking()
+            .AnyAsync(x => x.Id == id, cancellationToken);
+
     public async Task CreateUniverse(Universe universe, CancellationToken cancellationToken)
     {
         this.context.Universes.Add(universe);
@@ -72,6 +77,11 @@ public class LoreStore : ILoreStore
         => await this.context.Movies
             .AsNoTracking()
             .AnyAsync(x => x.Title == title && x.ReleaseYear == releaseYear, cancellationToken);
+
+    public async Task<bool> OtherMovieExistsByTitleAndYear(string title, int releaseYear, int excludeId, CancellationToken cancellationToken)
+        => await this.context.Movies
+            .AsNoTracking()
+            .AnyAsync(x => x.Title == title && x.ReleaseYear == releaseYear && x.Id != excludeId, cancellationToken);
 
     public async Task CreateMovie(Movie movie, CancellationToken cancellationToken)
     {

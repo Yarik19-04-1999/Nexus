@@ -25,7 +25,7 @@ public class UpdateUniverseUseCase : IUpdateUniverseUseCase
             return ResultConstants.NotFound<Universe>(input.Id);
         }
 
-        UniverseMapper.ApplyUpdate(input, universe);
+        UpdateUniverseMapper.ApplyUpdate(input, universe);
         universe.UpdatedAt = DateTime.UtcNow;
 
         await _store.UpdateUniverse(universe, cancellationToken);

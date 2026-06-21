@@ -18,7 +18,7 @@ public class CreateUniverseUseCase : ICreateUniverseUseCase
 
     public async Task<Result<Universe>> Execute(CreateUniverseInput input, CancellationToken cancellationToken = default)
     {
-        var universe = UniverseMapper.MapCreate(input);
+        var universe = CreateUniverseMapper.MapCreate(input);
         await _store.CreateUniverse(universe, cancellationToken);
         return Result<Universe>.Success(universe);
     }

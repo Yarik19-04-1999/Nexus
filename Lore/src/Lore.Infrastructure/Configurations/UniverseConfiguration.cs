@@ -16,6 +16,6 @@ public class UniverseConfiguration : IEntityTypeConfiguration<Universe>
         builder.Property(x => x.UpdatedAt).HasDefaultValueSql(SqlServerDefaultConstants.SysUtcDateTime);
 
         builder.Property(x => x.Name).HasMaxLength(UniverseValidationConstants.NameMaxLength);
-        builder.Property(x => x.Description).HasColumnType("nvarchar(max)");
+        builder.Property(x => x.Description).HasColumnType(SqlServerDefaultConstants.NVarCharMax);
     }
 }
